@@ -21,6 +21,8 @@ def read_root():
         "dasbd72",
         "johnson684",
         "erictsai90",
+        "huiyuiui",
+        "kevin1010607",
     ]
     response = {}
     for user_slug in user_slugs:
