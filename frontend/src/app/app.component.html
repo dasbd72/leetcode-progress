@@ -5,11 +5,65 @@
     <table class="min-w-full border border-gray-200 shadow-sm rounded-lg overflow-hidden">
       <thead class="bg-gray-100 text-gray-700 uppercase text-sm font-semibold">
         <tr>
-          <th class="px-4 py-2 text-left">User</th>
-          <th class="px-4 py-2 text-center">Easy</th>
-          <th class="px-4 py-2 text-center">Medium</th>
-          <th class="px-4 py-2 text-center">Hard</th>
-          <th class="px-4 py-2 text-center">Total</th>
+          <th class="px-4 py-2 text-left cursor-pointer" (click)="sortBy('username')">
+            <div class="flex items-center space-x-1">
+              <span class="w-3 text-xs transition" [ngClass]="{
+                  'text-black': sortKey === 'username',
+                  'text-gray-300': sortKey !== 'username'
+                }">
+                {{ sortKey === 'username' && sortDirection === 'desc' ? '▼' : '▲' }}
+              </span>
+              <span>User</span>
+            </div>
+          </th>
+
+          <th class="px-4 py-2 text-center cursor-pointer" (click)="sortBy('EASY')">
+            <div class="flex items-center justify-center space-x-1">
+              <span class="w-3 text-xs transition" [ngClass]="{
+                  'text-black': sortKey === 'EASY',
+                  'text-gray-300': sortKey !== 'EASY'
+                }">
+                {{ sortKey === 'EASY' && sortDirection === 'desc' ? '▼' : '▲' }}
+              </span>
+              <span>Easy</span>
+            </div>
+          </th>
+
+          <th class="px-4 py-2 text-center cursor-pointer" (click)="sortBy('MEDIUM')">
+            <div class="flex items-center justify-center space-x-1">
+              <span class="w-3 text-xs transition" [ngClass]="{
+                  'text-black': sortKey === 'MEDIUM',
+                  'text-gray-300': sortKey !== 'MEDIUM'
+                }">
+                {{ sortKey === 'MEDIUM' && sortDirection === 'desc' ? '▼' : '▲' }}
+              </span>
+              <span>Medium</span>
+            </div>
+          </th>
+
+          <th class="px-4 py-2 text-center cursor-pointer" (click)="sortBy('HARD')">
+            <div class="flex items-center justify-center space-x-1">
+              <span class="w-3 text-xs transition" [ngClass]="{
+                  'text-black': sortKey === 'HARD',
+                  'text-gray-300': sortKey !== 'HARD'
+                }">
+                {{ sortKey === 'HARD' && sortDirection === 'desc' ? '▼' : '▲' }}
+              </span>
+              <span>Hard</span>
+            </div>
+          </th>
+
+          <th class="px-4 py-2 text-center cursor-pointer" (click)="sortBy('TOTAL')">
+            <div class="flex items-center justify-center space-x-1">
+              <span class="w-3 text-xs transition" [ngClass]="{
+                  'text-black': sortKey === 'TOTAL',
+                  'text-gray-300': sortKey !== 'TOTAL'
+                }">
+                {{ sortKey === 'TOTAL' && sortDirection === 'desc' ? '▼' : '▲' }}
+              </span>
+              <span>Total</span>
+            </div>
+          </th>
         </tr>
       </thead>
       <tbody>

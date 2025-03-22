@@ -8,7 +8,7 @@ Tracks your LeetCode progress.
 - [x] Frontend to display users' LeetCode progress in a table.
 - [x] Deploy to AWS Lambda amd AWS S3.
 - [x] Added simple cache for lambda with s3 to save costs.
-- [ ] Sorts users by their LeetCode progress.
+- [x] Sorts users by their LeetCode progress.
 - [ ] Migrate to my domain.
 - [ ] Support local development testing.
 - [ ] Add database for storing the scraped data.
