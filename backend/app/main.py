@@ -24,7 +24,16 @@ def read_root():
     ]
     response = {}
     for user_slug in user_slugs:
-        response[user_slug] = fetch_question_progress(user_slug)
+        try:
+            response[user_slug] = fetch_question_progress(user_slug)
+        except Exception as e:
+            print(f"Failed to fetch {user_slug}, error: {e}")
+            response[user_slug] = {
+                "EASY": 0,
+                "MEDIUM": 0,
+                "HARD": 0,
+                "TOTAL": 0,
+            }
     return response
 
 
