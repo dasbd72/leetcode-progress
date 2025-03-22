@@ -1,0 +1,28 @@
+<div class="p-4">
+  <h1 class="text-2xl font-bold mb-4 text-center">{{ title }}</h1>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full border border-gray-200 shadow-sm rounded-lg overflow-hidden">
+      <thead class="bg-gray-100 text-gray-700 uppercase text-sm font-semibold">
+        <tr>
+          <th class="px-4 py-2 text-left">User</th>
+          <th class="px-4 py-2 text-center">Easy</th>
+          <th class="px-4 py-2 text-center">Medium</th>
+          <th class="px-4 py-2 text-center">Hard</th>
+          <th class="px-4 py-2 text-center">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of tableData" class="border-t hover:bg-gray-50 transition">
+          <td class="px-4 py-2 font-medium text-left">{{ row.username }}</td>
+          <td class="px-4 py-2 text-center text-green-600 font-semibold">{{ row.EASY }}</td>
+          <td class="px-4 py-2 text-center text-yellow-600 font-semibold">{{ row.MEDIUM }}</td>
+          <td class="px-4 py-2 text-center text-red-600 font-semibold">{{ row.HARD }}</td>
+          <td class="px-4 py-2 text-center font-bold">{{ row.TOTAL }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p *ngIf="tableData.length === 0" class="text-center text-gray-500 mt-4">Loading data...</p>
+</div>
