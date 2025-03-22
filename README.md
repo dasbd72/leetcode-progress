@@ -9,7 +9,7 @@ Tracks your LeetCode progress.
 - [x] Deploy to AWS Lambda amd AWS S3.
 - [x] Added simple cache for lambda with s3 to save costs.
 - [x] Sorts users by their LeetCode progress.
-- [ ] Migrate to my domain.
+- [x] Migrate to my domain.
 - [ ] Support local development testing.
 - [ ] Add database for storing the scraped data.
 - [ ] Separate the scraping trigger to a periodically running Lambda function.
