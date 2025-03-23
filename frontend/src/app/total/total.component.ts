@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+type TableData = { username: string, easy: number, medium: number, hard: number, total: number }[];
+type SortKey = "username" | "easy" | "medium" | "hard" | "total" | "";
+type SortDirection = "asc" | "desc";
+
 @Component({
   selector: 'app-total',
   imports: [CommonModule],
@@ -9,10 +13,10 @@ import { CommonModule } from '@angular/common';
 })
 export class TotalComponent implements OnInit {
   title = 'LeetCode Progress Tracker';
-  tableData: { username: string, easy: number, medium: number, hard: number, total: number }[] = [];
+  tableData: TableData = [];
 
-  sortKey: keyof typeof this.tableData[0] | '' = '';
-  sortDirection: 'asc' | 'desc' = 'asc';
+  sortKey: SortKey = 'total';
+  sortDirection: SortDirection = 'desc';
 
   async ngOnInit() {
     try {
@@ -23,22 +27,19 @@ export class TotalComponent implements OnInit {
         username,
         ...(stats as any)
       }));
+      this.sortData();
     } catch (err) {
       console.error('Failed to fetch data:', err);
     }
   }
 
-  sortBy(key: keyof typeof this.tableData[0]) {
-    if (this.sortKey === key) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-      this.sortKey = key;
-      this.sortDirection = 'asc';
+  sortData() {
+    if (this.sortKey === '') {
+      return;
     }
-
     this.tableData.sort((a, b) => {
-      const valA = a[key];
-      const valB = b[key];
+      const valA = a[this.sortKey as keyof typeof a];
+      const valB = b[this.sortKey as keyof typeof b];
       if (typeof valA === 'string') {
         return this.sortDirection === 'asc'
           ? valA.localeCompare(valB as string)
@@ -48,5 +49,15 @@ export class TotalComponent implements OnInit {
         ? (valA as number) - (valB as number)
         : (valB as number) - (valA as number);
     });
+  }
+
+  sortBy(key: keyof typeof this.tableData[0]) {
+    if (this.sortKey === key) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortKey = key;
+      this.sortDirection = 'desc';
+    }
+    this.sortData();
   }
 }
