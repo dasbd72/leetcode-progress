@@ -4,6 +4,9 @@ import { CommonModule } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
 import { FormsModule } from '@angular/forms';
 
+type ChartInterval = 'hour' | 'day';
+type ChartMode = 'total' | 'delta';
+
 @Component({
   selector: 'app-chart',
   standalone: true,
@@ -30,8 +33,18 @@ export class ChartComponent implements OnInit {
     }
   };
 
-  interval: 'hour' | 'day' = 'day';
-  mode: 'total' | 'delta' = 'delta';
+  interval: ChartInterval = (localStorage.getItem('chart-interval') as ChartInterval) ?? 'day';
+  mode: ChartMode = (localStorage.getItem('chart-mode') as ChartMode) ?? 'delta';
+  onIntervalChange(value: ChartInterval) {
+    this.interval = value;
+    localStorage.setItem('chart-interval', value);
+    this.fetchChartData();
+  }
+  onModeChange(value: ChartMode) {
+    this.mode = value;
+    localStorage.setItem('chart-mode', value);
+    this.fetchChartData();
+  }
 
   async ngOnInit() {
     await this.fetchChartData();

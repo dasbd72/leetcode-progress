@@ -5,7 +5,7 @@
   <div class="flex flex-wrap justify-center gap-4">
     <div>
       <label class="font-medium mr-2">Time Range:</label>
-      <select [(ngModel)]="interval" (change)="fetchChartData()" class="border rounded px-2 py-1">
+      <select [(ngModel)]="interval" (ngModelChange)="onIntervalChange($event)" class="border rounded px-2 py-1">
         <option value="hour">Hourly</option>
         <option value="day">Daily</option>
       </select>
@@ -13,7 +13,7 @@
 
     <div>
       <label class="font-medium mr-2">Mode:</label>
-      <select [(ngModel)]="mode" (change)="fetchChartData()" class="border rounded px-2 py-1">
+      <select [(ngModel)]="mode" (ngModelChange)="onModeChange($event)" class="border rounded px-2 py-1">
         <option value="total">Total Solved</option>
         <option value="delta">Delta (Interval Increase)</option>
       </select>
