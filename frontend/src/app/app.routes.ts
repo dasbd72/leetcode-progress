@@ -5,7 +5,8 @@ export const routes: Routes = [
   {
     path: '',
     children: [
-      { path: '**', redirectTo: 'total' },
+      { path: '', redirectTo: 'home' },
+      { path: 'home', component: TotalComponent },
       { path: 'total', component: TotalComponent }
     ]
   },
