@@ -10,14 +10,14 @@ import { CommonModule } from '@angular/common';
 })
 export class AppComponent implements OnInit {
   title = 'LeetCode Progress Tracker';
-  tableData: { username: string, EASY: number, MEDIUM: number, HARD: number, TOTAL: number }[] = [];
+  tableData: { username: string, easy: number, medium: number, hard: number, total: number }[] = [];
 
   sortKey: keyof typeof this.tableData[0] | '' = '';
   sortDirection: 'asc' | 'desc' = 'asc';
 
   async ngOnInit() {
     try {
-      const response = await fetch('https://dxdkojr9pk.execute-api.ap-northeast-1.amazonaws.com/Prod/');
+      const response = await fetch('https://dxdkojr9pk.execute-api.ap-northeast-1.amazonaws.com/Prod/latest');
       const result = await response.json();
 
       this.tableData = Object.entries(result).map(([username, stats]) => ({

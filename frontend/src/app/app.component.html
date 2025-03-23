@@ -17,49 +17,49 @@
             </div>
           </th>
 
-          <th class="px-4 py-2 text-center cursor-pointer" (click)="sortBy('EASY')">
+          <th class="px-4 py-2 text-center cursor-pointer" (click)="sortBy('easy')">
             <div class="flex items-center justify-center space-x-1">
               <span class="w-3 text-xs transition" [ngClass]="{
-                  'text-black': sortKey === 'EASY',
-                  'text-gray-300': sortKey !== 'EASY'
+                  'text-black': sortKey === 'easy',
+                  'text-gray-300': sortKey !== 'easy'
                 }">
-                {{ sortKey === 'EASY' && sortDirection === 'desc' ? '▼' : '▲' }}
+                {{ sortKey === 'easy' && sortDirection === 'desc' ? '▼' : '▲' }}
               </span>
               <span>Easy</span>
             </div>
           </th>
 
-          <th class="px-4 py-2 text-center cursor-pointer" (click)="sortBy('MEDIUM')">
+          <th class="px-4 py-2 text-center cursor-pointer" (click)="sortBy('medium')">
             <div class="flex items-center justify-center space-x-1">
               <span class="w-3 text-xs transition" [ngClass]="{
-                  'text-black': sortKey === 'MEDIUM',
-                  'text-gray-300': sortKey !== 'MEDIUM'
+                  'text-black': sortKey === 'medium',
+                  'text-gray-300': sortKey !== 'medium'
                 }">
-                {{ sortKey === 'MEDIUM' && sortDirection === 'desc' ? '▼' : '▲' }}
+                {{ sortKey === 'medium' && sortDirection === 'desc' ? '▼' : '▲' }}
               </span>
               <span>Medium</span>
             </div>
           </th>
 
-          <th class="px-4 py-2 text-center cursor-pointer" (click)="sortBy('HARD')">
+          <th class="px-4 py-2 text-center cursor-pointer" (click)="sortBy('hard')">
             <div class="flex items-center justify-center space-x-1">
               <span class="w-3 text-xs transition" [ngClass]="{
-                  'text-black': sortKey === 'HARD',
-                  'text-gray-300': sortKey !== 'HARD'
+                  'text-black': sortKey === 'hard',
+                  'text-gray-300': sortKey !== 'hard'
                 }">
-                {{ sortKey === 'HARD' && sortDirection === 'desc' ? '▼' : '▲' }}
+                {{ sortKey === 'hard' && sortDirection === 'desc' ? '▼' : '▲' }}
               </span>
               <span>Hard</span>
             </div>
           </th>
 
-          <th class="px-4 py-2 text-center cursor-pointer" (click)="sortBy('TOTAL')">
+          <th class="px-4 py-2 text-center cursor-pointer" (click)="sortBy('total')">
             <div class="flex items-center justify-center space-x-1">
               <span class="w-3 text-xs transition" [ngClass]="{
-                  'text-black': sortKey === 'TOTAL',
-                  'text-gray-300': sortKey !== 'TOTAL'
+                  'text-black': sortKey === 'total',
+                  'text-gray-300': sortKey !== 'total'
                 }">
-                {{ sortKey === 'TOTAL' && sortDirection === 'desc' ? '▼' : '▲' }}
+                {{ sortKey === 'total' && sortDirection === 'desc' ? '▼' : '▲' }}
               </span>
               <span>Total</span>
             </div>
@@ -69,10 +69,10 @@
       <tbody>
         <tr *ngFor="let row of tableData" class="border-t hover:bg-gray-50 transition">
           <td class="px-4 py-2 font-medium text-left">{{ row.username }}</td>
-          <td class="px-4 py-2 text-center text-green-600 font-semibold">{{ row.EASY }}</td>
-          <td class="px-4 py-2 text-center text-yellow-600 font-semibold">{{ row.MEDIUM }}</td>
-          <td class="px-4 py-2 text-center text-red-600 font-semibold">{{ row.HARD }}</td>
-          <td class="px-4 py-2 text-center font-bold">{{ row.TOTAL }}</td>
+          <td class="px-4 py-2 text-center text-green-600 font-semibold">{{ row.easy }}</td>
+          <td class="px-4 py-2 text-center text-yellow-600 font-semibold">{{ row.medium }}</td>
+          <td class="px-4 py-2 text-center text-red-600 font-semibold">{{ row.hard }}</td>
+          <td class="px-4 py-2 text-center font-bold">{{ row.total }}</td>
         </tr>
       </tbody>
     </table>
