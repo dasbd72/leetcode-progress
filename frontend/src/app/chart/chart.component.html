@@ -1,0 +1,26 @@
+<div class="p-4 space-y-4">
+  <h2 class="text-xl font-semibold text-center">Chart of Progress</h2>
+
+  <!-- Controls -->
+  <div class="flex flex-wrap justify-center gap-4">
+    <div>
+      <label class="font-medium mr-2">Time Range:</label>
+      <select [(ngModel)]="interval" (change)="fetchChartData()" class="border rounded px-2 py-1">
+        <option value="hour">Hourly</option>
+        <option value="day">Daily</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="font-medium mr-2">Mode:</label>
+      <select [(ngModel)]="mode" (change)="fetchChartData()" class="border rounded px-2 py-1">
+        <option value="total">Total Solved</option>
+        <option value="delta">Delta (Interval Increase)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <canvas baseChart *ngIf="lineChartData" [data]="lineChartData" [type]="lineChartType"
+    [options]="lineChartOptions"></canvas>
+</div>

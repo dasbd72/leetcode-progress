@@ -19,6 +19,8 @@
     "@angular/router": "^19.2.0",
     "@tailwindcss/cli": "^4.0.15",
     "@tailwindcss/postcss": "^4.0.15",
+    "chart.js": "^4.4.8",
+    "ng2-charts": "^8.0.0",
     "postcss": "^8.5.3",
     "rxjs": "~7.8.0",
     "tailwindcss": "^4.0.15",
