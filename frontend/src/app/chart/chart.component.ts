@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 
 type ChartInterval = 'hour' | 'day';
 type ChartMode = 'total' | 'delta';
+type ChartDifficulty = 'easy' | 'medium' | 'hard' | 'total';
 
 @Component({
   selector: 'app-chart',
@@ -36,6 +37,7 @@ export class ChartComponent implements OnInit {
 
   interval: ChartInterval = (localStorage.getItem('chart-interval') as ChartInterval) ?? 'day';
   mode: ChartMode = (localStorage.getItem('chart-mode') as ChartMode) ?? 'delta';
+  difficulty: ChartDifficulty = (localStorage.getItem('chart-difficulty') as ChartDifficulty) ?? 'total';
   onIntervalChange(value: ChartInterval) {
     this.interval = value;
     localStorage.setItem('chart-interval', value);
@@ -44,6 +46,11 @@ export class ChartComponent implements OnInit {
   onModeChange(value: ChartMode) {
     this.mode = value;
     localStorage.setItem('chart-mode', value);
+    this.fetchChartData();
+  }
+  onDifficultyChange(value: ChartDifficulty) {
+    this.difficulty = value;
+    localStorage.setItem('chart-difficulty', value);
     this.fetchChartData();
   }
 
@@ -75,15 +82,15 @@ export class ChartComponent implements OnInit {
       if (this.mode === 'total') {
         for (let i = 0; i < timestamps.length; i++) {
           const stats = rawData[timestamps[i]]?.[username];
-          const total = stats?.total ?? null;
+          const total = stats?.[this.difficulty] ?? null;
           data.push(total);
         }
       } else if (this.mode === 'delta') {
         for (let i = 1; i < timestamps.length; i++) {
           const prevStats = rawData[timestamps[i - 1]]?.[username];
-          const prevTotal = prevStats?.total ?? 0;
+          const prevTotal = prevStats?.[this.difficulty] ?? 0;
           const stats = rawData[timestamps[i]]?.[username];
-          const total = stats?.total ?? 0;
+          const total = stats?.[this.difficulty] ?? 0;
           if (stats === undefined || prevStats === undefined) {
             data.push(0);
           } else {
