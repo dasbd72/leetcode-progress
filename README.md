@@ -16,3 +16,4 @@ Tracks your LeetCode progress.
 - [ ] Add chart to show daily progress.
 - [ ] Add chart to show weekly progress.
 - [x] Store list of users in database.
+- [ ] Add user management page.
