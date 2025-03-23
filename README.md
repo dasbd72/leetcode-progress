@@ -11,5 +11,5 @@ Tracks your LeetCode progress.
 - [x] Sorts users by their LeetCode progress.
 - [x] Migrate to my domain.
 - [ ] Support local development testing.
-- [ ] Add database for storing the scraped data.
-- [ ] Separate the scraping trigger to a periodically running Lambda function.
+- [x] Add database for storing the scraped data.
+- [x] Separate the scraping trigger to a periodically running Lambda function.
