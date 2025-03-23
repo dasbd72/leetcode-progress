@@ -21,6 +21,8 @@
   </div>
 
   <!-- Chart -->
-  <canvas baseChart *ngIf="lineChartData" [data]="lineChartData" [type]="lineChartType"
-    [options]="lineChartOptions"></canvas>
+  <div style="height: calc(100vh - 15rem);">
+    <canvas baseChart *ngIf="lineChartData" [data]="lineChartData" [type]="lineChartType"
+      [options]="lineChartOptions" class="h-full"></canvas>
+  </div>
 </div>

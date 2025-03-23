@@ -22,6 +22,7 @@ export class ChartComponent implements OnInit {
   };
   lineChartOptions: ChartConfiguration['options'] = {
     responsive: true,
+    maintainAspectRatio: false,
     scales: {
       x: { title: { display: true, text: 'Time' } },
       y: { title: { display: true, text: 'Problems' }, beginAtZero: true }
