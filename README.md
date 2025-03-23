@@ -13,3 +13,5 @@ Tracks your LeetCode progress.
 - [ ] Support local development testing.
 - [x] Add database for storing the scraped data.
 - [x] Separate the scraping trigger to a periodically running Lambda function.
+- [ ] Add chart to show daily progress.
+- [ ] Add chart to show weekly progress.
