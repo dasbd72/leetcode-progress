@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 
 type TableData = { username: string; easy: number; medium: number; hard: number; total: number }[];
 type SortKey = 'username' | 'easy' | 'medium' | 'hard' | 'total' | '';

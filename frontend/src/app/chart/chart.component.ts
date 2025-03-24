@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ChartConfiguration, ChartType, ChartDataset } from 'chart.js';
+
+import { ChartConfiguration, ChartDataset, ChartType } from 'chart.js';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 type ChartInterval = 'hour' | 'day';
