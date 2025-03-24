@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta, timezone
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 import boto3
 from boto3.dynamodb.conditions import Key
+import pytz
 
 router = APIRouter()
 
@@ -45,7 +46,11 @@ def get_latest_user_progress():
 
 
 @router.get("/latest/hour")
-def get_latest_hourly_progress():
+def get_latest_hourly_progress(
+    limit: int = Query(
+        24, description="Number of hours to look back", ge=1, le=50
+    )
+):
     # Step 1: Scan all timestamps
     response = table.scan(
         ProjectionExpression="#ts",
@@ -66,7 +71,7 @@ def get_latest_hourly_progress():
             .replace(minute=0, second=0, microsecond=0)
             .timestamp()
         )
-        for i in range(50)
+        for i in range(limit)
     ]
 
     # Step 2: For each hour, find the earliest timestamp that falls within it
@@ -78,6 +83,8 @@ def get_latest_hourly_progress():
         ]
         if candidates:
             selected_timestamps.append(min(candidates))
+    if len(all_timestamps) != 0:
+        selected_timestamps.append(all_timestamps[-1])
 
     # Step 3: For each selected timestamp, fetch all user data
     result = {}
@@ -97,7 +104,19 @@ def get_latest_hourly_progress():
 
 
 @router.get("/latest/day")
-def get_latest_daily_progress():
+def get_latest_daily_progress(
+    limit: int = Query(
+        24, description="Number of hours to look back", ge=1, le=50
+    ),
+    timezone_name: str = Query(
+        "UTC", description="Timezone name, e.g., 'Asia/Taipei'"
+    ),
+):
+    try:
+        tz = pytz.timezone(timezone_name)
+    except pytz.UnknownTimeZoneError:
+        return {"error": f"Invalid timezone: {timezone_name}"}
+
     # Step 1: Scan all timestamps
     response = table.scan(
         ProjectionExpression="#ts",
@@ -111,25 +130,29 @@ def get_latest_daily_progress():
         )
     )
 
-    now = datetime.now(timezone.utc)
+    # Step 2: Calculate day start times in specified timezone
+    now = datetime.now(tz)
     day_starts = [
         int(
             (now - timedelta(days=i))
             .replace(hour=0, minute=0, second=0, microsecond=0)
+            .astimezone(timezone.utc)
             .timestamp()
         )
-        for i in range(50)
+        for i in range(limit)
     ]
 
-    # Step 2: For each day, find the earliest timestamp that falls within it
+    # Step 3: For each day, find the earliest timestamp that falls within it
     selected_timestamps = []
     for day_start in day_starts:
         day_end = day_start + 86400
         candidates = [ts for ts in all_timestamps if day_start <= ts < day_end]
         if candidates:
             selected_timestamps.append(min(candidates))
+    if len(all_timestamps) != 0:
+        selected_timestamps.append(all_timestamps[-1])
 
-    # Step 3: For each selected timestamp, fetch all user data
+    # Step 4: For each selected timestamp, fetch all user data
     result = {}
     for ts in selected_timestamps:
         response = table.query(KeyConditionExpression=Key("timestamp").eq(ts))
