@@ -16,6 +16,6 @@ Tracks your LeetCode progress.
 - [x] Add chart to show daily progress.
 - [x] Add chart to show weekly progress.
 - [x] Store list of users in database.
-- [ ] Add latest data to chart instead of only the specified timestamps.
+- [x] Add latest data to chart instead of only the specified timestamps.
 - [ ] Reduce REST API response data size.
 - [ ] Add user management page.
