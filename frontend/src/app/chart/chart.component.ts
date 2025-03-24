@@ -118,7 +118,7 @@ export class ChartComponent implements OnInit {
         data,
         tension: 0.4,
         fill: false,
-        pointRadius: 3,
+        pointRadius: 4,
       });
     }
 
