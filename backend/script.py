@@ -1,5 +1,5 @@
-import os
 import argparse
+import os
 import subprocess
 
 
@@ -10,7 +10,10 @@ class Args:
 def parse_args():
     parser = argparse.ArgumentParser(description="Script to run commands")
     parser.add_argument(
-        "command", type=str, help="Command to run", choices=["serve", "deploy"]
+        "command",
+        type=str,
+        help="Command to run",
+        choices=["serve", "deploy", "lint"],
     )
     args = parser.parse_args(namespace=Args)
     return args
@@ -44,6 +47,12 @@ def main():
         cmds = [
             "sam build",
             "sam deploy",
+        ]
+    elif args.command == "lint":
+        cmds = [
+            "isort --line-length 79 --profile black app",
+            "black --line-length 79 app",
+            "flake8 --ignore=E203,E501,W503 --exclude 'venv','test','__init__.py' app",
         ]
     else:
         raise NotImplementedError

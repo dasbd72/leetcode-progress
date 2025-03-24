@@ -1,6 +1,7 @@
-import boto3
 import json
 from datetime import datetime, timedelta
+
+import boto3
 
 s3 = boto3.client("s3")
 BUCKET = "leetcode-progress-cache"

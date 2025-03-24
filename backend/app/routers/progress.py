@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta, timezone
-from fastapi import APIRouter, Query
+
 import boto3
-from boto3.dynamodb.conditions import Key
 import pytz
+from boto3.dynamodb.conditions import Key
+from fastapi import APIRouter, Query
 
 router = APIRouter()
 
