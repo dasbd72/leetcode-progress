@@ -1,2 +1,0 @@
-sam build
-sam deploy
