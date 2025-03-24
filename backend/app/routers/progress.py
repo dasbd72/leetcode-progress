@@ -71,7 +71,7 @@ def get_latest_hourly_progress(
             .replace(minute=0, second=0, microsecond=0)
             .timestamp()
         )
-        for i in range(limit)
+        for i in range(limit - 1, -1, -1)
     ]
 
     # Step 2: For each hour, find the earliest timestamp that falls within it
@@ -108,14 +108,14 @@ def get_latest_daily_progress(
     limit: int = Query(
         24, description="Number of hours to look back", ge=1, le=50
     ),
-    timezone_name: str = Query(
+    timezone: str = Query(
         "UTC", description="Timezone name, e.g., 'Asia/Taipei'"
     ),
 ):
     try:
-        tz = pytz.timezone(timezone_name)
+        tz = pytz.timezone(timezone)
     except pytz.UnknownTimeZoneError:
-        return {"error": f"Invalid timezone: {timezone_name}"}
+        return {"error": f"Invalid timezone: {timezone}"}
 
     # Step 1: Scan all timestamps
     response = table.scan(
@@ -136,10 +136,9 @@ def get_latest_daily_progress(
         int(
             (now - timedelta(days=i))
             .replace(hour=0, minute=0, second=0, microsecond=0)
-            .astimezone(timezone.utc)
             .timestamp()
         )
-        for i in range(limit)
+        for i in range(limit - 1, -1, -1)
     ]
 
     # Step 3: For each day, find the earliest timestamp that falls within it
