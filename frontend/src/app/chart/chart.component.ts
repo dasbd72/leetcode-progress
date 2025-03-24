@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { environment } from '../../environments/environment';
 import { ChartConfiguration, ChartDataset, ChartType } from 'chart.js';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
@@ -64,7 +65,7 @@ export class ChartComponent implements OnInit {
   async fetchChartData() {
     // Get the timezone from the browser
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone ?? 'UTC';
-    const baseUrl = `https://dxdkojr9pk.execute-api.ap-northeast-1.amazonaws.com/Prod/latest/${this.interval}`;
+    const baseUrl = `${environment.apiBaseUrl}/latest/${this.interval}`;
     // Append the timezone to the URL if the interval is 'day'
     const url =
       this.interval === 'day' ? `${baseUrl}?timezone=${encodeURIComponent(timezone)}` : baseUrl;
