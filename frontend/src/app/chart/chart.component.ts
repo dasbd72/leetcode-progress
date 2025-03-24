@@ -74,7 +74,7 @@ export class ChartComponent implements OnInit {
         [],
         this.interval === 'hour'
           ? { hour: '2-digit', minute: '2-digit' }
-          : { month: 'short', day: 'numeric' },
+          : { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' },
       ),
     );
     const labels = this.mode === 'delta' ? fullLabels.slice(1) : fullLabels;
