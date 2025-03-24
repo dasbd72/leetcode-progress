@@ -58,6 +58,7 @@ def main():
     args = parse_args()
     if args.command == "deploy":
         input("Deploying to AWS. Press Enter to continue...")
+        os.chdir("app")
         if not prepare_lambda_package():
             return
         cmds = [
