@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ChartConfiguration, ChartType, ChartDataset } from 'chart.js';
 import { CommonModule } from '@angular/common';
-import { BaseChartDirective } from 'ng2-charts';
+import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { FormsModule } from '@angular/forms';
 
 type ChartInterval = 'hour' | 'day';
@@ -12,6 +12,7 @@ type ChartDifficulty = 'easy' | 'medium' | 'hard' | 'total';
   selector: 'app-chart',
   standalone: true,
   imports: [CommonModule, FormsModule, BaseChartDirective],
+  providers: [provideCharts(withDefaultRegisterables())],
   templateUrl: './chart.component.html',
   styleUrl: './chart.component.css'
 })
