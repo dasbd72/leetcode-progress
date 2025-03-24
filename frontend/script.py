@@ -1,5 +1,5 @@
-import os
 import argparse
+import subprocess
 
 
 class Args:
@@ -23,6 +23,22 @@ def parse_args():
     return args
 
 
+def run_command(cmd: str):
+    print(f"Running: {cmd}")
+    try:
+        process = subprocess.Popen(cmd, shell=True)
+        process.wait()
+        if process.returncode != 0:
+            print(f"Failed to run: {cmd}")
+            return False
+        return True
+    except KeyboardInterrupt:
+        print("\nInterrupted by user. Terminating subprocess...")
+        process.terminate()
+        process.wait()
+        return False
+
+
 def main():
     args = parse_args()
     if args.command == "serve":
@@ -44,9 +60,7 @@ def main():
         raise NotImplementedError
 
     for cmd in cmds:
-        print(f"Running: {cmd}")
-        if os.system(cmd) != 0:
-            print(f"Failed to run: {cmd}")
+        if not run_command(cmd):
             break
 
 
