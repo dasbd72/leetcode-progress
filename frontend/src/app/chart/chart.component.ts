@@ -62,7 +62,13 @@ export class ChartComponent implements OnInit {
   }
 
   async fetchChartData() {
-    const url = `https://dxdkojr9pk.execute-api.ap-northeast-1.amazonaws.com/Prod/latest/${this.interval}`;
+    // Get the timezone from the browser
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone ?? 'UTC';
+    const baseUrl = `https://dxdkojr9pk.execute-api.ap-northeast-1.amazonaws.com/Prod/latest/${this.interval}`;
+    // Append the timezone to the URL if the interval is 'day'
+    const url =
+      this.interval === 'day' ? `${baseUrl}?timezone=${encodeURIComponent(timezone)}` : baseUrl;
+    // Fetch the data from the API
     const res = await fetch(url);
     const rawData = await res.json();
 
