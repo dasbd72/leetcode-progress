@@ -5,7 +5,11 @@
   <div class="flex flex-wrap justify-center gap-x-4 gap-y-1">
     <div>
       <label class="font-medium mr-2">Time Range:</label>
-      <select [(ngModel)]="interval" (ngModelChange)="onIntervalChange($event)" class="border rounded px-1 py-[0.1rem]">
+      <select
+        [(ngModel)]="interval"
+        (ngModelChange)="onIntervalChange($event)"
+        class="border rounded px-1 py-[0.1rem]"
+      >
         <option value="hour">Hourly</option>
         <option value="day">Daily</option>
       </select>
@@ -13,7 +17,11 @@
 
     <div>
       <label class="font-medium mr-2">Mode:</label>
-      <select [(ngModel)]="mode" (ngModelChange)="onModeChange($event)" class="border rounded px-1 py-[0.1rem]">
+      <select
+        [(ngModel)]="mode"
+        (ngModelChange)="onModeChange($event)"
+        class="border rounded px-1 py-[0.1rem]"
+      >
         <option value="total">Total</option>
         <option value="delta">Delta</option>
       </select>
@@ -21,8 +29,11 @@
 
     <div>
       <label class="font-medium mr-2">Difficulty:</label>
-      <select [(ngModel)]="difficulty" (ngModelChange)="onDifficultyChange($event)"
-        class="border rounded px-1 py-[0.1rem]">
+      <select
+        [(ngModel)]="difficulty"
+        (ngModelChange)="onDifficultyChange($event)"
+        class="border rounded px-1 py-[0.1rem]"
+      >
         <option value="easy">Easy</option>
         <option value="medium">Medium</option>
         <option value="hard">Hard</option>
@@ -32,8 +43,14 @@
   </div>
 
   <!-- Chart -->
-  <div style="height: calc(100vh - 20rem);">
-    <canvas baseChart *ngIf="lineChartData" [data]="lineChartData" [type]="lineChartType" [options]="lineChartOptions"
-      class="h-full"></canvas>
+  <div style="height: calc(100vh - 20rem)">
+    <canvas
+      baseChart
+      *ngIf="lineChartData"
+      [data]="lineChartData"
+      [type]="lineChartType"
+      [options]="lineChartOptions"
+      class="h-full"
+    ></canvas>
   </div>
 </div>

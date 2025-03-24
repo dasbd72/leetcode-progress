@@ -9,9 +9,10 @@ export const routes: Routes = [
       { path: 'home', component: TotalComponent },
       { path: 'total', component: TotalComponent },
       {
-        path: 'chart', loadComponent: () => import('./chart/chart.component').then(m => m.ChartComponent)
-      }
-    ]
+        path: 'chart',
+        loadComponent: () => import('./chart/chart.component').then((m) => m.ChartComponent),
+      },
+    ],
   },
-  { path: '**', redirectTo: '' }
+  { path: '**', redirectTo: '' },
 ];

@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-type TableData = { username: string, easy: number, medium: number, hard: number, total: number }[];
-type SortKey = "username" | "easy" | "medium" | "hard" | "total" | "";
-type SortDirection = "asc" | "desc";
+type TableData = { username: string; easy: number; medium: number; hard: number; total: number }[];
+type SortKey = 'username' | 'easy' | 'medium' | 'hard' | 'total' | '';
+type SortDirection = 'asc' | 'desc';
 
 @Component({
   selector: 'app-total',
   imports: [CommonModule],
   templateUrl: './total.component.html',
-  styleUrl: './total.component.css'
+  styleUrl: './total.component.css',
 })
 export class TotalComponent implements OnInit {
   title = 'LeetCode Progress Tracker';
@@ -20,12 +20,14 @@ export class TotalComponent implements OnInit {
 
   async ngOnInit() {
     try {
-      const response = await fetch('https://dxdkojr9pk.execute-api.ap-northeast-1.amazonaws.com/Prod/latest');
+      const response = await fetch(
+        'https://dxdkojr9pk.execute-api.ap-northeast-1.amazonaws.com/Prod/latest',
+      );
       const result = await response.json();
 
       this.tableData = Object.entries(result).map(([username, stats]) => ({
         username,
-        ...(stats as any)
+        ...(stats as any),
       }));
       this.sortData();
     } catch (err) {
@@ -51,7 +53,7 @@ export class TotalComponent implements OnInit {
     });
   }
 
-  sortBy(key: keyof typeof this.tableData[0]) {
+  sortBy(key: keyof (typeof this.tableData)[0]) {
     if (this.sortKey === key) {
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     } else {
