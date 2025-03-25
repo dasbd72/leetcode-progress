@@ -13,6 +13,8 @@ Resources:
       CodeUri: app/
       Handler: main.handler
       Runtime: python3.10
+      Architectures:
+        - arm64
       Events:
         RootPath:
           Type: Api
