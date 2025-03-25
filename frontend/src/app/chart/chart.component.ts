@@ -71,7 +71,8 @@ export class ChartComponent implements OnInit {
       this.interval === 'day' ? `${baseUrl}?timezone=${encodeURIComponent(timezone)}` : baseUrl;
     // Fetch the data from the API
     const res = await fetch(url);
-    const rawData = await res.json();
+    const parsedRes = await res.json();
+    const rawData = parsedRes.data;
 
     const timestamps = Object.keys(rawData)
       .map(Number)
