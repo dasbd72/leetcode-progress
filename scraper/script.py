@@ -63,7 +63,7 @@ def main():
             return
         cmds = [
             "aws lambda update-function-code "
-            "--function-name leetcode-progress-Scraper "
+            "--function-name leetcode-progress-Scraper-8CKRVA9MWN2Z "
             "--zip-file fileb://scraper.zip"
         ]
     else:
