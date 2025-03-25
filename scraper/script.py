@@ -11,7 +11,10 @@ class Args:
 def parse_args():
     parser = argparse.ArgumentParser(description="Script to run commands")
     parser.add_argument(
-        "command", type=str, help="Command to run", choices=["deploy"]
+        "command",
+        type=str,
+        help="Command to run",
+        choices=["deploy", "invoke"],
     )
     args = parser.parse_args(namespace=Args)
     return args
@@ -65,6 +68,10 @@ def main():
             "aws lambda update-function-code "
             "--function-name leetcode-progress-Scraper-8CKRVA9MWN2Z "
             "--zip-file fileb://scraper.zip"
+        ]
+    elif args.command == "invoke":
+        cmds = [
+            "aws lambda invoke --function-name leetcode-progress-Scraper-8CKRVA9MWN2Z /dev/stdout"
         ]
     else:
         raise NotImplementedError
