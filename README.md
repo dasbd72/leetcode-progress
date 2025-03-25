@@ -17,5 +17,6 @@ Tracks your LeetCode progress.
 - [x] Add chart to show weekly progress.
 - [x] Store list of users in database.
 - [x] Add latest data to chart instead of only the specified timestamps.
+- [x] Optimize db query progress by using batch get item.
 - [ ] Reduce REST API response data size.
 - [ ] Add user management page.
