@@ -38,7 +38,7 @@ def prepare_lambda_package():
 
     os.makedirs("package", exist_ok=True)
 
-    if not run_command("pip install -r requirements.txt -t package/"):
+    if not run_command("pip install -r requirements.txt -t package/ -q"):
         return False
 
     for fname in ["main.py", "utils.py"]:
