@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 import boto3
 from utils import fetch_question_progress
 from time import perf_counter
+from concurrent.futures import ThreadPoolExecutor
 
 # DynamoDB setup
 dynamodb = boto3.resource("dynamodb")
@@ -26,20 +27,16 @@ def lambda_handler(event, context):
 
     # Fetch progress for each user
     start_perf = perf_counter()
-    for user in user_items:
-        username = user["username"]
-        user_slug = username  # assuming 'username' is used as the slug
-        try:
-            progress = fetch_question_progress(user_slug)
-            result[username] = progress
-        except Exception as e:
-            print(f"Failed to fetch progress for {username}: {e}")
-            result[username] = {
-                "EASY": 0,
-                "MEDIUM": 0,
-                "HARD": 0,
-                "TOTAL": 0,
-            }
+    with ThreadPoolExecutor() as executor:
+        futures = {executor.submit(fetch_question_progress, user["username"]): user for user in user_items}
+        for future in futures:
+            user = futures[future]
+            username = user["username"]
+            try:
+                progress = future.result()
+                result[username] = progress
+            except Exception as e:
+                print(f"Failed to fetch progress for {username}: {e}")
     performance["fetch_progress"] = perf_counter() - start_perf
 
     # Batch write results to LeetCodeProgress
