@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 
+import { environment } from '../../environments/environment';
+
 type TableData = { username: string; easy: number; medium: number; hard: number; total: number }[];
 type SortKey = 'username' | 'easy' | 'medium' | 'hard' | 'total' | '';
 type SortDirection = 'asc' | 'desc';
@@ -20,9 +22,7 @@ export class TotalComponent implements OnInit {
 
   async ngOnInit() {
     try {
-      const response = await fetch(
-        'https://dxdkojr9pk.execute-api.ap-northeast-1.amazonaws.com/Prod/latest',
-      );
+      const response = await fetch(`${environment.apiBaseUrl}/latest`);
       const result = await response.json();
 
       this.tableData = Object.entries(result).map(([username, stats]) => ({
