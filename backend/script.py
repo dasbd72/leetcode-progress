@@ -40,7 +40,7 @@ def main():
     if args.command == "serve":
         os.chdir("app")
         cmds = [
-            "uvicorn main:app --reload --host 127.0.0.1 --port 8000",
+            "environment=development uvicorn main:app --reload --host 127.0.0.1 --port 8000",
         ]
     elif args.command == "deploy":
         input("Deploying to AWS. Press Enter to continue...")
