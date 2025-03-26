@@ -121,9 +121,28 @@ export class ChartComponent implements OnInit {
         tension: 0.4,
         fill: false,
         pointRadius: 4,
+        borderColor: this.hashStringToHSL(username),
       });
     }
 
     this.lineChartData = { labels, datasets };
+  }
+
+  private hashStringToVal(str: string, range: Array<number>): number {
+    const prime = 11; // A prime number multiplier
+    const hashVal = str
+      .split('')
+      .reduce((acc, char) => (acc * prime + char.charCodeAt(0)) >>> 0, 0);
+    return (hashVal % (range[1] - range[0])) + range[0];
+  }
+
+  private hashStringToHSL(str: string): string {
+    const hueRange = [0, 360]; // Hue: 0-360 degrees
+    const saturationRange = [40, 99];
+    const lightnessRange = [40, 80];
+    const hue = this.hashStringToVal(`hue_${str}_hue`, hueRange);
+    const saturation = this.hashStringToVal(`sat_${str}_sat`, saturationRange);
+    const lightness = this.hashStringToVal(`lig_${str}_lig`, lightnessRange);
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
   }
 }
