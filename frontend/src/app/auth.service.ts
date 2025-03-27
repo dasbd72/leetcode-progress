@@ -63,6 +63,11 @@ export class AuthService {
   }
 
   private extractPreferredUsername(userData: any): string {
-    return userData?.preferred_username ?? userData?.username ?? '';
+    return (
+      userData?.['custom:preferred_username'] ??
+      userData?.preferred_username ??
+      userData?.username ??
+      ''
+    );
   }
 }
