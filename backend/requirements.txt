@@ -7,3 +7,4 @@ uvicorn[standard]
 mangum
 boto3
 pytz
+python-jose

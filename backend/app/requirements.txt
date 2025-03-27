@@ -3,3 +3,4 @@ fastapi
 mangum
 boto3
 pytz
+python-jose

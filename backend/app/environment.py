@@ -3,6 +3,8 @@ import os
 
 class Environment:
     allowed_origins: list[str] = []
+    client_id: str = ""
+    cognito_idp_url: str = ""
 
 
 ENV: str = os.getenv("environment", "production")
@@ -16,7 +18,11 @@ if ENV == "production":
         "https://d2nwgjwnrp77m0.cloudfront.net",
         "https://leetcode-progress.dasbd72.com",
     ]
+    environment.client_id = "1qjlfcr2u175qlbhruf7bdre3j"
+    environment.cognito_idp_url = "https://cognito-idp.ap-northeast-1.amazonaws.com/ap-northeast-1_MSLz0uAQD"
 else:
     environment.allowed_origins = ["*"]
+    environment.client_id = "1qjlfcr2u175qlbhruf7bdre3j"
+    environment.cognito_idp_url = "https://cognito-idp.ap-northeast-1.amazonaws.com/ap-northeast-1_MSLz0uAQD"
 
 print(f"allowed_origins: {environment.allowed_origins}")
