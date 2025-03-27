@@ -36,7 +36,7 @@ async def get_user_settings(
     return {
         "email": attributes.get("email", ""),
         "username": username,
-        "preferred_username": attributes.get("preferred_username", username),
+        "preferred_username": attributes.get("custom:preferred_username", username),
         "leetcode_username": attributes.get("custom:leetcode_username", ""),
     }
 
@@ -57,7 +57,7 @@ async def update_user_settings(
         Username=username,
         UserAttributes=[
             {
-                "Name": "preferred_username",
+                "Name": "custom:preferred_username",
                 "Value": user_settings.preferred_username,
             },
             {
