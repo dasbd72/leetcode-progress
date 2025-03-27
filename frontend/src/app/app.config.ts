@@ -4,7 +4,8 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { authConfig } from './auth/auth.config';
-import { provideAuth } from 'angular-auth-oidc-client';
+import { LocalSecurityStorage } from './auth/local-security-storage';
+import { AbstractSecurityStorage, provideAuth } from 'angular-auth-oidc-client';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -12,5 +13,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAuth(authConfig),
     provideHttpClient(),
+    { provide: AbstractSecurityStorage, useClass: LocalSecurityStorage },
   ],
 };
