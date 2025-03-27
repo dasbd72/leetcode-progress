@@ -13,7 +13,7 @@ import { AuthService } from './auth.service';
 })
 export class AppComponent implements OnInit {
   isAuthenticated = false;
-  preferred_username = '';
+  preferredUsername = '';
 
   isDropdownOpen = false;
 
@@ -43,7 +43,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.authService.authData$.subscribe((authData) => {
       this.isAuthenticated = authData.isAuthenticated;
-      this.preferred_username = authData.preferred_username;
+      this.preferredUsername = authData.preferredUsername;
     });
   }
 }

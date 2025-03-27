@@ -7,7 +7,8 @@ import { OidcSecurityService, UserDataResult } from 'angular-auth-oidc-client';
 export type AuthData = {
   isAuthenticated: boolean;
   userData: any;
-  preferred_username: string;
+  preferredUsername: string;
+  accessToken: string;
 };
 
 @Injectable({
@@ -18,27 +19,24 @@ export class AuthService {
   private authDataSubject = new BehaviorSubject<AuthData>({
     isAuthenticated: false,
     userData: null,
-    preferred_username: '',
+    preferredUsername: '',
+    accessToken: '',
   });
 
   constructor(private readonly oidcSecurityService: OidcSecurityService) {
     // Subscribe to the OIDC service to get the latest authentication and user data
     this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated, userData }) => {
-      const preferred_username = this.extractPreferredUsername(userData);
-      this.authDataSubject.next({ isAuthenticated, userData, preferred_username });
-    });
-    this.oidcSecurityService.userData$.subscribe((userDataResult: UserDataResult) => {
-      const userData = userDataResult.userData;
-      const preferred_username = this.extractPreferredUsername(userData);
+      const preferredUsername = this.extractPreferredUsername(userData);
       this.authDataSubject.next({
-        isAuthenticated: this.authDataSubject.value.isAuthenticated, // Keep authentication status from the last update
+        ...this.authDataSubject.value,
+        isAuthenticated,
         userData,
-        preferred_username,
+        preferredUsername,
       });
+      this.updateAccessToken();
     });
   }
 
-  // Public Observables to expose the data to other components
   get authData$(): Observable<AuthData> {
     return this.authDataSubject.asObservable();
   }
@@ -55,7 +53,16 @@ export class AuthService {
     });
   }
 
-  extractPreferredUsername(userData: any): string {
+  private updateAccessToken(): void {
+    this.oidcSecurityService.getAccessToken().subscribe((accessToken) => {
+      this.authDataSubject.next({
+        ...this.authDataSubject.value,
+        accessToken,
+      });
+    });
+  }
+
+  private extractPreferredUsername(userData: any): string {
     return userData?.preferred_username ?? userData?.username ?? '';
   }
 }
