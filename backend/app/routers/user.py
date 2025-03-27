@@ -11,6 +11,9 @@ auth = JWTBearer(jwks=jwks)
 # Create Cognito client
 cognito = boto3.client("cognito-idp", region_name="ap-northeast-1")
 
+# Create DynamoDB resource
+dynamodb = boto3.resource("dynamodb")
+users_table = dynamodb.Table("LeetCodeProgressUsers")
 
 class UserSettings(BaseModel):
     email: str
@@ -30,14 +33,23 @@ async def get_user_settings(
             detail="Username not found in claims",
         )
     response = cognito.get_user(AccessToken=credentials.jwt_token)
-    attributes = {}
-    for attr in response["UserAttributes"]:
-        attributes[attr["Name"]] = attr["Value"]
+    email = next(
+        (attr["Value"] for attr in response["UserAttributes"] if attr["Name"] == "email"),
+        "",
+    )
+    response = users_table.get_item(Key={"username": username})
+    item = response.get("Item")
+    if item:
+        preferred_username = item.get("preferred_username", username)
+        leetcode_username = item.get("leetcode_username", "")
+    else:
+        preferred_username = username
+        leetcode_username = ""
     return {
-        "email": attributes.get("email", ""),
+        "email": email,
         "username": username,
-        "preferred_username": attributes.get("custom:preferred_username", username),
-        "leetcode_username": attributes.get("custom:leetcode_username", ""),
+        "preferred_username": preferred_username,
+        "leetcode_username": leetcode_username,
     }
 
 
@@ -52,19 +64,12 @@ async def update_user_settings(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Username not found in claims",
         )
-    response = cognito.admin_update_user_attributes(
-        UserPoolId="ap-northeast-1_MSLz0uAQD",
-        Username=username,
-        UserAttributes=[
-            {
-                "Name": "custom:preferred_username",
-                "Value": user_settings.preferred_username,
-            },
-            {
-                "Name": "custom:leetcode_username",
-                "Value": user_settings.leetcode_username,
-            },
-        ],
+    response = users_table.put_item(
+        Item={
+            "username": username,
+            "preferred_username": user_settings.preferred_username,
+            "leetcode_username": user_settings.leetcode_username,
+        }
     )
     if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
         raise HTTPException(
