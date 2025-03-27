@@ -28,10 +28,15 @@ def lambda_handler(event, context):
     # Fetch progress for each user
     start_perf = perf_counter()
     with ThreadPoolExecutor() as executor:
-        futures = {executor.submit(fetch_question_progress, user["username"]): user for user in user_items}
+        futures = {
+            executor.submit(
+                fetch_question_progress, user["leetcode_username"]
+            ): user
+            for user in user_items
+        }
         for future in futures:
             user = futures[future]
-            username = user["username"]
+            username = user["leetcode_username"]
             try:
                 progress = future.result()
                 result[username] = progress
