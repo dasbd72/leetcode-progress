@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { TotalComponent } from './total/total.component';
+import { SettingsComponent } from './user/settings/settings.component';
 
 export const routes: Routes = [
   {
@@ -12,6 +13,10 @@ export const routes: Routes = [
       {
         path: 'chart',
         loadComponent: () => import('./chart/chart.component').then((m) => m.ChartComponent),
+      },
+      {
+        path: 'u',
+        children: [{ path: 'settings', component: SettingsComponent }],
       },
     ],
   },
