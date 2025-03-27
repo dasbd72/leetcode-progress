@@ -5,6 +5,7 @@ export const authConfig: PassedInitialConfig = {
   config: {
     authority: environment.auth.authority,
     redirectUrl: window.location.origin + '/auth/callback',
+    postLoginRoute: '/u/settings',
     postLogoutRedirectUri: window.location.origin + '/auth/callback',
     clientId: environment.auth.clientId,
     scope: 'openid email profile aws.cognito.signin.user.admin',
