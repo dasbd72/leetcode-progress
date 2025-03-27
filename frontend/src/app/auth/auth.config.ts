@@ -7,7 +7,7 @@ export const authConfig: PassedInitialConfig = {
     redirectUrl: window.location.origin,
     postLogoutRedirectUri: window.location.origin,
     clientId: environment.auth.clientId,
-    scope: 'openid email profile', // 'openid profile offline_access ' + your scopes
+    scope: 'openid email profile aws.cognito.signin.user.admin',
     responseType: 'code',
     silentRenew: false,
     useRefreshToken: true,
