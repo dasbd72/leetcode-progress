@@ -25,6 +25,43 @@
     >
       Chart
     </a>
+
+    <!-- Dropdown Button -->
+    <a
+      *ngIf="!isAuthenticated"
+      (click)="login()"
+      class="hover:text-yellow-300 hover:cursor-pointer transition"
+    >
+      Login
+    </a>
+    <div *ngIf="isAuthenticated" class="relative dropdown">
+      <button
+        (click)="toggleDropdown()"
+        class="hover:text-yellow-300 hover:cursor-pointer transition"
+      >
+        Hello, {{ preferred_username }}
+      </button>
+
+      <!-- Dropdown Menu -->
+      <div
+        *ngIf="isDropdownOpen"
+        class="absolute right-0 w-24 mt-2 origin-top-right bg-gray-800 rounded-md shadow-lg"
+      >
+        <a routerLink="/u/profile" class="block px-3 py-2 text-white hover:bg-gray-700">
+          Profile
+        </a>
+        <a routerLink="/u/settings" class="block px-3 py-2 text-white hover:bg-gray-700">
+          Settings
+        </a>
+        <a
+          (click)="logout()"
+          class="block text-left w-full px-3 py-2 text-white hover:bg-gray-700 hover:cursor-pointer rounded-b-md"
+        >
+          Logout
+        </a>
+      </div>
+    </div>
+
     <a
       href="https://github.com/dasbd72/leetcode-progress"
       target="_blank"
