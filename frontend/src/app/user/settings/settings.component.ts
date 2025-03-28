@@ -22,6 +22,7 @@ interface UserSettings {
 export class SettingsComponent implements OnInit {
   isAuthenticated = false;
   accessToken = '';
+  isLoading = false;
   userSettings: UserSettings = {
     email: '',
     username: '',
@@ -37,6 +38,7 @@ export class SettingsComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.isLoading = true;
     await this.loadSettings();
   }
 
@@ -45,13 +47,15 @@ export class SettingsComponent implements OnInit {
       const headers = new Headers({ Authorization: `Bearer ${this.accessToken}` });
       const response = await fetch(`${environment.apiBaseUrl}/user/settings`, { headers });
       this.userSettings = await response.json();
-      console.log('User settings:', this.userSettings);
     } catch (err) {
       console.error('Failed to fetch data:', err);
+    } finally {
+      this.isLoading = false;
     }
   }
 
   async onSubmit() {
+    this.isLoading = true;
     try {
       const headers = new Headers({
         Authorization: `Bearer ${this.accessToken}`,
@@ -71,6 +75,8 @@ export class SettingsComponent implements OnInit {
       }
     } catch (err) {
       console.error('Failed to update settings:', err);
+    } finally {
+      this.isLoading = false;
     }
   }
 }
