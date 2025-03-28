@@ -5,11 +5,18 @@ import os
 
 
 class Args:
+    pip_package: bool = False
     command: str = None
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Script to run commands")
+    parser.add_argument(
+        "--pip-package",
+        "-p",
+        action="store_true",
+        help="Whether to package the Lambda function",
+    )
     parser.add_argument(
         "command",
         type=str,
@@ -36,12 +43,14 @@ def run_command(cmd: str):
         return False
 
 
-def prepare_lambda_package():
+def prepare_lambda_package(pip_package: bool):
     print("Packaging Lambda function...")
 
     os.makedirs("package", exist_ok=True)
 
-    if not run_command("pip install -r requirements.txt -t package/ -q"):
+    if pip_package and not run_command(
+        "pip install -r requirements.txt -t package/ -q"
+    ):
         return False
 
     for fname in ["main.py", "utils.py"]:
@@ -62,7 +71,7 @@ def main():
     if args.command == "deploy":
         input("Deploying to AWS. Press Enter to continue...")
         os.chdir("app")
-        if not prepare_lambda_package():
+        if not prepare_lambda_package(args.pip_package):
             return
         cmds = [
             "aws lambda update-function-code "
