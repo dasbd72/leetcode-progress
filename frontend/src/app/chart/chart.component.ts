@@ -77,14 +77,18 @@ export class ChartComponent implements OnInit {
     const timestamps = Object.keys(rawData)
       .map(Number)
       .sort((a, b) => a - b);
-    const fullLabels: string[] = timestamps.map((ts) =>
-      new Date(ts * 1000).toLocaleTimeString(
-        [],
-        this.interval === 'hour'
-          ? { hour: '2-digit', minute: '2-digit' }
-          : { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' },
-      ),
-    );
+    const fullLabels: string[] = timestamps.map((ts) => {
+      // Helper function to zero-pad a number
+      const zp = (num: number, length: number) => `${num}`.padStart(length, '0');
+      const date = new Date(ts * 1000);
+      if (this.interval === 'hour') {
+        return `${zp(date.getHours(), 2)}:${zp(date.getMinutes(), 2)}`;
+      } else if (window.innerWidth < 768) {
+        return `${zp(date.getMonth() + 1, 2)}/${zp(date.getDate(), 2)}`;
+      } else {
+        return `${zp(date.getMonth() + 1, 2)}/${zp(date.getDate(), 2)} ${zp(date.getHours(), 2)}:${zp(date.getMinutes(), 2)}`;
+      }
+    });
     const labels = this.mode === 'delta' ? fullLabels.slice(1) : fullLabels;
 
     const allUsers = new Set<string>();
