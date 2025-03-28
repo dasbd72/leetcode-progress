@@ -15,6 +15,7 @@ cognito = boto3.client("cognito-idp", region_name="ap-northeast-1")
 dynamodb = boto3.resource("dynamodb")
 users_table = dynamodb.Table("LeetCodeProgressUsers")
 
+
 class UserSettings(BaseModel):
     email: str
     username: str
@@ -34,7 +35,11 @@ async def get_user_settings(
         )
     response = cognito.get_user(AccessToken=credentials.jwt_token)
     email = next(
-        (attr["Value"] for attr in response["UserAttributes"] if attr["Name"] == "email"),
+        (
+            attr["Value"]
+            for attr in response["UserAttributes"]
+            if attr["Name"] == "email"
+        ),
         "",
     )
     response = users_table.get_item(Key={"username": username})
