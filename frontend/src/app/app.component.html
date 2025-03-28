@@ -28,18 +28,18 @@
 
     <!-- Dropdown Button -->
     <a
-      *ngIf="!isAuthenticated"
+      *ngIf="!authData.isAuthenticated"
       (click)="login()"
       class="hover:text-yellow-300 hover:cursor-pointer transition"
     >
       Login
     </a>
-    <div *ngIf="isAuthenticated" class="relative dropdown">
+    <div *ngIf="authData.isAuthenticated" class="relative dropdown">
       <button
         (click)="toggleDropdown()"
         class="hover:text-yellow-300 hover:cursor-pointer transition"
       >
-        Hello, {{ preferredUsername }}
+        Hello, {{ userSettings.preferredUsername }}
       </button>
 
       <!-- Dropdown Menu -->

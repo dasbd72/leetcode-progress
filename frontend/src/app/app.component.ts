@@ -2,7 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, HostListener, OnInit } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
 
-import { AuthService } from './auth.service';
+import { UserService, UserSettings } from './api/user.service';
+import { AuthData, AuthService } from './auth.service';
 
 @Component({
   selector: 'app-root',
@@ -12,12 +13,23 @@ import { AuthService } from './auth.service';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
-  isAuthenticated = false;
-  preferredUsername = '';
-
+  authData: AuthData = {
+    isAuthenticated: false,
+    userData: null,
+    accessToken: '',
+  };
+  userSettings: UserSettings = {
+    email: '',
+    username: '',
+    preferredUsername: '',
+    leetcodeUsername: '',
+  };
   isDropdownOpen = false;
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private userService: UserService,
+  ) {}
 
   login() {
     this.authService.login();
@@ -42,8 +54,10 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.authService.authData$.subscribe((authData) => {
-      this.isAuthenticated = authData.isAuthenticated;
-      this.preferredUsername = authData.preferredUsername;
+      this.authData = authData;
+    });
+    this.userService.getUserSettings().then((userSettings) => {
+      this.userSettings = userSettings;
     });
   }
 }

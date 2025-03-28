@@ -7,7 +7,6 @@ import { OidcSecurityService } from 'angular-auth-oidc-client';
 export interface AuthData {
   isAuthenticated: boolean;
   userData: any;
-  preferredUsername: string;
   accessToken: string;
 }
 
@@ -19,19 +18,16 @@ export class AuthService {
   private authDataSubject = new BehaviorSubject<AuthData>({
     isAuthenticated: false,
     userData: null,
-    preferredUsername: '',
     accessToken: '',
   });
 
   constructor(private readonly oidcSecurityService: OidcSecurityService) {
     // Subscribe to the OIDC service to get the latest authentication and user data
     this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated, userData }) => {
-      const preferredUsername = this.extractPreferredUsername(userData);
       this.authDataSubject.next({
         ...this.authDataSubject.value,
         isAuthenticated,
         userData,
-        preferredUsername,
       });
       this.updateAccessToken();
     });
@@ -60,14 +56,5 @@ export class AuthService {
         accessToken,
       });
     });
-  }
-
-  private extractPreferredUsername(userData: any): string {
-    return (
-      userData?.['custom:preferred_username'] ??
-      userData?.preferred_username ??
-      userData?.username ??
-      ''
-    );
   }
 }

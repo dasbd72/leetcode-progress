@@ -17,7 +17,6 @@ export class UserService {
   authData: AuthData = {
     isAuthenticated: false,
     userData: null,
-    preferredUsername: '',
     accessToken: '',
   };
   userSettings: UserSettings = {
