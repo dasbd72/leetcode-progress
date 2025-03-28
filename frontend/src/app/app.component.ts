@@ -100,7 +100,6 @@ export class AppComponent implements OnInit {
             this.announcements = announcements;
             localStorage.setItem('announcementLastFetched', String(new Date().getTime()));
             localStorage.setItem('announcements', JSON.stringify(announcements));
-            console.log('Loaded announcements:', announcements);
             return announcements;
           }),
           catchError((error) => {
@@ -111,7 +110,6 @@ export class AppComponent implements OnInit {
         .subscribe();
     } else {
       this.announcements = JSON.parse(localStorage.getItem('announcements') || '[]');
-      console.log('Loaded announcements from cache:', this.announcements);
     }
   }
 
