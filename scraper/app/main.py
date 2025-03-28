@@ -21,7 +21,9 @@ def lambda_handler(event, context):
 
     # Fetch all usernames and slugs from LeetCodeProgressUsers
     start_perf = perf_counter()
-    users_response = users_table.scan()
+    users_response = users_table.scan(
+        AttributesToGet=["leetcode_username"]
+    )
     user_items = users_response.get("Items", [])
     performance["get_users"] = perf_counter() - start_perf
 
