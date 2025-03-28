@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, HostListener, OnInit } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
 
+import { catchError, filter, of, switchMap, takeUntil, tap } from 'rxjs';
+
 import { UserService, UserSettings } from './api/user.service';
 import { AuthData, AuthService } from './auth.service';
 
@@ -17,6 +19,7 @@ export class AppComponent implements OnInit {
     isAuthenticated: false,
     userData: null,
     accessToken: '',
+    isLoading: true,
   };
   userSettings: UserSettings = {
     email: '',
@@ -53,11 +56,27 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.authService.authData$.subscribe((authData) => {
-      this.authData = authData;
-    });
-    this.userService.getUserSettings().then((userSettings) => {
-      this.userSettings = userSettings;
-    });
+    this.authService.authData$
+      .pipe(
+        tap((authData) => {
+          this.authData = authData;
+          return authData;
+        }),
+        filter((authData) => authData.isAuthenticated && !!authData.accessToken),
+        switchMap(() =>
+          this.userService.getUserSettings().pipe(
+            tap((settings) => {
+              if (settings) {
+                this.userSettings = settings;
+              }
+            }),
+            catchError((error) => {
+              console.error('Failed to load user settings:', error);
+              return of(null);
+            }),
+          ),
+        ),
+      )
+      .subscribe();
   }
 }
