@@ -19,7 +19,7 @@ Tracks your LeetCode progress.
 - [x] Add latest data to chart instead of only the specified timestamps.
 - [x] Optimize db query progress by using batch get item.
 - [ ] Reduce REST API response data size.
-- [ ] Add user system to allow users to add their own LeetCode accounts.
-  - [ ] Google OAuth
-  - [ ] Add user information to the database.
+- [x] Add user system to allow users to add their own LeetCode accounts.
+  - [x] Google OAuth
+  - [x] Add user information to the database.
 - [ ] Add start date option for the chart.
