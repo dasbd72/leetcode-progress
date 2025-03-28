@@ -4,12 +4,12 @@ import { BehaviorSubject, Observable } from 'rxjs';
 
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 
-export type AuthData = {
+export interface AuthData {
   isAuthenticated: boolean;
   userData: any;
   preferredUsername: string;
   accessToken: string;
-};
+}
 
 @Injectable({
   providedIn: 'root',

@@ -2,15 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { environment } from '../../../environments/environment';
+import { UserService, UserSettings } from '../../api/user.service';
 import { AuthService } from '../../auth.service';
-
-interface UserSettings {
-  email: string;
-  username: string;
-  preferred_username: string;
-  leetcode_username: string;
-}
 
 @Component({
   selector: 'app-settings',
@@ -21,19 +14,20 @@ interface UserSettings {
 })
 export class SettingsComponent implements OnInit {
   isAuthenticated = false;
-  accessToken = '';
   isLoading = false;
   userSettings: UserSettings = {
     email: '',
     username: '',
-    preferred_username: '',
-    leetcode_username: '',
+    preferredUsername: '',
+    leetcodeUsername: '',
   };
 
-  constructor(private authService: AuthService) {
+  constructor(
+    private authService: AuthService,
+    private userService: UserService,
+  ) {
     this.authService.authData$.subscribe((authData) => {
       this.isAuthenticated = authData?.isAuthenticated || false;
-      this.accessToken = authData?.accessToken || '';
     });
   }
 
@@ -44,9 +38,7 @@ export class SettingsComponent implements OnInit {
 
   async loadSettings() {
     try {
-      const headers = new Headers({ Authorization: `Bearer ${this.accessToken}` });
-      const response = await fetch(`${environment.apiBaseUrl}/user/settings`, { headers });
-      this.userSettings = await response.json();
+      this.userSettings = await this.userService.getUserSettings();
     } catch (err) {
       console.error('Failed to fetch data:', err);
     } finally {
@@ -57,22 +49,8 @@ export class SettingsComponent implements OnInit {
   async onSubmit() {
     this.isLoading = true;
     try {
-      const headers = new Headers({
-        Authorization: `Bearer ${this.accessToken}`,
-        'Content-Type': 'application/json',
-      });
-      const response = await fetch(`${environment.apiBaseUrl}/user/settings`, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify(this.userSettings),
-      });
-
-      if (response.ok) {
-        console.log('Settings updated successfully!');
-        await this.loadSettings();
-      } else {
-        console.error('Failed to update settings:', response.status);
-      }
+      this.userSettings = await this.userService.updateUserSettings(this.userSettings);
+      console.log('Settings updated successfully!');
     } catch (err) {
       console.error('Failed to update settings:', err);
     } finally {

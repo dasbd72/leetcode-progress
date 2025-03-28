@@ -57,7 +57,7 @@
         type="text"
         id="preferred_username"
         name="preferred_username"
-        [(ngModel)]="userSettings.preferred_username"
+        [(ngModel)]="userSettings.preferredUsername"
         class="p-2 border rounded-lg bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 invalid:border-red-500"
         required
         aria-describedby="preferredUsernameHelp"
@@ -76,7 +76,7 @@
         type="text"
         id="leetcode_username"
         name="leetcode_username"
-        [(ngModel)]="userSettings.leetcode_username"
+        [(ngModel)]="userSettings.leetcodeUsername"
         class="p-2 border rounded-lg bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 invalid:border-red-500"
         required
         aria-describedby="leetcodeUsernameHelp"
@@ -91,7 +91,7 @@
       <button
         type="submit"
         class="px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-400 transition"
-        [disabled]="!userSettings.preferred_username || !userSettings.leetcode_username"
+        [disabled]="!userSettings.preferredUsername || !userSettings.leetcodeUsername"
       >
         Update Settings
       </button>
