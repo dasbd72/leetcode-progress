@@ -25,6 +25,8 @@ def lambda_handler(event, context):
         AttributesToGet=["leetcode_username"]
     )
     user_items = users_response.get("Items", [])
+    # Remove duplicates
+    user_items = list({v["leetcode_username"]: v for v in user_items}.values())
     performance["get_users"] = perf_counter() - start_perf
 
     # Fetch progress for each user
