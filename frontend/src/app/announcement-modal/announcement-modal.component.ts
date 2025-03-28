@@ -3,6 +3,7 @@ import {
   CUSTOM_ELEMENTS_SCHEMA,
   Component,
   EventEmitter,
+  HostListener,
   Input,
   NO_ERRORS_SCHEMA,
   Output,
@@ -23,5 +24,15 @@ export class AnnouncementModalComponent {
 
   onClose() {
     this.closeModal.emit();
+  }
+
+  // Closes dropdown when clicking outside
+  @HostListener('document:click', ['$event'])
+  onClick(event: MouseEvent) {
+    const clickedInside =
+      event.target instanceof HTMLElement && event.target.closest('.announcement-modal-inner');
+    if (!clickedInside) {
+      this.onClose();
+    }
   }
 }
