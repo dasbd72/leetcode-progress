@@ -5,96 +5,92 @@
   >
     <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-yellow-500"></div>
   </div>
-  <form
-    *ngIf="isAuthenticated"
-    (ngSubmit)="onSubmit()"
-    class="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg space-y-4"
-  >
-    <h2 class="text-2xl font-semibold text-center">Update User Settings</h2>
+  <div *ngIf="userSettings$ | async">
+    <form
+      (ngSubmit)="onSubmit()"
+      class="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg space-y-4"
+    >
+      <h2 class="text-2xl font-semibold text-center">Update User Settings</h2>
 
-    <!-- Email Field (Read-only) -->
-    <div class="flex flex-col">
-      <label for="email" class="mb-1 text-sm font-medium text-gray-700">Email:</label>
-      <input
-        type="email"
-        id="email"
-        name="email"
-        [(ngModel)]="userSettings.email"
-        class="p-2 border rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
-        [readonly]="true"
-        disabled
-        aria-describedby="emailHelp"
-      />
-      <small id="emailHelp" class="text-xs text-gray-500"
-        >You cannot change this email address.</small
-      >
-    </div>
+      <div class="flex flex-col">
+        <label for="email" class="mb-1 text-sm font-medium text-gray-700">Email:</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          [(ngModel)]="userSettings.email"
+          class="p-2 border rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
+          [readonly]="true"
+          disabled
+          aria-describedby="emailHelp"
+        />
+        <small id="emailHelp" class="text-xs text-gray-500"
+          >You cannot change this email address.</small
+        >
+      </div>
 
-    <!-- Username Field (Read-only) -->
-    <div class="flex flex-col">
-      <label for="username" class="mb-1 text-sm font-medium text-gray-700">Username:</label>
-      <input
-        type="text"
-        id="username"
-        name="username"
-        [(ngModel)]="userSettings.username"
-        class="p-2 border rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
-        [readonly]="true"
-        disabled
-        aria-describedby="usernameHelp"
-      />
-      <small id="usernameHelp" class="text-xs text-gray-500"
-        >You cannot change this username.</small
-      >
-    </div>
+      <div class="flex flex-col">
+        <label for="username" class="mb-1 text-sm font-medium text-gray-700">Username:</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          [(ngModel)]="userSettings.username"
+          class="p-2 border rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
+          [readonly]="true"
+          disabled
+          aria-describedby="usernameHelp"
+        />
+        <small id="usernameHelp" class="text-xs text-gray-500"
+          >You cannot change this username.</small
+        >
+      </div>
 
-    <!-- Preferred Username -->
-    <div class="flex flex-col">
-      <label for="preferred_username" class="mb-1 text-sm font-medium text-gray-700"
-        >Preferred Username:</label
-      >
-      <input
-        type="text"
-        id="preferred_username"
-        name="preferred_username"
-        [(ngModel)]="userSettings.preferredUsername"
-        class="p-2 border rounded-lg bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 invalid:border-red-500"
-        required
-        aria-describedby="preferredUsernameHelp"
-      />
-      <small id="preferredUsernameHelp" class="text-xs text-gray-500"
-        >Enter your preferred username. <span class="text-red-500">Required.</span></small
-      >
-    </div>
+      <div class="flex flex-col">
+        <label for="preferred_username" class="mb-1 text-sm font-medium text-gray-700"
+          >Preferred Username:</label
+        >
+        <input
+          type="text"
+          id="preferred_username"
+          name="preferred_username"
+          [(ngModel)]="userSettings.preferredUsername"
+          class="p-2 border rounded-lg bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 invalid:border-red-500"
+          required
+          aria-describedby="preferredUsernameHelp"
+        />
+        <small id="preferredUsernameHelp" class="text-xs text-gray-500"
+          >Enter your preferred username. <span class="text-red-500">Required.</span></small
+        >
+      </div>
 
-    <!-- LeetCode Username -->
-    <div class="flex flex-col">
-      <label for="leetcode_username" class="mb-1 text-sm font-medium text-gray-700"
-        >LeetCode Username:</label
-      >
-      <input
-        type="text"
-        id="leetcode_username"
-        name="leetcode_username"
-        [(ngModel)]="userSettings.leetcodeUsername"
-        class="p-2 border rounded-lg bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 invalid:border-red-500"
-        required
-        aria-describedby="leetcodeUsernameHelp"
-      />
-      <small id="leetcodeUsernameHelp" class="text-xs text-gray-500"
-        >Your username for LeetCode. <span class="text-red-500">Required.</span></small
-      >
-    </div>
+      <div class="flex flex-col">
+        <label for="leetcode_username" class="mb-1 text-sm font-medium text-gray-700"
+          >LeetCode Username:</label
+        >
+        <input
+          type="text"
+          id="leetcode_username"
+          name="leetcode_username"
+          [(ngModel)]="userSettings.leetcodeUsername"
+          class="p-2 border rounded-lg bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 invalid:border-red-500"
+          required
+          aria-describedby="leetcodeUsernameHelp"
+        />
+        <small id="leetcodeUsernameHelp" class="text-xs text-gray-500"
+          >Your username for LeetCode. <span class="text-red-500">Required.</span></small
+        >
+      </div>
 
-    <!-- Submit Button -->
-    <div class="flex justify-center">
-      <button
-        type="submit"
-        class="px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-400 transition"
-        [disabled]="!userSettings.preferredUsername || !userSettings.leetcodeUsername"
-      >
-        Update Settings
-      </button>
-    </div>
-  </form>
+      <div class="flex justify-center">
+        <button
+          type="submit"
+          class="px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-400 transition"
+          [disabled]="!userSettings.preferredUsername || !userSettings.leetcodeUsername"
+        >
+          Update Settings
+        </button>
+      </div>
+    </form>
+  </div>
 </div>

@@ -1,4 +1,8 @@
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
 import { AuthData, AuthService } from '../auth.service';
@@ -14,20 +18,23 @@ export interface UserSettings {
   providedIn: 'root',
 })
 export class UserService {
-  authData: AuthData = {
+  private authData: AuthData = {
     isAuthenticated: false,
     userData: null,
     accessToken: '',
     isLoading: true,
   };
-  userSettings: UserSettings = {
+  private userSettingsSubject = new BehaviorSubject<UserSettings>({
     email: '',
     username: '',
     preferredUsername: '',
     leetcodeUsername: '',
-  };
+  });
 
-  constructor(private authService: AuthService) {
+  constructor(
+    private authService: AuthService,
+    private http: HttpClient,
+  ) {
     this.authService.authData$.subscribe((authData) => {
       this.authData = authData;
     });
@@ -51,50 +58,59 @@ export class UserService {
     };
   }
 
-  async getUserSettings(): Promise<UserSettings> {
-    if (!this.authData.isAuthenticated) {
-      throw new Error('Not authenticated');
-    }
-    try {
-      const headers = new Headers({ Authorization: `Bearer ${this.authData.accessToken}` });
-      const response = await fetch(`${environment.apiBaseUrl}/user/settings`, { headers });
-      if (response.ok) {
-        const data = await response.json();
-        this.userSettings = this.convertToCamelCase(data);
-        return this.userSettings;
-      } else {
-        throw new Error(`Failed to fetch settings: ${response.status}`);
-      }
-    } catch (err) {
-      throw err;
-    }
+  get userSettings$(): Observable<UserSettings> {
+    return this.userSettingsSubject.asObservable();
   }
 
-  async updateUserSettings(userSettings: UserSettings): Promise<any> {
+  getUserSettings(): Observable<UserSettings> {
     if (!this.authData.isAuthenticated) {
-      throw new Error('Not authenticated');
+      return of({
+        email: '',
+        username: '',
+        preferredUsername: '',
+        leetcodeUsername: '',
+      });
     }
-    try {
-      const underscoredSettings = this.convertToUnderscoreCase(userSettings);
-      const headers = new Headers({
-        Authorization: `Bearer ${this.authData.accessToken}`,
-        'Content-Type': 'application/json',
-      });
-      const response = await fetch(`${environment.apiBaseUrl}/user/settings`, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify(underscoredSettings),
-      });
 
-      if (response.ok) {
-        const data = await response.json();
-        this.userSettings = this.convertToCamelCase(data);
-        return this.userSettings;
-      } else {
-        throw new Error(`Failed to update settings: ${response.status}`);
-      }
-    } catch (err) {
-      throw err;
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${this.authData.accessToken}`,
+    });
+
+    return this.http.get<any>(`${environment.apiBaseUrl}/user/settings`, { headers }).pipe(
+      map((data) => this.convertToCamelCase(data)),
+      tap((settings) => this.userSettingsSubject.next(settings)),
+      catchError((error) => {
+        console.error('Failed to fetch settings:', error);
+        return of({
+          email: '',
+          username: '',
+          preferredUsername: '',
+          leetcodeUsername: '',
+        });
+      }),
+    );
+  }
+
+  updateUserSettings(userSettings: UserSettings): Observable<UserSettings> {
+    if (!this.authData.isAuthenticated) {
+      return of(userSettings);
     }
+
+    const underscoredSettings = this.convertToUnderscoreCase(userSettings);
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${this.authData.accessToken}`,
+      'Content-Type': 'application/json',
+    });
+
+    return this.http
+      .put<any>(`${environment.apiBaseUrl}/user/settings`, underscoredSettings, { headers })
+      .pipe(
+        map((data) => this.convertToCamelCase(data)),
+        tap((settings) => this.userSettingsSubject.next(settings)),
+        catchError((error) => {
+          console.error('Failed to update settings:', error);
+          return of(userSettings);
+        }),
+      );
   }
 }
