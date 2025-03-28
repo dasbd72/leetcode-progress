@@ -8,8 +8,7 @@ export const routes: Routes = [
   {
     path: '',
     children: [
-      { path: '', redirectTo: 'home', pathMatch: 'full' },
-      { path: 'home', component: TotalComponent },
+      { path: '', redirectTo: 'total', pathMatch: 'full' },
       { path: 'total', component: TotalComponent },
       {
         path: 'chart',

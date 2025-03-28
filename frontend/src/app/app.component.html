@@ -1,27 +1,22 @@
 <header
   class="bg-gray-800 text-white px-[4vw] md:px-5 py-3 flex items-center justify-between shadow"
 >
-  <div class="truncate font-semibold md:w-[40vw] w-[6rem]">LeetCode Progress</div>
+  <!-- <div class="truncate font-semibold md:w-[40vw] w-[6rem]">LeetCode Progress</div> -->
+  <a routerLink="/" class="truncate font-semibold md:w-[40vw] w-[6rem] hover:cursor-pointer">
+    LeetCode Progress
+  </a>
   <nav class="flex flex-nowrap items-center justify-end whitespace-nowrap space-x-4 w-[40vw]">
-    <a
-      routerLink="/"
-      routerLinkActive="text-yellow-400 underline"
-      [routerLinkActiveOptions]="{ exact: true }"
-      class="hover:text-yellow-300 transition"
-    >
-      Home
-    </a>
     <a
       routerLink="/total"
       routerLinkActive="text-yellow-400 underline"
-      class="hover:text-yellow-300 transition"
+      class="hover:text-yellow-300 hover:cursor-pointer transition"
     >
       Total
     </a>
     <a
       routerLink="/chart"
       routerLinkActive="text-yellow-400 underline"
-      class="hover:text-yellow-300 transition"
+      class="hover:text-yellow-300 hover:cursor-pointer transition"
     >
       Chart
     </a>
