@@ -18,6 +18,7 @@ export class UserService {
     isAuthenticated: false,
     userData: null,
     accessToken: '',
+    isLoading: true,
   };
   userSettings: UserSettings = {
     email: '',
