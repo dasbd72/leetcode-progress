@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 
 import { environment } from '../../environments/environment';
+import { ProgressService } from '../api/progress.service';
 
 type TableData = { username: string; easy: number; medium: number; hard: number; total: number }[];
 type SortKey = 'username' | 'easy' | 'medium' | 'hard' | 'total' | '';
@@ -14,6 +15,8 @@ type SortDirection = 'asc' | 'desc';
   styleUrl: './total.component.css',
 })
 export class TotalComponent implements OnInit {
+  constructor(private progressService: ProgressService) {}
+
   title = 'LeetCode Progress Tracker';
   tableData: TableData = [];
 
@@ -21,18 +24,15 @@ export class TotalComponent implements OnInit {
   sortDirection: SortDirection = 'desc';
 
   async ngOnInit() {
-    try {
-      const response = await fetch(`${environment.apiBaseUrl}/latest`);
-      const result = await response.json();
-
-      this.tableData = Object.entries(result).map(([username, stats]) => ({
-        username,
-        ...(stats as any),
-      }));
-      this.sortData();
-    } catch (err) {
-      console.error('Failed to fetch data:', err);
-    }
+    this.progressService.getLatest().subscribe({
+      next: (result) => {
+        this.tableData = result;
+        this.sortData();
+      },
+      error: (err) => {
+        console.error('Failed to fetch data:', err);
+      },
+    });
   }
 
   sortData() {
