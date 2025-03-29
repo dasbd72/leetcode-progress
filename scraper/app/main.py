@@ -1,8 +1,9 @@
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
+from time import perf_counter
+
 import boto3
 from utils import fetch_question_progress
-from time import perf_counter
-from concurrent.futures import ThreadPoolExecutor
 
 # DynamoDB setup
 dynamodb = boto3.resource("dynamodb")
@@ -21,9 +22,7 @@ def lambda_handler(event, context):
 
     # Fetch all usernames and slugs from LeetCodeProgressUsers
     start_perf = perf_counter()
-    users_response = users_table.scan(
-        AttributesToGet=["leetcode_username"]
-    )
+    users_response = users_table.scan(AttributesToGet=["leetcode_username"])
     user_items = users_response.get("Items", [])
     # Remove duplicates
     user_items = list({v["leetcode_username"]: v for v in user_items}.values())
