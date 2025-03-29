@@ -1,10 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 
-import { environment } from '../../environments/environment';
-import { ProgressService } from '../api/progress.service';
+import { ProgressData, ProgressService } from '../api/progress.service';
 
-type TableData = { username: string; easy: number; medium: number; hard: number; total: number }[];
 type SortKey = 'username' | 'easy' | 'medium' | 'hard' | 'total' | '';
 type SortDirection = 'asc' | 'desc';
 
@@ -18,7 +16,7 @@ export class TotalComponent implements OnInit {
   constructor(private progressService: ProgressService) {}
 
   title = 'LeetCode Progress Tracker';
-  tableData: TableData = [];
+  tableData: ProgressData[] = [];
 
   sortKey: SortKey = 'total';
   sortDirection: SortDirection = 'desc';
