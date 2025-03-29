@@ -17,7 +17,7 @@ export interface Announcement {
 export class AnnouncementService {
   constructor(private http: HttpClient) {}
 
-  get announcements$(): Observable<Array<Announcement>> {
+  getAnnouncements(): Observable<Array<Announcement>> {
     return this.http
       .get<any>(`${environment.apiBaseUrl}/announcements`)
       .pipe(map((data) => data.announcements));

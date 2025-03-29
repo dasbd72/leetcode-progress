@@ -94,20 +94,16 @@ export class AppComponent implements OnInit {
     // Load announcement
     const lastFetched = localStorage.getItem('announcementLastFetched');
     if (!lastFetched || new Date().getTime() - Number(lastFetched) > 10 * 1000) {
-      this.announcementService.announcements$
-        .pipe(
-          tap((announcements) => {
-            this.announcements = announcements;
-            localStorage.setItem('announcementLastFetched', String(new Date().getTime()));
-            localStorage.setItem('announcements', JSON.stringify(announcements));
-            return announcements;
-          }),
-          catchError((error) => {
-            console.error('Failed to load announcements:', error);
-            return of(null);
-          }),
-        )
-        .subscribe();
+      this.announcementService.getAnnouncements().subscribe({
+        next: (announcements) => {
+          this.announcements = announcements;
+          localStorage.setItem('announcementLastFetched', String(new Date().getTime()));
+          localStorage.setItem('announcements', JSON.stringify(announcements));
+        },
+        error: (error) => {
+          console.error('Failed to load announcements:', error);
+        },
+      });
     } else {
       this.announcements = JSON.parse(localStorage.getItem('announcements') || '[]');
     }
