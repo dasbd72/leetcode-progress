@@ -30,10 +30,10 @@ export class ProgressService {
     );
   }
 
-  getLatestWithInterval(interval: string, timezone?: string): Observable<any> {
-    let url = `${environment.apiBaseUrl}/latest/${interval}`;
+  getLatestWithInterval(hours: number, limit: number, timezone?: string): Observable<any> {
+    let url = `${environment.apiBaseUrl}/latest/interval?hours=${hours}&limit=${limit}`;
     if (timezone) {
-      url += `?timezone=${encodeURIComponent(timezone)}`;
+      url += `&timezone=${encodeURIComponent(timezone)}`;
     }
     return this.http.get<any>(url).pipe(map((data) => data.data));
   }

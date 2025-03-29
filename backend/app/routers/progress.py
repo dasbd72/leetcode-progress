@@ -93,7 +93,7 @@ def calculate_time_intervals(now, time_delta, limit):
             )
             for i in range(limit - 1, -1, -1)
         ]
-    elif time_delta >= timedelta(hours=1):
+    else:
         return [
             int(
                 (now - time_delta * i)
@@ -102,8 +102,6 @@ def calculate_time_intervals(now, time_delta, limit):
             )
             for i in range(limit - 1, -1, -1)
         ]
-    else:
-        raise ValueError("Time delta must be at least 1 hour.")
 
 
 def get_progress_data(time_delta, limit, timezone_str="UTC"):
@@ -196,4 +194,17 @@ def get_latest_daily_progress(
     ),
 ):
     time_delta = timedelta(days=1)
+    return get_progress_data(time_delta, limit, timezone)
+
+@router.get("/latest/interval")
+def get_latest_interval_progress(
+    hours: int = Query(1, description="Interval in hours", ge=1, le=24),
+    limit: int = Query(
+        24, description="Number of intervals to look back", ge=1, le=50
+    ),
+    timezone: str = Query(
+        "UTC", description="Timezone name, e.g., 'Asia/Taipei'"
+    ),
+):
+    time_delta = timedelta(hours=hours)
     return get_progress_data(time_delta, limit, timezone)

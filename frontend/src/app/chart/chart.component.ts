@@ -67,8 +67,10 @@ export class ChartComponent implements OnInit {
   async fetchChartData() {
     // Get the timezone from the browser
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone ?? 'UTC';
+    const limit = this.interval === 'hour' ? 48 : 24;
+    const hours = this.interval === 'hour' ? 1 : 24;
 
-    this.progressService.getLatestWithInterval(this.interval, timezone).subscribe({
+    this.progressService.getLatestWithInterval(hours, limit, timezone).subscribe({
       next: (rawData) => {
         const timestamps = Object.keys(rawData)
           .map(Number)
@@ -77,7 +79,9 @@ export class ChartComponent implements OnInit {
           // Helper function to zero-pad a number
           const zp = (num: number, length: number) => `${num}`.padStart(length, '0');
           const date = new Date(ts * 1000);
-          if (this.interval === 'hour') {
+          if (this.interval === 'hour' && date.getHours() === 0) {
+            return `${zp(date.getMonth() + 1, 2)}/${zp(date.getDate(), 2)}`;
+          } else if (this.interval === 'hour') {
             return `${zp(date.getHours(), 2)}:${zp(date.getMinutes(), 2)}`;
           } else if (window.innerWidth < 768) {
             return `${zp(date.getMonth() + 1, 2)}/${zp(date.getDate(), 2)}`;
