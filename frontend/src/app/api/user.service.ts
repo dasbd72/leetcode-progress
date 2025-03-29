@@ -52,50 +52,57 @@ export class UserService {
     };
   }
 
+  private fetchUserSettings(accessToken: string): Observable<UserSettings> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${accessToken}`,
+    });
+    return this.http.get<any>(`${environment.apiBaseUrl}/user/settings`, { headers }).pipe(
+      map((data) => this.convertToCamelCase(data)),
+      tap((settings) => this.userSettingsSubject.next(settings)),
+      catchError((error) => {
+        console.error('Failed to fetch settings:', error);
+        return of({
+          email: '',
+          username: '',
+          preferredUsername: '',
+          leetcodeUsername: '',
+        });
+      }),
+    );
+  }
+
   getUserSettings(): Observable<UserSettings> {
     return this.authService.authData$.pipe(
       filter((authData) => authData.isAuthenticated && !!authData.accessToken),
-      switchMap((authData) => {
-        const headers = new HttpHeaders({
-          Authorization: `Bearer ${authData.accessToken}`,
-        });
-        return this.http.get<any>(`${environment.apiBaseUrl}/user/settings`, { headers }).pipe(
-          map((data) => this.convertToCamelCase(data)),
-          tap((settings) => this.userSettingsSubject.next(settings)),
-          catchError((error) => {
-            console.error('Failed to fetch settings:', error);
-            return of({
-              email: '',
-              username: '',
-              preferredUsername: '',
-              leetcodeUsername: '',
-            });
-          }),
-        );
-      }),
+      switchMap((authData) => this.fetchUserSettings(authData.accessToken)),
     );
+  }
+
+  private updateUserSettingsRequest(
+    accessToken: string,
+    userSettings: UserSettings,
+  ): Observable<UserSettings> {
+    const underscoredSettings = this.convertToUnderscoreCase(userSettings);
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    });
+    return this.http
+      .put<any>(`${environment.apiBaseUrl}/user/settings`, underscoredSettings, { headers })
+      .pipe(
+        map((data) => this.convertToCamelCase(data)),
+        tap((settings) => this.userSettingsSubject.next(settings)),
+        catchError((error) => {
+          console.error('Failed to update settings:', error);
+          return of(userSettings);
+        }),
+      );
   }
 
   updateUserSettings(userSettings: UserSettings): Observable<UserSettings> {
     return this.authService.authData$.pipe(
       filter((authData) => authData.isAuthenticated && !!authData.accessToken),
-      switchMap((authData) => {
-        const underscoredSettings = this.convertToUnderscoreCase(userSettings);
-        const headers = new HttpHeaders({
-          Authorization: `Bearer ${authData.accessToken}`,
-          'Content-Type': 'application/json',
-        });
-        return this.http
-          .put<any>(`${environment.apiBaseUrl}/user/settings`, underscoredSettings, { headers })
-          .pipe(
-            map((data) => this.convertToCamelCase(data)),
-            tap((settings) => this.userSettingsSubject.next(settings)),
-            catchError((error) => {
-              console.error('Failed to update settings:', error);
-              return of(userSettings);
-            }),
-          );
-      }),
+      switchMap((authData) => this.updateUserSettingsRequest(authData.accessToken, userSettings)),
     );
   }
 }
