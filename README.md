@@ -2,6 +2,29 @@
 
 Tracks your LeetCode progress.
 
+## Website
+
+[LeetCode Progress](https://leetcode-progress.dasbd72.com/)
+
+## Tech Stack
+
+- Frontend
+  - Angular
+  - AWS s3
+  - AWS CloudFront
+  - AWS Cognito
+  - Google OAuth
+- Backend
+  - Python
+  - AWS Lambda
+  - AWS DynamoDB
+  - AWS API Gateway
+- Scraper
+  - Python
+  - AWS Lambda
+  - AWS DynamoDB
+  - AWS EventBridge
+
 ## TODOs
 
 - [x] Backend to scrape specified users' progress from LeetCode.
