@@ -31,10 +31,18 @@ def fetch_usernames():
     return [user["username"] for user in user_items]
 
 
-def fetch_all_timestamps():
+def fetch_all_timestamps(time_delta, limit, now):
+    end_time = int(now.timestamp())
+    start_time = int((now - time_delta * (limit + 1)).timestamp())
+
     response = progress_table.scan(
         ProjectionExpression="#ts",
         ExpressionAttributeNames={"#ts": "timestamp"},
+        FilterExpression=" #ts BETWEEN :start_time AND :end_time",
+        ExpressionAttributeValues={
+            ":start_time": start_time,
+            ":end_time": end_time,
+        },
     )
     return sorted(
         set(
@@ -113,20 +121,20 @@ def get_progress_data(time_delta, limit, timezone_str="UTC"):
         "get_progress": 0,
     }
 
+    try:
+        tz = pytz.timezone(timezone_str)
+    except pytz.UnknownTimeZoneError:
+        return {"error": f"Invalid timezone: {timezone_str}"}
+    now = datetime.now(tz)
+
     start_perf = perf_counter()
     usernames = fetch_usernames()
     performance["get_users"] = perf_counter() - start_perf
 
     start_perf = perf_counter()
-    all_timestamps = fetch_all_timestamps()
+    all_timestamps = fetch_all_timestamps(time_delta, limit, now)
     performance["get_timestamp"] = perf_counter() - start_perf
 
-    try:
-        tz = pytz.timezone(timezone_str)
-    except pytz.UnknownTimeZoneError:
-        return {"error": f"Invalid timezone: {timezone_str}"}
-
-    now = datetime.now(tz)
     start_perf = perf_counter()
     time_starts = calculate_time_intervals(now, time_delta, limit)
     selected_timestamps = []
@@ -195,6 +203,7 @@ def get_latest_daily_progress(
 ):
     time_delta = timedelta(days=1)
     return get_progress_data(time_delta, limit, timezone)
+
 
 @router.get("/latest/interval")
 def get_latest_interval_progress(
