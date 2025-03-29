@@ -13,7 +13,7 @@ progress_table = dynamodb.Table("LeetCodeProgress")
 users_table = dynamodb.Table("LeetCodeProgressUsers")
 
 
-def get_latest_timestamp():
+def get_latest_timestamp() -> int | None:
     # Scan to get the latest timestamp value
     response = progress_table.scan(
         ProjectionExpression="#ts",
@@ -25,15 +25,17 @@ def get_latest_timestamp():
     return max(timestamps) if timestamps else None
 
 
-def fetch_usernames():
+def fetch_usernames() -> list[str]:
     response = users_table.scan()
     user_items = response.get("Items", [])
     return [user["username"] for user in user_items]
 
 
-def fetch_all_timestamps(time_delta, limit, now):
+def fetch_all_timestamps(
+    time_delta: timedelta, limit: int, now: datetime
+) -> list[int]:
     end_time = int(now.timestamp())
-    start_time = int((now - time_delta * (limit + 1)).timestamp())
+    start_time = int((now - time_delta * limit).timestamp())
 
     response = progress_table.scan(
         ProjectionExpression="#ts",
@@ -53,7 +55,9 @@ def fetch_all_timestamps(time_delta, limit, now):
     )
 
 
-def fetch_progress_data(selected_timestamps, usernames):
+def fetch_progress_data(
+    selected_timestamps: list[int], usernames: list[str]
+) -> dict:
     data = {}
     # Build a list of request keys for batch_get_item
     request_keys = [
@@ -91,7 +95,9 @@ def fetch_progress_data(selected_timestamps, usernames):
     return data
 
 
-def calculate_time_intervals(now, time_delta, limit):
+def calculate_time_intervals(
+    now: datetime, time_delta: timedelta, limit: int
+) -> list[int]:
     if time_delta >= timedelta(days=1):
         return [
             int(
@@ -112,7 +118,9 @@ def calculate_time_intervals(now, time_delta, limit):
         ]
 
 
-def get_progress_data(time_delta, limit, timezone_str="UTC"):
+def get_progress_data(
+    time_delta: timedelta, limit: int, timezone_str: str = "UTC"
+) -> dict:
     data = {}
     performance = {
         "get_users": 0,
