@@ -15,11 +15,11 @@ export interface Announcement {
   providedIn: 'root',
 })
 export class AnnouncementService {
-  private apiUrl = environment.apiBaseUrl + '/announcements';
-
   constructor(private http: HttpClient) {}
 
   get announcements$(): Observable<Array<Announcement>> {
-    return this.http.get<any>(this.apiUrl).pipe(map((data) => data.announcements));
+    return this.http
+      .get<any>(`${environment.apiBaseUrl}/announcements`)
+      .pipe(map((data) => data.announcements));
   }
 }
