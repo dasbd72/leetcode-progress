@@ -8,8 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "eslint . --ext .ts,.html",
-    "fix": "eslint . --ext .ts,.html --fix",
-    "format": "prettier --write .",
+    "format": "eslint . --ext .ts,.html --fix && prettier --write .",
     "prepare": "cd .. && husky frontend/.husky"
   },
   "private": true,
