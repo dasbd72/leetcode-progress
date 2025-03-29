@@ -9,7 +9,7 @@
     "test": "ng test",
     "lint": "eslint . --ext .ts,.html",
     "format": "eslint . --ext .ts,.html --fix && prettier --write .",
-    "prepare": "cd .. && husky frontend/.husky"
+    "prepare": "cd .. && husky frontend/.husky && git config --unset-all core.hooksPath"
   },
   "private": true,
   "type": "module",
