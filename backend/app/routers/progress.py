@@ -28,7 +28,7 @@ def get_latest_timestamp() -> int | None:
 def fetch_usernames() -> list[str]:
     response = users_table.scan()
     user_items = response.get("Items", [])
-    return [user["username"] for user in user_items]
+    return list(set([user["leetcode_username"] for user in user_items]))
 
 
 def fetch_all_timestamps(
