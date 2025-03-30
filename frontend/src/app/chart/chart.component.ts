@@ -79,17 +79,17 @@ export class ChartComponent implements OnInit {
           // Helper function to zero-pad a number
           const zp = (num: number, length: number) => `${num}`.padStart(length, '0');
           const date = new Date(ts * 1000);
-          if (this.interval === 'hour' && date.getHours() === 0) {
-            return `${zp(date.getMonth() + 1, 2)}/${zp(date.getDate(), 2)}`;
-          } else if (this.interval === 'hour') {
-            return `${zp(date.getHours(), 2)}:${zp(date.getMinutes(), 2)}`;
-          } else if (window.innerWidth < 768) {
-            return `${zp(date.getMonth() + 1, 2)}/${zp(date.getDate(), 2)}`;
+          if (this.interval === 'hour') {
+            if (date.getHours() === 0) {
+              return `${zp(date.getMonth() + 1, 2)}/${zp(date.getDate(), 2)}`;
+            } else {
+              return `${zp(date.getHours(), 2)}:${zp(date.getMinutes(), 2)}`;
+            }
           } else {
-            return `${zp(date.getMonth() + 1, 2)}/${zp(date.getDate(), 2)} ${zp(date.getHours(), 2)}:${zp(date.getMinutes(), 2)}`;
+            return `${zp(date.getMonth() + 1, 2)}/${zp(date.getDate(), 2)}`;
           }
         });
-        const labels = this.mode === 'delta' ? fullLabels.slice(1) : fullLabels;
+        const labels = this.mode === 'delta' ? fullLabels.slice(0, -1) : fullLabels;
 
         const allUsers = new Set<string>();
         for (const ts of timestamps) {
