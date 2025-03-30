@@ -149,6 +149,7 @@ def get_progress_data(
     time_starts = calculate_time_intervals(now, time_delta, limit)
 
     # Select and align timestamps for each user
+    is_latest_added = False
     all_selected_timestamps = {}
     for username in usernames:
         # Fetch all timestamps for the user
@@ -170,6 +171,7 @@ def get_progress_data(
                 selected_timestamps[min(candidates)] = time_start
         # If the last timestamp is not in the selected timestamps, add it
         if all_timestamps and all_timestamps[-1] not in selected_timestamps:
+            is_latest_added = True
             selected_timestamps[all_timestamps[-1]] = int(now.timestamp())
         all_selected_timestamps[username] = selected_timestamps
         performance["find_timestamp"] += perf_counter() - start_perf
@@ -177,6 +179,10 @@ def get_progress_data(
     # Fetch the progress data for all users
     start_perf = perf_counter()
     data = fetch_progress_data(all_selected_timestamps)
+    # Duplicate the last timestamp if not added
+    if not is_latest_added and data:
+        last_timestamp = max(data.keys())
+        data[now.timestamp()] = data[last_timestamp]
     performance["get_progress"] += perf_counter() - start_perf
 
     # Sort the data by timestamp
