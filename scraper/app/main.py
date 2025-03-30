@@ -7,7 +7,7 @@ from utils import fetch_question_progress
 
 # DynamoDB setup
 dynamodb = boto3.resource("dynamodb")
-progress_table = dynamodb.Table("LeetCodeProgress")
+progress_table = dynamodb.Table("LeetCodeProgress-s8nczw")
 users_table = dynamodb.Table("LeetCodeProgressUsers")
 
 
@@ -47,7 +47,7 @@ def lambda_handler(event, context):
                 print(f"Failed to fetch progress for {username}: {e}")
     performance["fetch_progress"] = perf_counter() - start_perf
 
-    # Batch write results to LeetCodeProgress
+    # Batch write results to LeetCodeProgress-s8nczw
     start_perf = perf_counter()
     with progress_table.batch_writer() as batch:
         for username, stats in result.items():

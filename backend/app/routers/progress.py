@@ -9,7 +9,7 @@ from fastapi import APIRouter, Query
 router = APIRouter()
 
 dynamodb = boto3.resource("dynamodb")
-progress_table = dynamodb.Table("LeetCodeProgress")
+progress_table = dynamodb.Table("LeetCodeProgress-s8nczw")
 users_table = dynamodb.Table("LeetCodeProgressUsers")
 
 
@@ -32,19 +32,16 @@ def fetch_usernames() -> list[str]:
 
 
 def fetch_all_timestamps(
-    time_delta: timedelta, limit: int, now: datetime
+    username: str, time_delta: timedelta, limit: int, now: datetime
 ) -> list[int]:
     end_time = int(now.timestamp())
     start_time = int((now - time_delta * limit).timestamp())
 
-    response = progress_table.scan(
+    response = progress_table.query(
+        KeyConditionExpression=Key("username").eq(username)
+        & Key("timestamp").between(start_time, end_time),
         ProjectionExpression="#ts",
         ExpressionAttributeNames={"#ts": "timestamp"},
-        FilterExpression=" #ts BETWEEN :start_time AND :end_time",
-        ExpressionAttributeValues={
-            ":start_time": start_time,
-            ":end_time": end_time,
-        },
     )
     return sorted(
         set(
@@ -56,24 +53,31 @@ def fetch_all_timestamps(
 
 
 def fetch_progress_data(
-    selected_timestamps: list[int], usernames: list[str]
+    all_selected_timestamps: dict[str, dict[int, int]],
 ) -> dict:
+    """Fetches user progress data for the given timestamps.
+
+    Args:
+        all_selected_timestamps (dict[str, dict[int, int]]): A dictionary mapping usernames to their selected timestamps.
+
+    Returns:
+        dict: A dictionary containing the progress data for each user.
+    """
     data = {}
-    # Build a list of request keys for batch_get_item
+
+    # Flatten the request keys for batch processing
     request_keys = [
-        {"timestamp": ts, "username": username}
-        for ts in selected_timestamps
-        for username in usernames
+        {"username": username, "timestamp": ts}
+        for username, selected_timestamps in all_selected_timestamps.items()
+        for ts in selected_timestamps.keys()
     ]
     # Split the request keys into batches of 100 to avoid exceeding the limit
-    request_batches = [
-        request_keys[i : i + 100] for i in range(0, len(request_keys), 100)
-    ]
-    for batch in request_batches:
+    for i in range(0, len(request_keys), 100):
+        batch_request_keys = request_keys[i : i + 100]
         response = dynamodb.meta.client.batch_get_item(
             RequestItems={
                 progress_table.name: {
-                    "Keys": batch,
+                    "Keys": batch_request_keys,
                     "ProjectionExpression": "#ts, username, easy, medium, hard, #ttl",
                     "ExpressionAttributeNames": {
                         "#ts": "timestamp",
@@ -83,15 +87,17 @@ def fetch_progress_data(
             }
         )
         for item in response["Responses"].get(progress_table.name, []):
-            ts = str(item["timestamp"])
+            username = item["username"]
+            ts = all_selected_timestamps[username][item["timestamp"]]
             if ts not in data:
                 data[ts] = {}
-            data[ts][item["username"]] = {
-                "easy": item.get("easy", 0),
-                "medium": item.get("medium", 0),
-                "hard": item.get("hard", 0),
-                "total": item.get("total", 0),
+            data[ts][username] = {
+                "easy": int(item.get("easy", 0)),
+                "medium": int(item.get("medium", 0)),
+                "hard": int(item.get("hard", 0)),
+                "total": int(item.get("total", 0)),
             }
+
     return data
 
 
@@ -139,30 +145,54 @@ def get_progress_data(
     usernames = fetch_usernames()
     performance["get_users"] = perf_counter() - start_perf
 
-    start_perf = perf_counter()
-    all_timestamps = fetch_all_timestamps(time_delta, limit, now)
-    performance["get_timestamp"] = perf_counter() - start_perf
-
-    start_perf = perf_counter()
+    # Calculate the time intervals for alignment
     time_starts = calculate_time_intervals(now, time_delta, limit)
-    selected_timestamps = []
-    for time_start in time_starts:
-        time_end = time_start + int(time_delta.total_seconds())
-        candidates = [
-            ts for ts in all_timestamps if time_start <= ts < time_end
-        ]
-        if candidates:
-            selected_timestamps.append(min(candidates))
-    if (
-        len(all_timestamps) != 0
-        and all_timestamps[-1] not in selected_timestamps
-    ):
-        selected_timestamps.append(all_timestamps[-1])
-    performance["find_timestamp"] = perf_counter() - start_perf
 
+    # Select and align timestamps for each user
+    all_selected_timestamps = {}
+    for username in usernames:
+        # Fetch all timestamps for the user
+        start_perf = perf_counter()
+        all_timestamps = fetch_all_timestamps(username, time_delta, limit, now)
+        performance["get_timestamp"] += perf_counter() - start_perf
+
+        # Find the timestamps that fall within the time intervals
+        # and align them with the start of the intervals
+        start_perf = perf_counter()
+        time_delta_seconds = int(time_delta.total_seconds())
+        selected_timestamps = {}
+        for time_start in time_starts:
+            time_end = time_start + time_delta_seconds
+            candidates = [
+                ts for ts in all_timestamps if time_start <= ts < time_end
+            ]
+            if candidates:
+                selected_timestamps[min(candidates)] = time_start
+        # If the last timestamp is not in the selected timestamps, add it
+        if all_timestamps and all_timestamps[-1] not in selected_timestamps:
+            selected_timestamps[all_timestamps[-1]] = int(now.timestamp())
+        all_selected_timestamps[username] = selected_timestamps
+        performance["find_timestamp"] += perf_counter() - start_perf
+
+    # Fetch the progress data for all users
     start_perf = perf_counter()
-    data = fetch_progress_data(selected_timestamps, usernames)
-    performance["get_progress"] = perf_counter() - start_perf
+    data = fetch_progress_data(all_selected_timestamps)
+    performance["get_progress"] += perf_counter() - start_perf
+
+    # Sort the data by timestamp
+    data = dict(sorted(data.items()))
+    # Fill in missing timestamps with first value for each user
+    for username in all_selected_timestamps:
+        first_data = None
+        for ts in data:
+            if username in data[ts]:
+                first_data = ts
+                break
+        if first_data is None:
+            continue
+        for ts in data:
+            if username not in data[ts]:
+                data[ts][username] = data[first_data][username]
 
     return {"data": data, "performance": performance}
 
@@ -170,22 +200,24 @@ def get_progress_data(
 @router.get("/")
 @router.get("/latest")
 def get_latest_user_progress():
-    latest_ts = get_latest_timestamp()
-    if not latest_ts:
-        return {}
-
-    response = progress_table.query(
-        KeyConditionExpression=Key("timestamp").eq(latest_ts)
-    )
-
+    usernames = fetch_usernames()
     result = {}
-    for item in response["Items"]:
-        result[item["username"]] = {
-            "easy": item.get("easy", 0),
-            "medium": item.get("medium", 0),
-            "hard": item.get("hard", 0),
-            "total": item.get("total", 0),
-        }
+    for username in usernames:
+        response = progress_table.query(
+            KeyConditionExpression=Key("username").eq(username),
+            Limit=1,
+            ScanIndexForward=False,  # Sort by timestamp descending
+        )
+        items = response.get("Items", [])
+        if items:
+            item = items[0]
+            result[username] = {
+                "timestamp": item.get("timestamp", 0),
+                "easy": item.get("easy", 0),
+                "medium": item.get("medium", 0),
+                "hard": item.get("hard", 0),
+                "total": item.get("total", 0),
+            }
 
     return result
 
