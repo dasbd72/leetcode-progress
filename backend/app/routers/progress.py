@@ -28,7 +28,9 @@ def get_latest_timestamp() -> int | None:
 def fetch_usernames() -> list[str]:
     response = users_table.scan()
     user_items = response.get("Items", [])
-    return list(set([user["leetcode_username"] for user in user_items]))
+    usernames = list(set([user["leetcode_username"] for user in user_items]))
+    usernames = sorted(usernames)
+    return usernames
 
 
 def fetch_all_timestamps(
@@ -200,7 +202,7 @@ def get_progress_data(
             if username not in data[ts]:
                 data[ts][username] = data[first_data][username]
 
-    return {"data": data, "performance": performance}
+    return {"data": data, "performance": performance, "usernames": usernames}
 
 
 @router.get("/")

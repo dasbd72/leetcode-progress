@@ -13,6 +13,12 @@ export interface ProgressData {
   total: number;
 }
 
+export interface IntervalData {
+  data: any;
+  performance: any;
+  usernames: string[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -30,11 +36,11 @@ export class ProgressService {
     );
   }
 
-  getLatestWithInterval(hours: number, limit: number, timezone?: string): Observable<any> {
+  getLatestWithInterval(hours: number, limit: number, timezone?: string): Observable<IntervalData> {
     let url = `${environment.apiBaseUrl}/latest/interval?hours=${hours}&limit=${limit}`;
     if (timezone) {
       url += `&timezone=${encodeURIComponent(timezone)}`;
     }
-    return this.http.get<any>(url).pipe(map((data) => data.data));
+    return this.http.get<any>(url).pipe(map((data) => data as IntervalData));
   }
 }

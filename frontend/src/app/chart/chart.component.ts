@@ -71,8 +71,8 @@ export class ChartComponent implements OnInit {
     const hours = this.interval === 'hour' ? 1 : 24;
 
     this.progressService.getLatestWithInterval(hours, limit, timezone).subscribe({
-      next: (rawData) => {
-        const timestamps = Object.keys(rawData)
+      next: (intervalData) => {
+        const timestamps = Object.keys(intervalData.data)
           .map(Number)
           .sort((a, b) => a - b);
         const fullLabels: string[] = timestamps.map((ts) => {
@@ -91,30 +91,26 @@ export class ChartComponent implements OnInit {
         });
         const labels = this.mode === 'delta' ? fullLabels.slice(0, -1) : fullLabels;
 
-        const allUsers = new Set<string>();
-        for (const ts of timestamps) {
-          Object.keys(rawData[ts]).forEach((username) => allUsers.add(username));
-        }
         const datasets: ChartDataset<'line'>[] = [];
 
-        for (const username of allUsers) {
+        for (const username of intervalData.usernames) {
           const data: number[] = [];
           if (this.mode === 'total') {
             for (let i = 0; i < timestamps.length; i++) {
-              const stats = rawData[timestamps[i]]?.[username];
-              const total = stats?.[this.difficulty] ?? null;
-              data.push(total);
+              const stats = intervalData.data[timestamps[i]]?.[username];
+              const amount = stats?.[this.difficulty] ?? null;
+              data.push(amount);
             }
           } else if (this.mode === 'delta') {
             for (let i = 1; i < timestamps.length; i++) {
-              const prevStats = rawData[timestamps[i - 1]]?.[username];
+              const prevStats = intervalData.data[timestamps[i - 1]]?.[username];
               const prevTotal = prevStats?.[this.difficulty] ?? 0;
-              const stats = rawData[timestamps[i]]?.[username];
-              const total = stats?.[this.difficulty] ?? 0;
+              const stats = intervalData.data[timestamps[i]]?.[username];
+              const amount = stats?.[this.difficulty] ?? 0;
               if (stats === undefined || prevStats === undefined) {
                 data.push(0);
               } else {
-                data.push(total - prevTotal);
+                data.push(amount - prevTotal);
               }
             }
           }
