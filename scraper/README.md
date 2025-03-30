@@ -53,19 +53,3 @@
     # Disable old event
     aws events disable-rule --name leetcode-progress-ScrapeHourly
     ```
-
-- 2025-03-30: Recreate a table to fix keys
-
-    ```bash
-    # Create new table
-    aws dynamodb create-table \
-        --table-name LeetCodeProgress-s8nczw \
-        --attribute-definitions \
-            AttributeName=username,AttributeType=S \
-            AttributeName=timestamp,AttributeType=N \
-        --key-schema \
-            AttributeName=username,KeyType=HASH \
-            AttributeName=timestamp,KeyType=RANGE \
-        --billing-mode PAY_PER_REQUEST
-    # Grant permission manually on AWS console
-    ```
