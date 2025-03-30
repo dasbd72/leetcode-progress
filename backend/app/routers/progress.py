@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from time import perf_counter
 
 import boto3
+import cache
 import pytz
 from boto3.dynamodb.conditions import Key
 from fastapi import APIRouter, Query
@@ -129,6 +130,15 @@ def calculate_time_intervals(
 def get_progress_data(
     time_delta: timedelta, limit: int, timezone_str: str = "UTC"
 ) -> dict:
+    # Fetch the data from the cache if available
+    cache_key = f"progress:get_progress_data:{int(time_delta.total_seconds())}:{limit}:{timezone_str}"
+    if cache.is_cache_fresh(cache_key, ttl=300):
+        cached_data = cache.get_cache(cache_key)
+        if cached_data:
+            cached_data["source"] = "cache"
+            return cached_data
+
+    # If cache is not fresh, fetch the data
     data = {}
     performance = {
         "get_users": 0,
@@ -202,12 +212,29 @@ def get_progress_data(
             if username not in data[ts]:
                 data[ts][username] = data[first_data][username]
 
-    return {"data": data, "performance": performance, "usernames": usernames}
+    response = {
+        "data": data,
+        "performance": performance,
+        "usernames": usernames,
+        "source": "dynamodb",
+    }
+
+    # Store the data in the cache
+    cache.put_cache(cache_key, response)
+    return response
 
 
 @router.get("/")
 @router.get("/latest")
 def get_latest_user_progress():
+    # Fetch the data from the cache if available
+    cache_key = "progress:get_latest_user_progress"
+    if cache.is_cache_fresh(cache_key, ttl=300):
+        cached_data = cache.get_cache(cache_key)
+        if cached_data:
+            return cached_data
+
+    # If cache is not fresh, fetch the data
     usernames = fetch_usernames()
     result = {}
     for username in usernames:
@@ -220,13 +247,15 @@ def get_latest_user_progress():
         if items:
             item = items[0]
             result[username] = {
-                "timestamp": item.get("timestamp", 0),
-                "easy": item.get("easy", 0),
-                "medium": item.get("medium", 0),
-                "hard": item.get("hard", 0),
-                "total": item.get("total", 0),
+                "timestamp": int(item.get("timestamp", 0)),
+                "easy": int(item.get("easy", 0)),
+                "medium": int(item.get("medium", 0)),
+                "hard": int(item.get("hard", 0)),
+                "total": int(item.get("total", 0)),
             }
 
+    # Store the data in the cache
+    cache.put_cache(cache_key, result)
     return result
 
 
