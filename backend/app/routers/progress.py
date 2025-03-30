@@ -33,7 +33,7 @@ def fetch_usernames() -> list[str]:
     return usernames
 
 
-def fetch_all_timestamps(
+def fetch_timestamps(
     username: str, time_delta: timedelta, limit: int, now: datetime
 ) -> list[int]:
     end_time = int(now.timestamp())
@@ -156,7 +156,7 @@ def get_progress_data(
     for username in usernames:
         # Fetch all timestamps for the user
         start_perf = perf_counter()
-        all_timestamps = fetch_all_timestamps(username, time_delta, limit, now)
+        all_timestamps = fetch_timestamps(username, time_delta, limit, now)
         performance["get_timestamp"] += perf_counter() - start_perf
 
         # Find the timestamps that fall within the time intervals
