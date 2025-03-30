@@ -16,15 +16,24 @@ export class TotalComponent implements OnInit {
   constructor(private progressService: ProgressService) {}
 
   title = 'LeetCode Progress Tracker';
-  tableData: ProgressData[] = [];
+  tableData: {
+    username: string;
+    easy: number;
+    medium: number;
+    hard: number;
+    total: number;
+  }[] = [];
 
   sortKey: SortKey = 'total';
   sortDirection: SortDirection = 'desc';
 
   async ngOnInit() {
     this.progressService.getLatest().subscribe({
-      next: (result) => {
-        this.tableData = result;
+      next: (result: ProgressData) => {
+        this.tableData = Object.entries(result.data).map(([username, stats]) => ({
+          username,
+          ...(stats as { easy: number; medium: number; hard: number; total: number }),
+        }));
         this.sortData();
       },
       error: (err) => {

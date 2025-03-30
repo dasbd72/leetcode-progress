@@ -6,11 +6,9 @@ import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface ProgressData {
-  username: string;
-  easy: number;
-  medium: number;
-  hard: number;
-  total: number;
+  data: any;
+  performance: any;
+  usernames: string[];
 }
 
 export interface IntervalData {
@@ -25,15 +23,10 @@ export interface IntervalData {
 export class ProgressService {
   constructor(private http: HttpClient) {}
 
-  getLatest(): Observable<ProgressData[]> {
-    return this.http.get<any>(`${environment.apiBaseUrl}/latest`).pipe(
-      map((data) => {
-        return Object.entries(data).map(([username, stats]) => ({
-          username,
-          ...(stats as any),
-        }));
-      }),
-    );
+  getLatest(): Observable<ProgressData> {
+    return this.http
+      .get<any>(`${environment.apiBaseUrl}/latest`)
+      .pipe(map((data) => data as ProgressData));
   }
 
   getLatestWithInterval(hours: number, limit: number, timezone?: string): Observable<IntervalData> {

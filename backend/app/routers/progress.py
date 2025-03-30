@@ -232,11 +232,22 @@ def get_latest_user_progress():
     if cache.is_cache_fresh(cache_key, ttl=300):
         cached_data = cache.get_cache(cache_key)
         if cached_data:
+            cached_data["source"] = "cache"
             return cached_data
 
     # If cache is not fresh, fetch the data
+    data = {}
+    performance = {
+        "get_users": 0,
+        "get_progress": 0,
+    }
+
+    start_perf = perf_counter()
     usernames = fetch_usernames()
-    result = {}
+    performance["get_users"] = perf_counter() - start_perf
+
+    # Fetch the latest progress data for each user
+    start_perf = perf_counter()
     for username in usernames:
         response = progress_table.query(
             KeyConditionExpression=Key("username").eq(username),
@@ -246,17 +257,26 @@ def get_latest_user_progress():
         items = response.get("Items", [])
         if items:
             item = items[0]
-            result[username] = {
+            data[username] = {
                 "timestamp": int(item.get("timestamp", 0)),
                 "easy": int(item.get("easy", 0)),
                 "medium": int(item.get("medium", 0)),
                 "hard": int(item.get("hard", 0)),
                 "total": int(item.get("total", 0)),
             }
+    # Sort the data by username
+    data = dict(sorted(data.items()))
+    performance["get_progress"] = perf_counter() - start_perf
+
+    response = {
+        "data": data,
+        "usernames": usernames,
+        "source": "dynamodb",
+    }
 
     # Store the data in the cache
-    cache.put_cache(cache_key, result)
-    return result
+    cache.put_cache(cache_key, response)
+    return response
 
 
 @router.get("/latest/interval")
