@@ -190,29 +190,6 @@ def get_latest_user_progress():
     return result
 
 
-@router.get("/latest/hour")
-def get_latest_hourly_progress(
-    limit: int = Query(
-        24, description="Number of hours to look back", ge=1, le=50
-    )
-):
-    time_delta = timedelta(hours=1)
-    return get_progress_data(time_delta, limit)
-
-
-@router.get("/latest/day")
-def get_latest_daily_progress(
-    limit: int = Query(
-        24, description="Number of days to look back", ge=1, le=50
-    ),
-    timezone: str = Query(
-        "UTC", description="Timezone name, e.g., 'Asia/Taipei'"
-    ),
-):
-    time_delta = timedelta(days=1)
-    return get_progress_data(time_delta, limit, timezone)
-
-
 @router.get("/latest/interval")
 def get_latest_interval_progress(
     hours: int = Query(1, description="Interval in hours", ge=1, le=24),
