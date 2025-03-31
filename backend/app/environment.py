@@ -2,6 +2,7 @@ import os
 
 
 class Environment:
+    production: bool = False
     allowed_origins: list[str] = []
     client_id: str = ""
     cognito_idp_url: str = ""
@@ -12,6 +13,7 @@ ENV: str = os.getenv("environment", "production")
 environment = Environment()
 
 if ENV == "production":
+    environment.production = True
     environment.allowed_origins = [
         "https://leetcode-progress.s3-website-ap-northeast-1.amazonaws.com",
         "http://leetcode-progress.s3-website-ap-northeast-1.amazonaws.com",
@@ -21,6 +23,7 @@ if ENV == "production":
     environment.client_id = "1qjlfcr2u175qlbhruf7bdre3j"
     environment.cognito_idp_url = "https://cognito-idp.ap-northeast-1.amazonaws.com/ap-northeast-1_MSLz0uAQD"
 else:
+    environment.production = False
     environment.allowed_origins = ["*"]
     environment.client_id = "1qjlfcr2u175qlbhruf7bdre3j"
     environment.cognito_idp_url = "https://cognito-idp.ap-northeast-1.amazonaws.com/ap-northeast-1_MSLz0uAQD"

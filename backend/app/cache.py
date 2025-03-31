@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 import boto3
 import pytz
+from environment import environment
 
 s3 = boto3.client("s3")
 BUCKET = os.environ.get("CACHE_BUCKET", "leetcode-progress-cache")
@@ -11,6 +12,8 @@ CACHE_TTL = int(os.environ.get("CACHE_TTL", "60"))  # e.g., cache for 1 hour
 
 
 def is_cache_fresh(cache_key: str, ttl: int = CACHE_TTL) -> bool:
+    if not environment.production:
+        return False
     try:
         tz = pytz.timezone("UTC")
         metadata = s3.head_object(Bucket=BUCKET, Key=cache_key)
@@ -22,6 +25,8 @@ def is_cache_fresh(cache_key: str, ttl: int = CACHE_TTL) -> bool:
 
 
 def get_cache(cache_key: str) -> dict | None:
+    if not environment.production:
+        return
     try:
         cached_data = s3.get_object(Bucket=BUCKET, Key=cache_key)
         return json.loads(cached_data["Body"].read().decode("utf-8"))
@@ -30,6 +35,8 @@ def get_cache(cache_key: str) -> dict | None:
 
 
 def put_cache(cache_key: str, data: dict) -> None:
+    if not environment.production:
+        return
     s3.put_object(
         Bucket=BUCKET,
         Key=cache_key,
