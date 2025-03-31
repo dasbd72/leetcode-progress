@@ -46,13 +46,14 @@ def fetch_timestamps(
         ProjectionExpression="#ts",
         ExpressionAttributeNames={"#ts": "timestamp"},
     )
-    return sorted(
+    timestamps = sorted(
         set(
             int(item["timestamp"])
             for item in response["Items"]
             if "timestamp" in item
         )
     )
+    return timestamps
 
 
 def fetch_progress_data(
