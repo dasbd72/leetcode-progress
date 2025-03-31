@@ -8,7 +8,7 @@ import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2
 
 type ChartInterval = 'hour' | 'day';
 type ChartMode = 'total' | 'delta';
-type ChartDifficulty = 'easy' | 'medium' | 'hard' | 'total';
+type ChartDifficulty = 'easy' | 'medium' | 'hard' | 'med_hard' | 'total';
 
 @Component({
   selector: 'app-chart',
@@ -98,19 +98,19 @@ export class ChartComponent implements OnInit {
           if (this.mode === 'total') {
             for (let i = 0; i < timestamps.length; i++) {
               const stats = intervalData.data[timestamps[i]]?.[username];
-              const amount = stats?.[this.difficulty] ?? null;
+              const amount = this.getStatValueByDifficulty(stats, this.difficulty);
               data.push(amount);
             }
           } else if (this.mode === 'delta') {
             for (let i = 1; i < timestamps.length; i++) {
               const prevStats = intervalData.data[timestamps[i - 1]]?.[username];
-              const prevTotal = prevStats?.[this.difficulty] ?? 0;
+              const prevAmount = this.getStatValueByDifficulty(prevStats, this.difficulty);
               const stats = intervalData.data[timestamps[i]]?.[username];
-              const amount = stats?.[this.difficulty] ?? 0;
+              const amount = this.getStatValueByDifficulty(stats, this.difficulty);
               if (stats === undefined || prevStats === undefined) {
                 data.push(0);
               } else {
-                data.push(amount - prevTotal);
+                data.push(amount - prevAmount);
               }
             }
           }
@@ -131,6 +131,15 @@ export class ChartComponent implements OnInit {
         console.error('Failed to fetch chart data:', err);
       },
     });
+  }
+
+  private getStatValueByDifficulty(stats: any, difficulty: ChartDifficulty): number {
+    switch (difficulty) {
+      case 'med_hard':
+        return stats.medium || 0 + stats.hard || 0;
+      default:
+        return stats[difficulty] || 0;
+    }
   }
 
   private hashStringToVal(str: string, range: Array<number>): number {
