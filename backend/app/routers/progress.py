@@ -56,6 +56,44 @@ def fetch_timestamps(
     return timestamps
 
 
+def fetch_first_timestamp(
+    username: str, time_delta: timedelta, limit: int, now: datetime
+) -> int | None:
+    start_time = int((now - time_delta * limit).timestamp())
+
+    response = progress_table.query(
+        KeyConditionExpression=Key("username").eq(username)
+        & Key("timestamp").gte(start_time),
+        ProjectionExpression="#ts",
+        ExpressionAttributeNames={"#ts": "timestamp"},
+        # Sort by timestamp ascending to get the first timestamp
+        ScanIndexForward=True,
+        Limit=1,
+    )
+    items = response.get("Items", [])
+    if items:
+        return int(items[0]["timestamp"])
+    return None
+
+
+def find_timestamps(
+    all_timestamps: list[int],
+    time_starts: list[int],
+    time_delta: timedelta,
+) -> tuple[dict[int, int], bool]:
+    """Finds the timestamps that fall within the time intervals and aligns them with the start of the intervals."""
+    time_delta_seconds = int(time_delta.total_seconds())
+    selected_timestamps = {}
+    for time_start in time_starts:
+        time_end = time_start + time_delta_seconds
+        candidates = [
+            ts for ts in all_timestamps if time_start <= ts < time_end
+        ]
+        if candidates:
+            selected_timestamps[min(candidates)] = time_start
+    return selected_timestamps
+
+
 def fetch_progress_data(
     all_selected_timestamps: dict[str, dict[int, int]],
 ) -> dict:
@@ -143,8 +181,9 @@ def get_progress_data(
     data = {}
     performance = {
         "get_users": 0,
-        "get_timestamp": 0,
-        "find_timestamp": 0,
+        "get_timestamps": 0,
+        "find_timestamps": 0,
+        "get_first_timestamp": 0,
         "get_progress": 0,
     }
 
@@ -164,30 +203,40 @@ def get_progress_data(
     # Select and align timestamps for each user
     is_latest_added = False
     all_selected_timestamps = {}
-    for username in usernames:
-        # Fetch all timestamps for the user
-        start_perf = perf_counter()
-        all_timestamps = fetch_timestamps(username, time_delta, limit, now)
-        performance["get_timestamp"] += perf_counter() - start_perf
 
-        # Find the timestamps that fall within the time intervals
-        # and align them with the start of the intervals
-        start_perf = perf_counter()
-        time_delta_seconds = int(time_delta.total_seconds())
-        selected_timestamps = {}
-        for time_start in time_starts:
-            time_end = time_start + time_delta_seconds
-            candidates = [
-                ts for ts in all_timestamps if time_start <= ts < time_end
-            ]
-            if candidates:
-                selected_timestamps[min(candidates)] = time_start
-        # If the last timestamp is not in the selected timestamps, add it
-        if all_timestamps and all_timestamps[-1] not in selected_timestamps:
-            is_latest_added = True
-            selected_timestamps[all_timestamps[-1]] = int(now.timestamp())
-        all_selected_timestamps[username] = selected_timestamps
-        performance["find_timestamp"] += perf_counter() - start_perf
+    # Fetch all timestamps for the user
+    start_perf = perf_counter()
+    all_timestamps = fetch_timestamps("dasbd72", time_delta, limit, now)
+    performance["get_timestamps"] += perf_counter() - start_perf
+
+    # Find the timestamps that fall within the time intervals
+    # and align them with the start of the intervals
+    start_perf = perf_counter()
+    selected_timestamps = find_timestamps(
+        all_timestamps, time_starts, time_delta
+    )
+    # If the last timestamp is not in the selected timestamps, add it
+    if all_timestamps and all_timestamps[-1] not in selected_timestamps:
+        is_latest_added = True
+        selected_timestamps[all_timestamps[-1]] = int(now.timestamp())
+    performance["find_timestamps"] += perf_counter() - start_perf
+
+    # Prune selected timestamps to only include those after the first timestamp
+    # for each user
+    start_perf = perf_counter()
+    for username in usernames:
+        first_timestamp = fetch_first_timestamp(
+            username, time_delta, limit, now
+        )
+        if first_timestamp is None:
+            continue
+        # Prune selected timestamps to only include those after the first timestamp
+        all_selected_timestamps[username] = {
+            ts: selected_timestamps[ts]
+            for ts in selected_timestamps
+            if ts >= first_timestamp
+        }
+    performance["get_first_timestamp"] += perf_counter() - start_perf
 
     # Fetch the progress data for all users
     start_perf = perf_counter()
