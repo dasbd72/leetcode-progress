@@ -69,14 +69,23 @@ async def update_user_settings(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Username not found in claims",
         )
-    response = users_table.put_item(
-        Item={
-            "username": username,
-            "preferred_username": user_settings.preferred_username,
-            "leetcode_username": user_settings.leetcode_username,
-        }
-    )
-    if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
+    try:
+        response = users_table.update_item(
+            Key={"username": username},
+            UpdateExpression="SET preferred_username = :pref, leetcode_username = :leet",
+            ExpressionAttributeValues={
+                ":pref": user_settings.preferred_username,
+                ":leet": user_settings.leetcode_username,
+            },
+            ReturnValues="UPDATED_NEW",  # Optional: Can be used to check response
+        )
+        if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to update user settings in DynamoDB",
+            )
+    except Exception as e:
+        print(f"Error updating user settings for {username}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update user settings",

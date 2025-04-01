@@ -287,36 +287,26 @@ def get_latest_user_progress():
 
     # If cache is not fresh, fetch the data
     data = {}
+    usernames = []
     performance = {
         "get_users": 0,
-        "get_progress": 0,
     }
 
     start_perf = perf_counter()
-    usernames = fetch_usernames()
-    performance["get_users"] = perf_counter() - start_perf
-
-    # Fetch the latest progress data for each user
-    start_perf = perf_counter()
-    for username in usernames:
-        response = progress_table.query(
-            KeyConditionExpression=Key("username").eq(username),
-            Limit=1,
-            ScanIndexForward=False,  # Sort by timestamp descending
-        )
-        items = response.get("Items", [])
-        if items:
-            item = items[0]
-            data[username] = {
-                "timestamp": int(item.get("timestamp", 0)),
-                "easy": int(item.get("easy", 0)),
-                "medium": int(item.get("medium", 0)),
-                "hard": int(item.get("hard", 0)),
-                "total": int(item.get("total", 0)),
-            }
-    # Sort the data by username
+    response = users_table.scan()
+    user_items = response.get("Items", [])
+    for user_item in user_items:
+        leetcode_username = user_item.get("leetcode_username", "")
+        data[leetcode_username] = {
+            "timestamp": int(user_item.get("latest_timestamp", 0)),
+            "easy": int(user_item.get("latest_easy", 0)),
+            "medium": int(user_item.get("latest_medium", 0)),
+            "hard": int(user_item.get("latest_hard", 0)),
+            "total": int(user_item.get("latest_total", 0)),
+        }
     data = dict(sorted(data.items()))
-    performance["get_progress"] = perf_counter() - start_perf
+    usernames = list(data.keys())
+    performance["get_users"] = perf_counter() - start_perf
 
     response = {
         "data": data,
