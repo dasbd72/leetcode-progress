@@ -14,18 +14,6 @@ progress_table = dynamodb.Table("LeetCodeProgress-s8nczw")
 users_table = dynamodb.Table("LeetCodeProgressUsers")
 
 
-def get_latest_timestamp() -> int | None:
-    # Scan to get the latest timestamp value
-    response = progress_table.scan(
-        ProjectionExpression="#ts",
-        ExpressionAttributeNames={"#ts": "timestamp"},
-    )
-    timestamps = [
-        item["timestamp"] for item in response["Items"] if "timestamp" in item
-    ]
-    return max(timestamps) if timestamps else None
-
-
 def fetch_usernames() -> list[str]:
     response = users_table.scan()
     user_items = response.get("Items", [])
