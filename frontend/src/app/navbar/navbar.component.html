@@ -1,17 +1,57 @@
 <header
-  class="bg-gray-800 text-white px-[4vw] md:px-5 py-3 flex items-center justify-between shadow"
+  class="bg-gray-800 text-white px-[4vw] md:px-5 py-1 flex items-center justify-between shadow"
 >
-  <a
-    routerLink="/"
-    class="truncate font-semibold md:w-[40vw] sm:w-[10rem] w-0 hover:cursor-pointer"
+  <a routerLink="/" class="py-2 truncate font-semibold hover:cursor-pointer"> LeetCode Progress </a>
+
+  <!-- Hamburger Button (visible on small screens) -->
+  <button
+    (click)="toggleMobileMenu()"
+    class="md:hidden p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white mobile-menu-button"
+    aria-controls="mobile-menu"
+    aria-expanded="isMobileMenuOpen"
   >
-    LeetCode Progress
-  </a>
-  <nav class="flex flex-nowrap items-center justify-end whitespace-nowrap space-x-4 w-full">
+    <!-- Icon when menu is closed -->
+    <svg
+      *ngIf="!isMobileMenuOpen"
+      class="block h-6 w-6"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M4 6h16M4 12h16M4 18h16"
+      />
+    </svg>
+    <!-- Icon when menu is open -->
+    <svg
+      *ngIf="isMobileMenuOpen"
+      class="block h-6 w-6"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M6 18L18 6M6 6l12 12"
+      />
+    </svg>
+  </button>
+
+  <!-- Desktop Menu Links (hidden on small screens) -->
+  <nav class="hidden md:flex flex-nowrap items-center justify-end whitespace-nowrap space-x-4">
     <!-- Force show announcement -->
     <a
       (click)="showAnnouncementModal()"
-      class="hover:text-yellow-300 hover:cursor-pointer transition select-none text-white"
+      class="py-2 hover:text-yellow-300 hover:cursor-pointer transition select-none text-white"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -31,14 +71,14 @@
     <a
       routerLink="/total"
       routerLinkActive="text-yellow-400 underline"
-      class="hover:text-yellow-300 hover:cursor-pointer transition select-none"
+      class="py-2 hover:text-yellow-300 hover:cursor-pointer transition select-none"
     >
       Total
     </a>
     <a
       routerLink="/chart"
       routerLinkActive="text-yellow-400 underline"
-      class="hover:text-yellow-300 hover:cursor-pointer transition select-none"
+      class="py-2 hover:text-yellow-300 hover:cursor-pointer transition select-none"
     >
       Chart
     </a>
@@ -47,14 +87,14 @@
     <a
       *ngIf="!authData.isAuthenticated"
       (click)="login()"
-      class="hover:text-yellow-300 hover:cursor-pointer transition select-none"
+      class="py-2 hover:text-yellow-300 hover:cursor-pointer transition select-none"
     >
       Login
     </a>
-    <div *ngIf="authData.isAuthenticated" class="relative dropdown">
+    <div *ngIf="authData.isAuthenticated" class="relative user-dropdown">
       <a
         (click)="toggleDropdown()"
-        class="hover:text-yellow-300 hover:cursor-pointer transition select-none"
+        class="py-2 hover:text-yellow-300 hover:cursor-pointer transition select-none"
       >
         <span class="hidden sm:inline">Hello, {{ userSettings.preferredUsername }}</span>
         <span class="inline sm:hidden">User</span>
@@ -62,7 +102,7 @@
 
       <!-- Dropdown Menu -->
       <div
-        *ngIf="isDropdownOpen"
+        *ngIf="isUserDropdownOpen"
         class="absolute right-0 w-24 mt-2 origin-top-right bg-gray-800 rounded-md shadow-lg z-50"
       >
         <a
@@ -84,7 +124,7 @@
       href="https://github.com/dasbd72/leetcode-progress"
       target="_blank"
       rel="noopener noreferrer"
-      class="hover:text-yellow-300 transition select-none"
+      class="py-2 hover:text-yellow-300 transition select-none"
       aria-label="GitHub Repository"
     >
       <svg
@@ -100,3 +140,95 @@
     </a>
   </nav>
 </header>
+
+<!-- Mobile Menu (shown when hamburger is clicked) -->
+<div
+  *ngIf="isMobileMenuOpen"
+  class="md:hidden bg-gray-800 absolute top-11 right-0 w-64 mt-1 rounded-md shadow-lg overflow-hidden z-50 mobile-menu"
+  id="mobile-menu"
+>
+  <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+    <!-- Force show announcement -->
+    <a
+      (click)="showAnnouncementModal(); closeMobileMenu()"
+      class="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-yellow-300 hover:bg-gray-700 hover:cursor-pointer transition select-none"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-5 w-5 inline-block mr-2"
+        viewBox="0 0 1920 1920"
+        fill="currentColor"
+        stroke="white"
+        stroke-width="4"
+      >
+        <path
+          d="M1587.162 31.278c11.52-23.491 37.27-35.689 63.473-29.816 25.525 6.099 43.483 28.8 43.483 55.002V570.46C1822.87 596.662 1920 710.733 1920 847.053c0 136.32-97.13 250.503-225.882 276.705v513.883c0 26.202-17.958 49.016-43.483 55.002a57.279 57.279 0 0 1-12.988 1.468c-21.12 0-40.772-11.745-50.485-31.171C1379.238 1247.203 964.18 1242.347 960 1242.347H564.706v564.706h87.755c-11.859-90.127-17.506-247.003 63.473-350.683 52.405-67.087 129.657-101.082 229.948-101.082v112.941c-64.49 0-110.57 18.861-140.837 57.487-68.781 87.868-45.064 263.83-30.269 324.254 4.18 16.828.34 34.673-10.277 48.34-10.73 13.665-27.219 21.684-44.499 21.684H508.235c-31.171 0-56.47-25.186-56.47-56.47v-621.177h-56.47c-155.747 0-282.354-126.607-282.354-282.353v-56.47h-56.47C25.299 903.523 0 878.336 0 847.052c0-31.172 25.299-56.471 56.47-56.471h56.471v-56.47c0-155.634 126.607-282.354 282.353-282.354h564.593c16.941-.112 420.48-7.002 627.275-420.48Zm-5.986 218.429c-194.71 242.371-452.216 298.164-564.705 311.04v572.724c112.489 12.876 369.995 68.556 564.705 311.04ZM903.53 564.7H395.294c-93.402 0-169.412 76.01-169.412 169.411v225.883c0 93.402 76.01 169.412 169.412 169.412H903.53V564.7Zm790.589 123.444v317.93c65.618-23.379 112.94-85.497 112.94-159.021 0-73.525-47.322-135.53-112.94-158.909Z"
+          fill-rule="evenodd"
+        />
+      </svg>
+      Announcement
+    </a>
+    <a
+      routerLink="/total"
+      routerLinkActive="bg-gray-900 text-yellow-400"
+      (click)="closeMobileMenu()"
+      class="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-yellow-300 hover:bg-gray-700"
+    >
+      Total
+    </a>
+    <a
+      routerLink="/chart"
+      routerLinkActive="bg-gray-900 text-yellow-400"
+      (click)="closeMobileMenu()"
+      class="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-yellow-300 hover:bg-gray-700"
+    >
+      Chart
+    </a>
+
+    <!-- Auth Links -->
+    <a
+      *ngIf="!authData.isAuthenticated"
+      (click)="login(); closeMobileMenu()"
+      class="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-yellow-300 hover:bg-gray-700 hover:cursor-pointer transition select-none"
+    >
+      Login
+    </a>
+    <div *ngIf="authData.isAuthenticated">
+      <a
+        routerLink="/u/settings"
+        routerLinkActive="bg-gray-900 text-yellow-400"
+        (click)="closeMobileMenu()"
+        class="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-yellow-300 hover:bg-gray-700"
+      >
+        Settings
+      </a>
+      <a
+        (click)="logout(); closeMobileMenu()"
+        class="block text-left w-full px-3 py-2 rounded-md text-base font-medium text-white hover:text-yellow-300 hover:bg-gray-700 hover:cursor-pointer select-none"
+      >
+        Logout
+      </a>
+    </div>
+
+    <a
+      href="https://github.com/dasbd72/leetcode-progress"
+      target="_blank"
+      rel="noopener noreferrer"
+      (click)="closeMobileMenu()"
+      class="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-yellow-300 hover:bg-gray-700"
+      aria-label="GitHub Repository"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        class="w-6 h-6 inline-block mr-2"
+      >
+        <path
+          d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.799 8.205 11.387.6.111.82-.261.82-.58 0-.287-.012-1.243-.018-2.253-3.338.726-4.042-1.609-4.042-1.609-.546-1.387-1.333-1.756-1.333-1.756-1.089-.744.083-.729.083-.729 1.205.085 1.84 1.237 1.84 1.237 1.07 1.835 2.809 1.305 3.495.997.108-.775.419-1.305.763-1.604-2.665-.304-5.467-1.333-5.467-5.931 0-1.31.468-2.381 1.235-3.221-.124-.303-.535-1.527.117-3.176 0 0 1.008-.322 3.301 1.23a11.52 11.52 0 0 1 3.003-.404 11.52 11.52 0 0 1 3.003.404c2.292-1.552 3.298-1.23 3.298-1.23.653 1.649.242 2.873.119 3.176.77.84 1.233 1.911 1.233 3.221 0 4.609-2.807 5.625-5.48 5.922.43.372.823 1.103.823 2.222 0 1.604-.015 2.896-.015 3.289 0 .322.216.694.825.576C20.565 21.796 24 17.298 24 12c0-6.63-5.37-12-12-12Z"
+        />
+      </svg>
+      GitHub
+    </a>
+  </div>
+</div>

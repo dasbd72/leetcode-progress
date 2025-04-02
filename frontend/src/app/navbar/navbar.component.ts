@@ -29,7 +29,8 @@ export class NavbarComponent implements OnInit {
     preferredUsername: '',
     leetcodeUsername: '',
   };
-  isDropdownOpen = false;
+  isUserDropdownOpen = false;
+  isMobileMenuOpen = false; // Added for mobile menu
 
   constructor(
     private authService: AuthService,
@@ -45,15 +46,41 @@ export class NavbarComponent implements OnInit {
   }
 
   toggleDropdown() {
-    this.isDropdownOpen = !this.isDropdownOpen;
+    this.isUserDropdownOpen = !this.isUserDropdownOpen;
+    // Close the mobile menu if the dropdown is opened
+    if (this.isUserDropdownOpen) {
+      this.isMobileMenuOpen = false;
+    }
   }
 
-  // Closes dropdown when clicking outside
+  // Added for mobile menu
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    // Close the user dropdown if the mobile menu is opened
+    if (this.isMobileMenuOpen) {
+      this.isUserDropdownOpen = false;
+    }
+  }
+
+  // Added for mobile menu
+  closeMobileMenu() {
+    this.isMobileMenuOpen = false;
+  }
+
+  // Closes user dropdown when clicking outside
   @HostListener('document:click', ['$event'])
   onClick(event: MouseEvent) {
-    const clickedInside = event.target instanceof HTMLElement && event.target.closest('.dropdown');
-    if (!clickedInside) {
-      this.isDropdownOpen = false;
+    const clickedInsideUserDropdown =
+      (event.target as HTMLElement).closest('.user-dropdown') !== null;
+    const clickedInsideMobileMenu =
+      (event.target as HTMLElement).closest('.mobile-menu') !== null ||
+      (event.target as HTMLElement).closest('.mobile-menu-button') !== null;
+
+    if (!clickedInsideUserDropdown) {
+      this.isUserDropdownOpen = false;
+    }
+    if (!clickedInsideMobileMenu) {
+      this.isMobileMenuOpen = false;
     }
   }
 
@@ -84,5 +111,6 @@ export class NavbarComponent implements OnInit {
   // Method to emit the event
   showAnnouncementModal() {
     this.showAnnouncements.emit();
+    this.closeMobileMenu(); // Close mobile menu when opening modal
   }
 }
