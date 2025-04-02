@@ -10,8 +10,9 @@ export const authConfig: PassedInitialConfig = {
     clientId: environment.auth.clientId,
     scope: 'openid email profile aws.cognito.signin.user.admin',
     responseType: 'code',
-    silentRenew: false,
+    silentRenew: true,
     useRefreshToken: true,
+    allowUnsafeReuseRefreshToken: true,
     renewTimeBeforeTokenExpiresInSeconds: 30,
     logLevel: LogLevel.Debug,
     // Fixes the issue with the logoff function error
