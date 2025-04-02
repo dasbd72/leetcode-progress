@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, HostListener, OnInit, Output } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 
 import { catchError, filter, of, switchMap, tap } from 'rxjs';
@@ -10,7 +11,7 @@ import { AuthData, AuthService } from '../auth.service';
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, MatIconModule],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css',
 })
@@ -67,7 +68,7 @@ export class NavbarComponent implements OnInit {
     this.isMobileMenuOpen = false;
   }
 
-  // Closes user dropdown when clicking outside
+  // Closes user dropdown and mobile menu when clicking outside
   @HostListener('document:click', ['$event'])
   onClick(event: MouseEvent) {
     const clickedInsideUserDropdown =
