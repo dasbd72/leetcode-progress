@@ -13,6 +13,8 @@ export const authConfig: PassedInitialConfig = {
     silentRenew: true,
     useRefreshToken: true,
     allowUnsafeReuseRefreshToken: true,
+    ignoreNonceAfterRefresh: true,
+    triggerRefreshWhenIdTokenExpired: false,
     renewTimeBeforeTokenExpiresInSeconds: 30,
     logLevel: LogLevel.Debug,
     // Fixes the issue with the logoff function error
