@@ -24,6 +24,13 @@ export class AuthService {
   });
 
   constructor(private readonly oidcSecurityService: OidcSecurityService) {
+    this.oidcSecurityService.isAuthenticated$.subscribe((isAuthenticatedResult) => {
+      this.authDataSubject.next({
+        ...this.authDataSubject.value,
+        isAuthenticated: isAuthenticatedResult.isAuthenticated,
+        isLoading: false,
+      });
+    });
     this.oidcSecurityService
       .checkAuth()
       .pipe(
