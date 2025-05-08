@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 import { Observable, catchError, filter, finalize, of, switchMap, tap } from 'rxjs';
 
-import { UserService, UserSettings } from '../api/user.service';
+import { DefaultUserSettings, UserService, UserSettings } from '../api/user.service';
 import { AuthService } from '../auth/auth.service';
 
 @Component({
@@ -16,12 +16,7 @@ import { AuthService } from '../auth/auth.service';
 })
 export class SettingsComponent implements OnInit {
   isLoading = false;
-  userSettings: UserSettings = {
-    email: '',
-    username: '',
-    preferredUsername: '',
-    leetcodeUsername: '',
-  };
+  userSettings: UserSettings = DefaultUserSettings;
   userSettings$: Observable<UserSettings | null> = of(null);
 
   constructor(

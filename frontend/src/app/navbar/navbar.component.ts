@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 
 import { catchError, filter, of, switchMap, tap } from 'rxjs';
 
-import { UserService, UserSettings } from '../api/user.service';
+import { DefaultUserSettings, UserService, UserSettings } from '../api/user.service';
 import { AuthData, AuthService, DefaultAuthData } from '../auth/auth.service';
 
 @Component({
@@ -19,12 +19,7 @@ export class NavbarComponent implements OnInit {
   @Output() showAnnouncements = new EventEmitter<void>();
 
   authData: AuthData = DefaultAuthData;
-  userSettings: UserSettings = {
-    email: '',
-    username: '',
-    preferredUsername: '',
-    leetcodeUsername: '',
-  };
+  userSettings: UserSettings = DefaultUserSettings;
   isUserDropdownOpen = false;
   isMobileMenuOpen = false; // Added for mobile menu
 

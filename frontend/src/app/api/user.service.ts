@@ -14,25 +14,23 @@ export interface UserSettings {
   leetcodeUsername: string;
 }
 
+export const DefaultUserSettings: UserSettings = {
+  email: '',
+  username: '',
+  preferredUsername: '',
+  leetcodeUsername: '',
+};
+
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  private userSettingsSubject = new BehaviorSubject<UserSettings>({
-    email: '',
-    username: '',
-    preferredUsername: '',
-    leetcodeUsername: '',
-  });
+  private userSettingsSubject = new BehaviorSubject<UserSettings>(DefaultUserSettings);
 
   constructor(
     private authService: AuthService,
     private http: HttpClient,
   ) {}
-
-  get userSettings$(): Observable<UserSettings> {
-    return this.userSettingsSubject.asObservable();
-  }
 
   private convertToCamelCase(obj: any): UserSettings {
     return {
@@ -61,12 +59,7 @@ export class UserService {
       tap((settings) => this.userSettingsSubject.next(settings)),
       catchError((error) => {
         console.error('Failed to fetch settings:', error);
-        return of({
-          email: '',
-          username: '',
-          preferredUsername: '',
-          leetcodeUsername: '',
-        });
+        return of(DefaultUserSettings);
       }),
     );
   }
