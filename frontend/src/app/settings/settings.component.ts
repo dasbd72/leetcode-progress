@@ -1,8 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { Observable, catchError, filter, finalize, of, switchMap, tap } from 'rxjs';
+import { catchError, filter, finalize, of, switchMap, take, tap } from 'rxjs';
 
 import { DefaultUserSettings, UserService, UserSettings } from '../api/user.service';
 import { AuthService } from '../auth/auth.service';
@@ -10,14 +14,20 @@ import { AuthService } from '../auth/auth.service';
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [
+    FormsModule,
+    CommonModule,
+    MatIconModule,
+    MatButtonModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.css',
 })
 export class SettingsComponent implements OnInit {
   isLoading = false;
   userSettings: UserSettings = DefaultUserSettings;
-  userSettings$: Observable<UserSettings | null> = of(null);
 
   constructor(
     private authService: AuthService,
@@ -28,44 +38,53 @@ export class SettingsComponent implements OnInit {
     this.loadSettings();
   }
 
-  loadSettings() {
-    this.isLoading = true;
-    this.userSettings$ = this.authService.authData$.pipe(
-      filter((authData) => authData.isAuthenticated),
-      switchMap(() => this.userService.getUserSettings()),
-      tap((settings) => {
-        if (settings) {
-          this.userSettings = { ...settings }; // Initialize userSettings
-        }
-        this.isLoading = false;
-      }),
-      catchError((error) => {
-        console.error('Failed to load settings:', error);
-        this.isLoading = false;
-        return of(null);
-      }),
-    );
+  setLoading(loading: boolean) {
+    this.isLoading = loading;
   }
 
-  onSubmit() {
-    this.isLoading = true;
+  loadSettings() {
     this.authService.authData$
       .pipe(
         filter((authData) => authData.isAuthenticated),
-        switchMap(
-          () => this.userService.updateUserSettings(this.userSettings), // Pass userSettings
-        ),
-        tap((updatedSettings) => {
-          this.userSettings = { ...updatedSettings }; // Update userSettings with response
-          this.isLoading = false;
-          console.log('Settings updated successfully!');
-        }),
+        tap(() => this.setLoading(true)),
+        switchMap(() => this.userService.getUserSettings()),
+        tap((settings) => this.handleSettingsLoaded(settings)),
+        tap(() => this.setLoading(false)),
         catchError((error) => {
-          console.error('Failed to update settings:', error);
-          this.isLoading = false;
+          console.error('Failed to load settings:', error);
           return of(null);
         }),
+        finalize(() => this.setLoading(true)),
       )
       .subscribe();
+  }
+
+  private handleSettingsLoaded(settings: UserSettings | null) {
+    if (settings) {
+      this.userSettings = { ...settings }; // Initialize userSettings
+    }
+  }
+
+  onSubmit() {
+    this.authService.authData$
+      .pipe(
+        filter((authData) => authData.isAuthenticated),
+        take(1),
+        tap(() => this.setLoading(true)),
+        switchMap(() => this.userService.updateUserSettings(this.userSettings)), // Pass userSettings
+        tap((updatedSettings) => this.handleSettingsUpdated(updatedSettings)),
+        tap(() => this.setLoading(false)),
+        catchError((error) => {
+          console.error('Failed to update settings:', error);
+          return of(null);
+        }),
+        finalize(() => this.setLoading(false)),
+      )
+      .subscribe();
+  }
+
+  private handleSettingsUpdated(updatedSettings: UserSettings) {
+    this.userSettings = { ...updatedSettings }; // Update userSettings with response
+    console.log('Settings updated successfully!');
   }
 }
