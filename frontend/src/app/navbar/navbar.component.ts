@@ -6,7 +6,7 @@ import { RouterModule } from '@angular/router';
 import { catchError, filter, of, switchMap, tap } from 'rxjs';
 
 import { UserService, UserSettings } from '../api/user.service';
-import { AuthData, AuthService } from '../auth.service';
+import { AuthData, AuthService, DefaultAuthData } from '../auth/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -18,12 +18,7 @@ import { AuthData, AuthService } from '../auth.service';
 export class NavbarComponent implements OnInit {
   @Output() showAnnouncements = new EventEmitter<void>();
 
-  authData: AuthData = {
-    isAuthenticated: false,
-    userData: null,
-    accessToken: '',
-    isLoading: true,
-  };
+  authData: AuthData = DefaultAuthData;
   userSettings: UserSettings = {
     email: '',
     username: '',

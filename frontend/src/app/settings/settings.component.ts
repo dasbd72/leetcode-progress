@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Observable, catchError, filter, finalize, of, switchMap, tap } from 'rxjs';
 
 import { UserService, UserSettings } from '../api/user.service';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-settings',

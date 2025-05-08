@@ -9,19 +9,23 @@ export interface AuthData {
   isAuthenticated: boolean;
   userData: any;
   accessToken: string;
+  idToken: string;
   isLoading: boolean;
 }
+
+export const DefaultAuthData: AuthData = {
+  isAuthenticated: false,
+  userData: null,
+  accessToken: '',
+  idToken: '',
+  isLoading: true,
+};
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private authDataSubject = new BehaviorSubject<AuthData>({
-    isAuthenticated: false,
-    userData: null,
-    accessToken: '',
-    isLoading: true,
-  });
+  private authDataSubject = new BehaviorSubject<AuthData>(DefaultAuthData);
 
   constructor(private readonly oidcSecurityService: OidcSecurityService) {
     this.oidcSecurityService.isAuthenticated$.subscribe((isAuthenticatedResult) => {
@@ -47,6 +51,13 @@ export class AuthService {
           this.authDataSubject.next({
             ...this.authDataSubject.value,
             accessToken,
+          });
+        }),
+        switchMap(() => this.oidcSecurityService.getIdToken()),
+        tap((idToken) => {
+          this.authDataSubject.next({
+            ...this.authDataSubject.value,
+            idToken,
           });
         }),
         catchError((error) => {

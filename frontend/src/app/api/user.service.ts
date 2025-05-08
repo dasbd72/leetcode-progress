@@ -5,7 +5,7 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../auth/auth.service';
 
 export interface UserSettings {
   email: string;
