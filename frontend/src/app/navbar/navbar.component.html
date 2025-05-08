@@ -63,10 +63,7 @@
         *ngIf="isUserDropdownOpen"
         class="absolute right-0 w-24 mt-2 origin-top-right bg-gray-800 rounded-md shadow-lg z-50"
       >
-        <a
-          routerLink="/u/settings"
-          class="block px-3 py-2 text-white hover:bg-gray-700 select-none"
-        >
+        <a routerLink="/settings" class="block px-3 py-2 text-white hover:bg-gray-700 select-none">
           Settings
         </a>
         <a
@@ -141,7 +138,7 @@
     </a>
     <div *ngIf="authData.isAuthenticated">
       <a
-        routerLink="/u/settings"
+        routerLink="/settings"
         routerLinkActive="bg-gray-900 text-yellow-400"
         (click)="closeMobileMenu()"
         class="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-yellow-300 hover:bg-gray-700"
