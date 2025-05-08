@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { catchError, take, tap } from 'rxjs';
+
 import { ProgressService } from '../api/progress.service';
 import { ChartConfiguration, ChartDataset, ChartType } from 'chart.js';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
@@ -70,67 +72,71 @@ export class ChartComponent implements OnInit {
     const limit = this.interval === 'hour' ? 48 : 24;
     const hours = this.interval === 'hour' ? 1 : 24;
 
-    this.progressService.getLatestWithInterval(hours, limit, timezone).subscribe({
-      next: (intervalData) => {
-        const timestamps = Object.keys(intervalData.data)
-          .map(Number)
-          .sort((a, b) => a - b);
-        const fullLabels: string[] = timestamps.map((ts) => {
-          // Helper function to zero-pad a number
-          const zp = (num: number, length: number) => `${num}`.padStart(length, '0');
-          const date = new Date(ts * 1000);
-          if (this.interval === 'hour') {
-            if (date.getHours() === 0) {
-              return `${zp(date.getMonth() + 1, 2)}/${zp(date.getDate(), 2)}`;
-            } else {
-              return `${zp(date.getHours(), 2)}:${zp(date.getMinutes(), 2)}`;
-            }
-          } else {
-            return `${zp(date.getMonth() + 1, 2)}/${zp(date.getDate(), 2)}`;
-          }
-        });
-        const labels = this.mode === 'delta' ? fullLabels.slice(0, -1) : fullLabels;
-
-        const datasets: ChartDataset<'line'>[] = [];
-
-        for (const username of intervalData.usernames) {
-          const data: number[] = [];
-          if (this.mode === 'total') {
-            for (let i = 0; i < timestamps.length; i++) {
-              const stats = intervalData.data[timestamps[i]]?.[username];
-              const amount = this.getStatValueByDifficulty(stats, this.difficulty);
-              data.push(amount);
-            }
-          } else if (this.mode === 'delta') {
-            for (let i = 1; i < timestamps.length; i++) {
-              const prevStats = intervalData.data[timestamps[i - 1]]?.[username];
-              const prevAmount = this.getStatValueByDifficulty(prevStats, this.difficulty);
-              const stats = intervalData.data[timestamps[i]]?.[username];
-              const amount = this.getStatValueByDifficulty(stats, this.difficulty);
-              if (stats === undefined || prevStats === undefined) {
-                data.push(0);
+    this.progressService
+      .getLatestWithInterval(hours, limit, timezone)
+      .pipe(
+        take(1),
+        tap((intervalData) => {
+          const timestamps = Object.keys(intervalData.data)
+            .map(Number)
+            .sort((a, b) => a - b);
+          const fullLabels: string[] = timestamps.map((ts) => {
+            // Helper function to zero-pad a number
+            const zp = (num: number, length: number) => `${num}`.padStart(length, '0');
+            const date = new Date(ts * 1000);
+            if (this.interval === 'hour') {
+              if (date.getHours() === 0) {
+                return `${zp(date.getMonth() + 1, 2)}/${zp(date.getDate(), 2)}`;
               } else {
-                data.push(amount - prevAmount);
+                return `${zp(date.getHours(), 2)}:${zp(date.getMinutes(), 2)}`;
+              }
+            } else {
+              return `${zp(date.getMonth() + 1, 2)}/${zp(date.getDate(), 2)}`;
+            }
+          });
+          const labels = this.mode === 'delta' ? fullLabels.slice(0, -1) : fullLabels;
+
+          const datasets: ChartDataset<'line'>[] = [];
+
+          for (const username of intervalData.usernames) {
+            const data: number[] = [];
+            if (this.mode === 'total') {
+              for (let i = 0; i < timestamps.length; i++) {
+                const stats = intervalData.data[timestamps[i]]?.[username];
+                const amount = this.getStatValueByDifficulty(stats, this.difficulty);
+                data.push(amount);
+              }
+            } else if (this.mode === 'delta') {
+              for (let i = 1; i < timestamps.length; i++) {
+                const prevStats = intervalData.data[timestamps[i - 1]]?.[username];
+                const prevAmount = this.getStatValueByDifficulty(prevStats, this.difficulty);
+                const stats = intervalData.data[timestamps[i]]?.[username];
+                const amount = this.getStatValueByDifficulty(stats, this.difficulty);
+                if (stats === undefined || prevStats === undefined) {
+                  data.push(0);
+                } else {
+                  data.push(amount - prevAmount);
+                }
               }
             }
+
+            datasets.push({
+              label: username,
+              data,
+              tension: 0.4,
+              fill: false,
+              pointRadius: 4,
+              borderColor: this.hashStringToHSL(username),
+            });
           }
-
-          datasets.push({
-            label: username,
-            data,
-            tension: 0.4,
-            fill: false,
-            pointRadius: 4,
-            borderColor: this.hashStringToHSL(username),
-          });
-        }
-
-        this.lineChartData = { labels, datasets };
-      },
-      error: (err) => {
-        console.error('Failed to fetch chart data:', err);
-      },
-    });
+          this.lineChartData = { labels, datasets };
+        }),
+        catchError((err) => {
+          console.error('Failed to fetch chart data:', err);
+          return [];
+        }),
+      )
+      .subscribe();
   }
 
   private getStatValueByDifficulty(stats: any, difficulty: ChartDifficulty): number {
