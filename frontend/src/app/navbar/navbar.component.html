@@ -1,25 +1,25 @@
 <mat-toolbar>
-  <button mat-button aria-label="Menu icon" [routerLink]="['/']">
+  <a mat-button aria-label="Menu icon" [routerLink]="['/']">
     <mat-icon> show_chart </mat-icon>
     <span class="nav-item-text hidden md:inline">LeetCode Progress</span>
-  </button>
+  </a>
   <span class="flex flex-auto"></span>
   <button mat-button aria-label="Announcement icon" (click)="showAnnouncementModal()">
     <mat-icon style="padding: 0">announcement</mat-icon>
   </button>
-  <button mat-button aria-label="Table icon" [routerLink]="['/total']">
+  <a mat-button aria-label="Table icon" [routerLink]="['/total']">
     <mat-icon>table_chart</mat-icon>
     <span class="nav-item-text hidden md:inline">Total</span>
-  </button>
-  <button mat-button aria-label="Music icon" [routerLink]="['/chart']">
+  </a>
+  <a mat-button aria-label="Music icon" [routerLink]="['/chart']">
     <mat-icon> ssid_chart </mat-icon>
     <span class="nav-item-text hidden md:inline">Chart</span>
-  </button>
+  </a>
   <button mat-button aria-label="Login icon" *ngIf="!authData.isAuthenticated" (click)="login()">
     <mat-icon> login </mat-icon>
     <span class="nav-item-text hidden md:inline">Login</span>
   </button>
-  <button
+  <a
     mat-button
     aria-label="Settings icon"
     *ngIf="authData.isAuthenticated"
@@ -27,7 +27,7 @@
   >
     <mat-icon> settings </mat-icon>
     <span class="nav-item-text hidden md:inline">Settings</span>
-  </button>
+  </a>
   <button mat-button aria-label="Logout" *ngIf="authData.isAuthenticated" (click)="logout()">
     <mat-icon> logout </mat-icon>
     <span class="nav-item-text hidden md:inline">Logout</span>
