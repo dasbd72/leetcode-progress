@@ -1,30 +1,6 @@
-import argparse
 import subprocess
 import shutil
 import os
-
-
-class Args:
-    pip_package: bool = False
-    command: str = None
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description="Script to run commands")
-    parser.add_argument(
-        "--pip-package",
-        "-p",
-        action="store_true",
-        help="Whether to package the Lambda function",
-    )
-    parser.add_argument(
-        "command",
-        type=str,
-        help="Command to run",
-        choices=["deploy", "invoke"],
-    )
-    args = parser.parse_args(namespace=Args)
-    return args
 
 
 def run_command(cmd: str):
@@ -67,23 +43,15 @@ def prepare_lambda_package(pip_package: bool):
 
 
 def main():
-    args = parse_args()
-    if args.command == "deploy":
-        input("Deploying to AWS. Press Enter to continue...")
-        os.chdir("app")
-        if not prepare_lambda_package(args.pip_package):
-            return
-        cmds = [
-            "aws lambda update-function-code "
-            "--function-name leetcode-progress-Scraper-8CKRVA9MWN2Z "
-            "--zip-file fileb://scraper.zip"
-        ]
-    elif args.command == "invoke":
-        cmds = [
-            "aws lambda invoke --function-name leetcode-progress-Scraper-8CKRVA9MWN2Z /dev/stdout"
-        ]
-    else:
-        raise NotImplementedError
+    input("Deploying to AWS. Press Enter to continue...")
+    os.chdir("app")
+    if not prepare_lambda_package(True):
+        return
+    cmds = [
+        "aws lambda update-function-code "
+        "--function-name leetcode-progress-scraper "
+        "--zip-file fileb://scraper.zip"
+    ]
 
     for cmd in cmds:
         if not run_command(cmd):
