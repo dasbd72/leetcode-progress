@@ -172,27 +172,46 @@ class ScraperCdkStack(Stack):
             lambda_role
         )  # Grant write (PutItem, BatchWriteItem, UpdateItem) access to progress table
 
+        scraper_layer = aws_lambda.LayerVersion(
+            self,
+            "LeetCodeProgressScraperLayer",
+            layer_version_name="leetcode-progress-scraper-layer",
+            code=aws_lambda.Code.from_asset(
+                "../scraper/layer",
+                bundling=BundlingOptions(
+                    image=aws_lambda.Runtime.PYTHON_3_10.bundling_image,
+                    command=[
+                        "bash",
+                        "-c",
+                        "pip install --no-cache -r requirements.txt -t /asset-output/python && cp -au . /asset-output/python",
+                    ],
+                ),
+            ),
+            compatible_architectures=[
+                aws_lambda.Architecture.ARM_64,
+            ],
+            compatible_runtimes=[
+                aws_lambda.Runtime.PYTHON_3_10,
+            ],
+        )
+
         # Define the Lambda function
         scraper_function = aws_lambda.Function(
             self,
             "LeetCodeProgressScraperFunction",
-            function_name="leetcode-progress-scraper",  # Common name, CDK adds uniqueness suffix
-            runtime=aws_lambda.Runtime.PYTHON_3_10,  # Set runtime to Python 3.10
-            architecture=aws_lambda.Architecture.ARM_64,  # Set architecture to arm64
-            handler="main.lambda_handler",  # Set handler as specified
-            code=aws_lambda.Code.from_asset(
-                "../scraper/app/package"
-            ),  # Path to your packaged Lambda code
-            role=lambda_role,
-            timeout=Duration.seconds(
-                60
-            ),  # Set timeout to 60 seconds (1 minute)
-            memory_size=128,  # Adjust memory as needed (128MB is default/minimum)
+            function_name="leetcode-progress-scraper",
+            code=aws_lambda.Code.from_asset("../scraper/app"),
+            handler="main.lambda_handler",
+            runtime=aws_lambda.Runtime.PYTHON_3_10,
+            architecture=aws_lambda.Architecture.ARM_64,
+            timeout=Duration.seconds(60),
+            memory_size=128,
             environment={
-                # Pass table names as environment variables to the Lambda function
                 "USERS_TABLE_NAME": users_table.table_name,
                 "PROGRESS_TABLE_NAME": progress_table.table_name,
             },
+            role=lambda_role,
+            layers=[scraper_layer],
         )
 
         # Define the EventBridge Rule to trigger the Lambda function
