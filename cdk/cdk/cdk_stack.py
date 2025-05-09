@@ -1,13 +1,13 @@
 from aws_cdk import (
+    CfnOutput,
+    Duration,
+    RemovalPolicy,
     Stack,
+    aws_cloudfront,
+    aws_cloudfront_origins,
     aws_iam,
     aws_s3,
     aws_s3_deployment,
-    aws_cloudfront,
-    aws_cloudfront_origins,
-    RemovalPolicy,
-    Duration,
-    CfnOutput,
 )
 from constructs import Construct
 
