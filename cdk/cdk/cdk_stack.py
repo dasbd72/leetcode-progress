@@ -12,18 +12,20 @@ from aws_cdk import (
 from constructs import Construct
 
 
-class CdkStack(Stack):
+class FrontendCdkStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # Define the S3 bucket for website content
-        # Bucket name can be customized or passed as a parameter
-        bucket_name = f"leetcode-progress-frontend"
+        # Define the S3 bucket name for the frontend
+        self.frontend_bucket_name = f"leetcode-progress-frontend"
+        # Create the frontend resources
+        self.create_frontend()
 
+    def create_frontend(self):
         website_bucket = aws_s3.Bucket(
             self,
             "LeetcodeProgressWebsiteBucket",
-            bucket_name=bucket_name,
+            bucket_name=self.frontend_bucket_name,
             public_read_access=False,  # No public access, CloudFront will serve via OAC
             block_public_access=aws_s3.BlockPublicAccess.BLOCK_ALL,  # Recommended for private buckets
             removal_policy=RemovalPolicy.DESTROY,
@@ -102,7 +104,9 @@ class CdkStack(Stack):
             self,
             "DeployWebsite",
             sources=[
-                aws_s3_deployment.Source.asset("../dist/frontend/browser")
+                aws_s3_deployment.Source.asset(
+                    "../frontend/dist/frontend/browser"
+                )
             ],
             destination_bucket=website_bucket,
             distribution=distribution,  # Specify the distribution to invalidate cache

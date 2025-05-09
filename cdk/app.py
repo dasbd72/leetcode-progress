@@ -3,10 +3,10 @@ import os
 
 import aws_cdk as cdk
 
-from cdk.cdk_stack import CdkStack
+from cdk.cdk_stack import FrontendCdkStack
 
 app = cdk.App()
-CdkStack(
+FrontendCdkStack(
     app,
     "LeetcodeProgressFrontendCdkStack",
     env=cdk.Environment(
