@@ -47,3 +47,4 @@ Tracks your LeetCode progress.
   - [x] Add user information to the database.
 - [ ] Add start date option for the chart.
 - [ ] Make timestamps constant in 10 minutes intervals to reduce timestamp search operation.
+- [x] Setup CDK for all AWS resources.
