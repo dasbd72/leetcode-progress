@@ -1,3 +1,4 @@
+import os
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from time import perf_counter
@@ -5,10 +6,13 @@ from time import perf_counter
 import boto3
 from utils import fetch_question_progress
 
+USERS_TABLE_NAME = os.environ.get("USERS_TABLE_NAME")
+PROGRESS_TABLE_NAME = os.environ.get("PROGRESS_TABLE_NAME")
+
 # DynamoDB setup
 dynamodb = boto3.resource("dynamodb")
-progress_table = dynamodb.Table("LeetCodeProgress-s8nczw")
-users_table = dynamodb.Table("LeetCodeProgressUsers")
+progress_table = dynamodb.Table(PROGRESS_TABLE_NAME)
+users_table = dynamodb.Table(USERS_TABLE_NAME)
 
 
 def lambda_handler(event, context):
