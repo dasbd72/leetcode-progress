@@ -6,7 +6,10 @@ from aws_cdk import (
     aws_cloudfront,
     aws_cloudfront_origins,
     aws_dynamodb,
+    aws_events,
+    aws_events_targets,
     aws_iam,
+    aws_lambda,
     aws_s3,
     aws_s3_deployment,
 )
@@ -18,7 +21,9 @@ class FrontendCdkStack(Stack):
         super().__init__(scope, construct_id, **kwargs)
 
         # Define the S3 bucket name for the frontend
-        self.frontend_bucket_name = f"leetcode-progress-frontend"
+        self.frontend_bucket_name = (
+            f"leetcode-progress-frontend-{self.account}-{self.region}"
+        )
         # Create the frontend resources
         self.create_frontend()
 
@@ -151,7 +156,7 @@ class ResourceCdkStack(Stack):
         )
 
         # Create the LeetCodeProgressUsers Table
-        users_table = aws_dynamodb.Table(
+        self.users_table = aws_dynamodb.Table(
             self,
             "LeetCodeProgressUsersTable",
             table_name="LeetCodeProgressUsers-1746776519",
@@ -164,7 +169,7 @@ class ResourceCdkStack(Stack):
 
         # Add the LeetCodeUsernameIndex Global Secondary Index
         # Note: GSIs on PAY_PER_REQUEST tables do not require provisioned throughput settings
-        users_table.add_global_secondary_index(
+        self.users_table.add_global_secondary_index(
             index_name="LeetCodeUsernameIndex",
             partition_key=aws_dynamodb.Attribute(
                 name="leetcode_username",
@@ -174,7 +179,7 @@ class ResourceCdkStack(Stack):
         )
 
         # Create the LeetCodeProgressData Table
-        progress_table = aws_dynamodb.Table(
+        self.progress_table = aws_dynamodb.Table(
             self,
             "LeetCodeProgressDataTable",
             table_name="LeetCodeProgressData-1746776519",  # Note: Using the exact name from the CLI
@@ -192,12 +197,125 @@ class ResourceCdkStack(Stack):
         CfnOutput(
             self,
             "LeetCodeProgressUsersTableName",
-            value=users_table.table_name,
+            value=self.users_table.table_name,
             description="Name of the LeetCode Progress Users DynamoDB table",
         )
         CfnOutput(
             self,
             "LeetCodeProgressDataTableName",
-            value=progress_table.table_name,
+            value=self.progress_table.table_name,
             description="Name of the LeetCode Progress Data DynamoDB table",
+        )
+
+
+class ScraperCdkStack(Stack):
+    def __init__(
+        self,
+        scope: Construct,
+        construct_id: str,
+        users_table: aws_dynamodb.Table,
+        progress_table: aws_dynamodb.Table,
+        **kwargs,
+    ) -> None:
+        """
+        CDK Stack for deploying the LeetCode Progress Scraper Lambda function
+        and its EventBridge trigger.
+
+        Args:
+            scope (Construct): The scope in which to define this construct.
+            construct_id (str): The logical ID of this stack.
+            users_table (aws_dynamodb.Table): The DynamoDB table for user data.
+            progress_table (aws_dynamodb.Table): The DynamoDB table for progress data.
+            **kwargs: Additional stack properties.
+        """
+        super().__init__(scope, construct_id, **kwargs)
+
+        self.template_options.description = (
+            "Stack containing the LeetCode Progress Scraper Lambda function "
+            "and necessary permissions, triggered by EventBridge."
+        )
+
+        # Define the IAM role for the Lambda function
+        lambda_role = aws_iam.Role(
+            self,
+            "ScraperLambdaRole",
+            assumed_by=aws_iam.ServicePrincipal("lambda.amazonaws.com"),
+            managed_policies=[
+                # AWS managed policy for basic Lambda execution (logging)
+                aws_iam.ManagedPolicy.from_aws_managed_policy_name(
+                    "service-role/AWSLambdaBasicExecutionRole"
+                )
+            ],
+            description="IAM role for the LeetCode Progress Scraper Lambda function",
+        )
+
+        # Grant the Lambda role permissions to interact with the DynamoDB tables
+        # The original policy had Scan on users and Write on progress.
+        users_table.grant_read_data(
+            lambda_role
+        )  # Grant read (Scan, Query, GetItem) access to users table
+        progress_table.grant_write_data(
+            lambda_role
+        )  # Grant write (PutItem, BatchWriteItem, UpdateItem) access to progress table
+
+        # Define the Lambda function
+        scraper_function = aws_lambda.Function(
+            self,
+            "LeetCodeProgressScraperFunction",
+            function_name="leetcode-progress-scraper",  # Common name, CDK adds uniqueness suffix
+            runtime=aws_lambda.Runtime.PYTHON_3_10,  # Set runtime to Python 3.10
+            architecture=aws_lambda.Architecture.ARM_64,  # Set architecture to arm64
+            handler="main.lambda_handler",  # Set handler as specified
+            code=aws_lambda.Code.from_asset(
+                "../scraper/app/package"
+            ),  # Path to your packaged Lambda code
+            role=lambda_role,
+            timeout=Duration.seconds(
+                60
+            ),  # Set timeout to 60 seconds (1 minute)
+            memory_size=128,  # Adjust memory as needed (128MB is default/minimum)
+            environment={
+                # Pass table names as environment variables to the Lambda function
+                "USERS_TABLE_NAME": users_table.table_name,
+                "PROGRESS_TABLE_NAME": progress_table.table_name,
+            },
+        )
+
+        # Define the EventBridge Rule to trigger the Lambda function
+        schedule_rule = aws_events.Rule(
+            self,
+            "ScrapeEvery20MinRule",
+            rule_name="leetcode-progress-ScrapeEvery20Min",  # Set a logical name for the rule
+            schedule=aws_events.Schedule.cron(
+                minute="0/20", hour="*", day="*", month="*", year="*"
+            ),  # Schedule: every 20 minutes
+            description="Triggers the LeetCode Progress Scraper Lambda function every 20 minutes",
+        )
+
+        # Add the Lambda function as a target for the EventBridge Rule
+        # CDK automatically adds the necessary permissions (lambda:InvokeFunction)
+        schedule_rule.add_target(
+            aws_events_targets.LambdaFunction(scraper_function)
+        )
+
+        # Output the Lambda function details
+        CfnOutput(
+            self,
+            "ScraperFunctionName",
+            value=scraper_function.function_name,
+            description="Name of the LeetCode Progress Scraper Lambda function",
+        )
+        CfnOutput(
+            self,
+            "ScraperFunctionArn",
+            value=scraper_function.function_arn,
+            description="ARN of the LeetCode Progress Scraper Lambda function",
+        )
+
+        # Output the EventBridge rule name
+        CfnOutput(
+            self,
+            "ScrapeScheduleRuleName",
+            value=schedule_rule.rule_name,
+            description="Name of the EventBridge rule that triggers the scraper function",
         )

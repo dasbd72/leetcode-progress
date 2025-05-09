@@ -3,10 +3,10 @@ import os
 
 import aws_cdk as cdk
 
-from cdk.cdk_stack import FrontendCdkStack, ResourceCdkStack
+from cdk.cdk_stack import FrontendCdkStack, ResourceCdkStack, ScraperCdkStack
 
 app = cdk.App()
-FrontendCdkStack(
+frontend_stack = FrontendCdkStack(
     app,
     "LeetcodeProgressFrontendCdkStack",
     env=cdk.Environment(
@@ -14,7 +14,7 @@ FrontendCdkStack(
         region=os.getenv("CDK_DEFAULT_REGION"),
     ),
 )
-ResourceCdkStack(
+resource_stack = ResourceCdkStack(
     app,
     "LeetcodeProgressResourceCdkStack",
     env=cdk.Environment(
@@ -22,6 +22,16 @@ ResourceCdkStack(
         region=os.getenv("CDK_DEFAULT_REGION"),
     ),
     removal_policy=cdk.RemovalPolicy.RETAIN,
+)
+scraper_stack = ScraperCdkStack(
+    app,
+    "LeetcodeProgressScraperCdkStack",
+    users_table=resource_stack.users_table,
+    progress_table=resource_stack.progress_table,
+    env=cdk.Environment(
+        account=os.getenv("CDK_DEFAULT_ACCOUNT"),
+        region=os.getenv("CDK_DEFAULT_REGION"),
+    ),
 )
 
 app.synth()
