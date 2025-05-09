@@ -5,13 +5,14 @@ import boto3
 import cache
 import pytz
 from boto3.dynamodb.conditions import Key
+from environment import environment
 from fastapi import APIRouter, Query
 
 router = APIRouter()
 
 dynamodb = boto3.resource("dynamodb")
-progress_table = dynamodb.Table("LeetCodeProgress-s8nczw")
-users_table = dynamodb.Table("LeetCodeProgressUsers")
+progress_table = dynamodb.Table(environment.progress_table_name)
+users_table = dynamodb.Table(environment.users_table_name)
 
 
 def fetch_usernames() -> list[str]:

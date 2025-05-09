@@ -1,5 +1,6 @@
 import boto3
 from authentication import JWTAuthorizationCredentials, JWTBearer, jwks
+from environment import environment
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
@@ -13,7 +14,7 @@ cognito = boto3.client("cognito-idp", region_name="ap-northeast-1")
 
 # Create DynamoDB resource
 dynamodb = boto3.resource("dynamodb")
-users_table = dynamodb.Table("LeetCodeProgressUsers")
+users_table = dynamodb.Table(environment.users_table_name)
 
 
 class UserSettings(BaseModel):

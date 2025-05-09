@@ -15,6 +15,10 @@ Resources:
       Runtime: python3.10
       Architectures:
         - arm64
+      Environment:
+        Variables:
+          USERS_TABLE_NAME: LeetCodeProgressUsers-1746776519
+          PROGRESS_TABLE_NAME: LeetCodeProgressData-1746776519
       Events:
         RootPath:
           Type: Api
