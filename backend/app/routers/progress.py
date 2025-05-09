@@ -263,7 +263,6 @@ def get_progress_data(
     return response
 
 
-@router.get("/")
 @router.get("/latest")
 def get_latest_user_progress():
     # Fetch the data from the cache if available

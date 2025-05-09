@@ -16,6 +16,8 @@ from aws_cdk import (
     aws_s3_deployment,
     aws_apigatewayv2,
     aws_apigatewayv2_integrations,
+    aws_apigatewayv2_authorizers,
+    aws_cognito,
 )
 from constructs import Construct
 
@@ -368,19 +370,98 @@ class BackendCdkStack(Stack):
             backend_function,
         )
 
-        # Add routes to the HTTP API
-        # The $default route handles requests that don't match any other specific route.
-        # Adding both / and /{proxy+} for completeness.
-        http_api.add_routes(
-            path="/{proxy+}",  # Catch-all path
-            methods=[aws_apigatewayv2.HttpMethod.ANY],  # Allow any HTTP method
-            integration=backend_integration,
+        # Define the Cognito user pool for the API Gateway
+        cognito_user_pool = aws_cognito.UserPool.from_user_pool_arn(
+            self,
+            "LeetCodeProgressUserPool",
+            "arn:aws:cognito-idp:ap-northeast-1:718795813953:userpool/ap-northeast-1_MSLz0uAQD",
         )
-        http_api.add_routes(
-            path="/",  # Root path
-            methods=[aws_apigatewayv2.HttpMethod.ANY],  # Allow any HTTP method
-            integration=backend_integration,
+        cognito_user_pool_client = aws_cognito.UserPoolClient(
+            self,
+            "LeetCodeProgressUserPoolClient",
+            user_pool=cognito_user_pool,
+            user_pool_client_name="LeetCodeProgressUserPoolClient",
+            generate_secret=False,
+            auth_flows=aws_cognito.AuthFlow(
+                admin_user_password=False,
+                custom=False,
+                user=True,
+                user_password=False,
+                user_srp=True,
+            ),
+            refresh_token_validity=Duration.days(30),
+            enable_token_revocation=True,
+            prevent_user_existence_errors=True,
+            o_auth=aws_cognito.OAuthSettings(
+                callback_urls=[
+                    "http://localhost:4200",
+                    "https://d36dg9dunac222.cloudfront.net",
+                    "https://leetcode-progress.dasbd72.com",
+                ],
+                flows=aws_cognito.OAuthFlows(
+                    authorization_code_grant=True,
+                    implicit_code_grant=False,
+                    client_credentials=False,
+                ),
+                logout_urls=[
+                    "http://localhost:4200",
+                    "https://d36dg9dunac222.cloudfront.net",
+                    "https://leetcode-progress.dasbd72.com",
+                ],
+                scopes=[
+                    aws_cognito.OAuthScope.OPENID,
+                    aws_cognito.OAuthScope.EMAIL,
+                    aws_cognito.OAuthScope.PROFILE,
+                    aws_cognito.OAuthScope.COGNITO_ADMIN,
+                ],
+            ),
+            supported_identity_providers=[
+                aws_cognito.UserPoolClientIdentityProvider.GOOGLE,
+            ],
         )
+
+        # Define authorizer for the API Gateway
+        authorizer = aws_apigatewayv2_authorizers.HttpUserPoolAuthorizer(
+            "LeetCodeProgressBackendAuthorizer",
+            pool=cognito_user_pool,
+            user_pool_clients=[cognito_user_pool_client],
+            identity_source=["$request.header.Authorization"],
+        )
+
+        path_methods = {
+            "/": [aws_apigatewayv2.HttpMethod.GET],
+            "/{proxy+}": [aws_apigatewayv2.HttpMethod.OPTIONS],
+            "/announcements": [aws_apigatewayv2.HttpMethod.GET],
+            "/latest": [aws_apigatewayv2.HttpMethod.GET],
+            "/latest/interval": [aws_apigatewayv2.HttpMethod.GET],
+        }
+        authorized_path_methods = {
+            "/user/settings": [
+                aws_apigatewayv2.HttpMethod.GET,
+                aws_apigatewayv2.HttpMethod.PUT,
+            ],
+        }
+
+        for path, methods in path_methods.items():
+            http_api.add_routes(
+                path=path,
+                methods=methods,
+                integration=backend_integration,
+            )
+
+        for path, methods in authorized_path_methods.items():
+            http_api.add_routes(
+                path=path,
+                methods=methods,
+                integration=backend_integration,
+                authorization_scopes=[
+                    "openid",
+                    "email",
+                    "profile",
+                    "aws.cognito.signin.user.admin",
+                ],
+                authorizer=authorizer,
+            )
 
         # Output the API Gateway endpoint and Lambda function details
         CfnOutput(

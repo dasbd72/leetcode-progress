@@ -7,19 +7,6 @@
     <h1 class="text-2xl font-bold mb-4 text-center">Settings</h1>
     <div class="flex justify-center">
       <mat-form-field>
-        <mat-label> email </mat-label>
-        <input
-          matInput
-          type="email"
-          id="email"
-          name="email"
-          disabled
-          [(ngModel)]="userSettings.email"
-        />
-      </mat-form-field>
-    </div>
-    <div class="flex justify-center">
-      <mat-form-field>
         <mat-label> username </mat-label>
         <input
           matInput
@@ -28,6 +15,19 @@
           name="username"
           disabled
           [(ngModel)]="userSettings.username"
+        />
+      </mat-form-field>
+    </div>
+    <div class="flex justify-center">
+      <mat-form-field>
+        <mat-label> email </mat-label>
+        <input
+          matInput
+          type="email"
+          id="email"
+          name="email"
+          required
+          [(ngModel)]="userSettings.email"
         />
       </mat-form-field>
     </div>

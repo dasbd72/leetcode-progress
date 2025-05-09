@@ -1,13 +1,10 @@
 import boto3
-from authentication import JWTAuthorizationCredentials, JWTBearer, jwks
+from authentication import get_cognito_claims
 from environment import environment
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
 router = APIRouter()
-
-# Create JWTBearer instance
-auth = JWTBearer(jwks=jwks)
 
 # Create Cognito client
 cognito = boto3.client("cognito-idp", region_name="ap-northeast-1")
@@ -18,42 +15,35 @@ users_table = dynamodb.Table(environment.users_table_name)
 
 
 class UserSettings(BaseModel):
-    email: str
     username: str
+    email: str
     preferred_username: str
     leetcode_username: str
 
 
 @router.get("/user/settings", response_model=UserSettings)
 async def get_user_settings(
-    credentials: JWTAuthorizationCredentials = Depends(auth),
+    claims: dict = Depends(get_cognito_claims),
 ):
-    username = credentials.claims.get("username")
+    username = claims.get("username")
     if not username:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Username not found in claims",
         )
-    response = cognito.get_user(AccessToken=credentials.jwt_token)
-    email = next(
-        (
-            attr["Value"]
-            for attr in response["UserAttributes"]
-            if attr["Name"] == "email"
-        ),
-        "",
-    )
     response = users_table.get_item(Key={"username": username})
     item = response.get("Item")
     if item:
+        email = item.get("email", "")
         preferred_username = item.get("preferred_username", username)
         leetcode_username = item.get("leetcode_username", "")
     else:
+        email = ""
         preferred_username = username
         leetcode_username = ""
     return {
-        "email": email,
         "username": username,
+        "email": email,
         "preferred_username": preferred_username,
         "leetcode_username": leetcode_username,
     }
@@ -62,9 +52,9 @@ async def get_user_settings(
 @router.put("/user/settings", response_model=UserSettings)
 async def update_user_settings(
     user_settings: UserSettings,
-    credentials: JWTAuthorizationCredentials = Depends(auth),
+    claims: dict = Depends(get_cognito_claims),
 ):
-    username = credentials.claims.get("username")
+    username = claims.get("username")
     if not username:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -73,8 +63,9 @@ async def update_user_settings(
     try:
         response = users_table.update_item(
             Key={"username": username},
-            UpdateExpression="SET preferred_username = :pref, leetcode_username = :leet",
+            UpdateExpression="SET email = :email, preferred_username = :pref, leetcode_username = :leet",
             ExpressionAttributeValues={
+                ":email": user_settings.email,
                 ":pref": user_settings.preferred_username,
                 ":leet": user_settings.leetcode_username,
             },
