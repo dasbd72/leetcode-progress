@@ -294,7 +294,7 @@ class ScraperCdkStack(Stack):
         schedule_rule = aws_events.Rule(
             self,
             "ScrapeEvery20MinRule",
-            rule_name="leetcode-progress-ScrapeEvery20Min",  # Set a logical name for the rule
+            rule_name="leetcode-progress-ScrapeEvery20Min-1746776519",  # Set a logical name for the rule
             schedule=aws_events.Schedule.cron(
                 minute="0/20", hour="*", day="*", month="*", year="*"
             ),  # Schedule: every 20 minutes
