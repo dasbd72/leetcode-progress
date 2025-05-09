@@ -3,6 +3,7 @@ from aws_cdk import (
     Duration,
     RemovalPolicy,
     Stack,
+    aws_certificatemanager,
     aws_cloudfront,
     aws_cloudfront_origins,
     aws_dynamodb,
@@ -60,6 +61,13 @@ class FrontendCdkStack(Stack):
             # The S3BucketOrigin construct with OAC automatically handles the bucket policy.
         )
 
+        # Search for certificate for the CloudFront distribution
+        certificate = aws_certificatemanager.Certificate.from_certificate_arn(
+            self,
+            "40be6b60-3b53-4f42-81f7-184603f37104",
+            certificate_arn="arn:aws:acm:us-east-1:718795813953:certificate/40be6b60-3b53-4f42-81f7-184603f37104",
+        )
+
         # Create CloudFront distribution
         distribution = aws_cloudfront.Distribution(
             self,
@@ -71,6 +79,7 @@ class FrontendCdkStack(Stack):
                 cached_methods=aws_cloudfront.CachedMethods.CACHE_GET_HEAD_OPTIONS,
                 compress=True,
             ),
+            certificate=certificate,
             default_root_object="index.html",
             error_responses=[
                 aws_cloudfront.ErrorResponse(
