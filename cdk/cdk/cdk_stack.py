@@ -1,4 +1,5 @@
 from aws_cdk import (
+    BundlingOptions,
     CfnOutput,
     Duration,
     RemovalPolicy,
@@ -13,6 +14,8 @@ from aws_cdk import (
     aws_lambda,
     aws_s3,
     aws_s3_deployment,
+    aws_apigatewayv2,
+    aws_apigatewayv2_integrations,
 )
 from constructs import Construct
 
@@ -349,4 +352,147 @@ class ScraperCdkStack(Stack):
             "ScrapeScheduleRuleName",
             value=schedule_rule.rule_name,
             description="Name of the EventBridge rule that triggers the scraper function",
+        )
+
+
+class BackendCdkStack(Stack):
+    def __init__(
+        self,
+        scope: Construct,
+        construct_id: str,
+        users_table: aws_dynamodb.Table,
+        progress_table: aws_dynamodb.Table,
+        backend_cache_bucket: aws_s3.Bucket,  # Accept the cache bucket from Resource stack
+        **kwargs,
+    ) -> None:
+        """
+        CDK Stack for deploying the Backend FastAPI Lambda function and API Gateway.
+
+        Args:
+            scope (Construct): The scope in which to define this construct.
+            construct_id (str): The logical ID of this stack.
+            users_table (aws_dynamodb.Table): The DynamoDB table for user data.
+            progress_table (aws_dynamodb.Table): The DynamoDB table for progress data.
+            backend_cache_bucket (aws_s3.Bucket): The S3 bucket used for caching.
+            **kwargs: Additional stack properties.
+        """
+        super().__init__(scope, construct_id, **kwargs)
+
+        self.template_options.description = (
+            "Stack containing the Backend FastAPI Lambda function "
+            "and API Gateway HTTP API."
+        )
+
+        backend_function_role = aws_iam.Role(
+            self,
+            "BackendLambdaRole",
+            assumed_by=aws_iam.ServicePrincipal("lambda.amazonaws.com"),
+            managed_policies=[
+                # AWS managed policy for basic Lambda execution (logging)
+                aws_iam.ManagedPolicy.from_aws_managed_policy_name(
+                    "service-role/AWSLambdaBasicExecutionRole"
+                )
+            ],
+            description="IAM role for the LeetCode Progress Backend Lambda function",
+        )
+
+        backend_layer = aws_lambda.LayerVersion(
+            self,
+            "LeetCodeProgressBackendLayer",
+            layer_version_name="leetcode-progress-backend-layer",
+            code=aws_lambda.Code.from_asset(
+                "../backend/layer",
+                bundling=BundlingOptions(
+                    image=aws_lambda.Runtime.PYTHON_3_10.bundling_image,
+                    command=[
+                        "bash",
+                        "-c",
+                        "pip install --no-cache -r requirements.txt -t /asset-output/python && cp -au . /asset-output/python",
+                    ],
+                ),
+            ),
+            compatible_architectures=[
+                aws_lambda.Architecture.ARM_64,
+            ],
+            compatible_runtimes=[
+                aws_lambda.Runtime.PYTHON_3_10,
+            ],
+        )
+
+        backend_function = (
+            aws_lambda.Function(  # Use standard aws_lambda.Function
+                self,
+                "LeetCodeProgressBackendFunction",
+                function_name="leetcode-progress-backend",
+                code=aws_lambda.Code.from_asset("../backend/app"),
+                handler="main.handler",
+                runtime=aws_lambda.Runtime.PYTHON_3_10,
+                architecture=aws_lambda.Architecture.ARM_64,
+                timeout=Duration.seconds(10),
+                memory_size=128,
+                environment={
+                    "USERS_TABLE_NAME": users_table.table_name,
+                    "PROGRESS_TABLE_NAME": progress_table.table_name,
+                    "CACHE_BUCKET_NAME": backend_cache_bucket.bucket_name,
+                },
+                role=backend_function_role,
+                layers=[backend_layer],
+            )
+        )
+
+        # Grant the Backend Lambda role permissions to interact with DynamoDB tables
+        users_table.grant_read_write_data(
+            backend_function
+        )  # Grant read/write access to users table
+        progress_table.grant_read_data(
+            backend_function
+        )  # Grant read access to progress table
+
+        # Grant the Backend Lambda role permissions to interact with the Cache S3 bucket
+        backend_cache_bucket.grant_read_write(
+            backend_function
+        )  # Grant read and write access to the cache bucket
+
+        # Define the API Gateway HTTP API
+        http_api = aws_apigatewayv2.HttpApi(  # Use HttpApi
+            self,
+            "LeetCodeProgressBackendApi",
+            api_name="leetcode-progress-backend-api",  # Logical name for the API
+            description="HTTP API for the LeetCode Progress Backend Lambda function",
+            # By default, a default stage ($default) is created and automatically
+            # deployed to a URL like <api-id>.execute-api.<region>.amazonaws.com
+        )
+
+        # Create a Lambda integration for the backend function
+        backend_integration = aws_apigatewayv2_integrations.HttpLambdaIntegration(  # Use HttpLambdaIntegration
+            "BackendLambdaIntegration",
+            backend_function,
+        )
+
+        # Add routes to the HTTP API
+        # The $default route handles requests that don't match any other specific route.
+        # Adding both / and /{proxy+} for completeness.
+        http_api.add_routes(
+            path="/{proxy+}",  # Catch-all path
+            methods=[aws_apigatewayv2.HttpMethod.ANY],  # Allow any HTTP method
+            integration=backend_integration,
+        )
+        http_api.add_routes(
+            path="/",  # Root path
+            methods=[aws_apigatewayv2.HttpMethod.ANY],  # Allow any HTTP method
+            integration=backend_integration,
+        )
+
+        # Output the API Gateway endpoint and Lambda function details
+        CfnOutput(
+            self,
+            "BackendFunctionArn",
+            value=backend_function.function_arn,
+            description="ARN of the LeetCode Progress Backend Lambda function",
+        )
+        CfnOutput(
+            self,
+            "BackendApiEndpoint",
+            value=http_api.api_endpoint,
+            description="API Gateway HTTP API endpoint for the backend",
         )
