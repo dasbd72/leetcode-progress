@@ -5,6 +5,7 @@ from aws_cdk import (
     Stack,
     aws_cloudfront,
     aws_cloudfront_origins,
+    aws_dynamodb,
     aws_iam,
     aws_s3,
     aws_s3_deployment,
@@ -119,4 +120,84 @@ class FrontendCdkStack(Stack):
             self,
             "CloudFrontDistributionDomainName",
             value=distribution.distribution_domain_name,
+        )
+
+
+class ResourceCdkStack(Stack):
+    def __init__(
+        self,
+        scope: Construct,
+        construct_id: str,
+        *,
+        removal_policy: RemovalPolicy = RemovalPolicy.RETAIN,  # Make removal policy configurable
+        **kwargs,
+    ) -> None:
+        """
+        CDK Stack for deploying core resources, including DynamoDB tables.
+
+        Args:
+            scope (Construct): The scope in which to define this construct.
+            construct_id (str): The logical ID of this stack.
+            removal_policy (RemovalPolicy): The removal policy for the DynamoDB tables.
+                                            Defaults to RETAIN to prevent data loss on stack deletion.
+            **kwargs: Additional stack properties.
+        """
+        super().__init__(scope, construct_id, **kwargs)
+
+        # Add a description to the stack for better identification in the AWS console
+        self.template_options.description = (
+            "Stack containing core resources for LeetCode Progress Tracker, "
+            "including DynamoDB tables."
+        )
+
+        # Create the LeetCodeProgressUsers Table
+        users_table = aws_dynamodb.Table(
+            self,
+            "LeetCodeProgressUsersTable",
+            table_name="LeetCodeProgressUsers-1746776519",
+            partition_key=aws_dynamodb.Attribute(
+                name="username", type=aws_dynamodb.AttributeType.STRING
+            ),
+            billing_mode=aws_dynamodb.BillingMode.PAY_PER_REQUEST,
+            removal_policy=removal_policy,  # Use the configurable removal policy
+        )
+
+        # Add the LeetCodeUsernameIndex Global Secondary Index
+        # Note: GSIs on PAY_PER_REQUEST tables do not require provisioned throughput settings
+        users_table.add_global_secondary_index(
+            index_name="LeetCodeUsernameIndex",
+            partition_key=aws_dynamodb.Attribute(
+                name="leetcode_username",
+                type=aws_dynamodb.AttributeType.STRING,
+            ),
+            projection_type=aws_dynamodb.ProjectionType.ALL,
+        )
+
+        # Create the LeetCodeProgressData Table
+        progress_table = aws_dynamodb.Table(
+            self,
+            "LeetCodeProgressDataTable",
+            table_name="LeetCodeProgressData-1746776519",  # Note: Using the exact name from the CLI
+            partition_key=aws_dynamodb.Attribute(
+                name="username", type=aws_dynamodb.AttributeType.STRING
+            ),
+            sort_key=aws_dynamodb.Attribute(
+                name="timestamp", type=aws_dynamodb.AttributeType.NUMBER
+            ),
+            billing_mode=aws_dynamodb.BillingMode.PAY_PER_REQUEST,
+            removal_policy=removal_policy,  # Use the configurable removal policy
+        )
+
+        # Output the table names
+        CfnOutput(
+            self,
+            "LeetCodeProgressUsersTableName",
+            value=users_table.table_name,
+            description="Name of the LeetCode Progress Users DynamoDB table",
+        )
+        CfnOutput(
+            self,
+            "LeetCodeProgressDataTableName",
+            value=progress_table.table_name,
+            description="Name of the LeetCode Progress Data DynamoDB table",
         )
