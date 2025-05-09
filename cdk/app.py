@@ -11,14 +11,6 @@ from cdk.cdk_stack import (
 )
 
 app = cdk.App()
-frontend_stack = FrontendCdkStack(
-    app,
-    "LeetcodeProgressFrontendCdkStack",
-    env=cdk.Environment(
-        account=os.getenv("CDK_DEFAULT_ACCOUNT"),
-        region=os.getenv("CDK_DEFAULT_REGION"),
-    ),
-)
 resource_stack = ResourceCdkStack(
     app,
     "LeetcodeProgressResourceCdkStack",
@@ -44,6 +36,14 @@ backend_stack = BackendCdkStack(
     users_table=resource_stack.users_table,
     progress_table=resource_stack.progress_table,
     backend_cache_bucket=resource_stack.backend_cache_bucket,
+    env=cdk.Environment(
+        account=os.getenv("CDK_DEFAULT_ACCOUNT"),
+        region=os.getenv("CDK_DEFAULT_REGION"),
+    ),
+)
+frontend_stack = FrontendCdkStack(
+    app,
+    "LeetcodeProgressFrontendCdkStack",
     env=cdk.Environment(
         account=os.getenv("CDK_DEFAULT_ACCOUNT"),
         region=os.getenv("CDK_DEFAULT_REGION"),
