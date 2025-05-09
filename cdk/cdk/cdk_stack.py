@@ -202,6 +202,20 @@ class ResourceCdkStack(Stack):
             removal_policy=removal_policy,  # Use the configurable removal policy
         )
 
+        # Create the LeetCodeProgressCache Bucket
+        backend_cache_bucket_name = (
+            f"leetcode-progress-cache-{self.account}-{self.region}"
+        )
+        self.backend_cache_bucket = aws_s3.Bucket(
+            self,
+            "LeetCodeProgressCacheBucket",
+            bucket_name=backend_cache_bucket_name,
+            public_read_access=False,  # No public access
+            block_public_access=aws_s3.BlockPublicAccess.BLOCK_ALL,  # Recommended for private buckets
+            removal_policy=RemovalPolicy.DESTROY,
+            auto_delete_objects=True,
+        )
+
         # Output the table names
         CfnOutput(
             self,
@@ -214,6 +228,14 @@ class ResourceCdkStack(Stack):
             "LeetCodeProgressDataTableName",
             value=self.progress_table.table_name,
             description="Name of the LeetCode Progress Data DynamoDB table",
+        )
+
+        # Output the bucket names
+        CfnOutput(
+            self,
+            "LeetCodeProgressCacheBucketName",
+            value=self.backend_cache_bucket.bucket_name,
+            description="Name of the LeetCode Progress Cache S3 bucket",
         )
 
 

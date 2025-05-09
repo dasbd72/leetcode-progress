@@ -19,6 +19,7 @@ Resources:
         Variables:
           USERS_TABLE_NAME: LeetCodeProgressUsers-1746776519
           PROGRESS_TABLE_NAME: LeetCodeProgressData-1746776519
+          CACHE_BUCKET_NAME: leetcode-progress-cache-718795813953-ap-northeast-1
       Events:
         RootPath:
           Type: Api
