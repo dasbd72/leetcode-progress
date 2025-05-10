@@ -570,6 +570,9 @@ class BackendCdkStack(Stack):
                 aws_apigatewayv2.HttpMethod.GET,
                 aws_apigatewayv2.HttpMethod.PUT,
             ],
+            "/auth/progress/latest/interval": [
+                aws_apigatewayv2.HttpMethod.GET,
+            ],
         }
 
         for path, methods in path_methods.items():

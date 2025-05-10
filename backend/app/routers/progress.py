@@ -6,7 +6,8 @@ import cache
 import pytz
 from boto3.dynamodb.conditions import Key
 from environment import environment
-from fastapi import APIRouter, Query
+from authentication import get_claims
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 router = APIRouter()
 
@@ -20,6 +21,41 @@ def fetch_usernames() -> list[str]:
     user_items = response.get("Items", [])
     usernames = list(set([user["leetcode_username"] for user in user_items]))
     usernames = sorted(usernames)
+    return usernames
+
+
+def fetch_usernames_by_subscription(subscribed_by: str) -> list[str]:
+    try:
+        response = users_table.get_item(
+            Key={"username": subscribed_by},
+            ProjectionExpression="subscription_list",
+        )
+        item = response.get("Item", {})
+        subscription_list = item.get("subscription_list", [])
+        usernames = []
+        if subscription_list:
+            batch_request_keys = [
+                {"username": username} for username in subscription_list
+            ]
+            response = dynamodb.meta.client.batch_get_item(
+                RequestItems={
+                    users_table.name: {
+                        "Keys": batch_request_keys,
+                        "ProjectionExpression": "leetcode_username",
+                    }
+                }
+            )
+            usernames = [
+                item["leetcode_username"]
+                for item in response["Responses"].get(users_table.name, [])
+                if "leetcode_username" in item
+            ]
+    except Exception as e:
+        print(f"Error fetching subscription list: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to fetch subscription list",
+        )
     return usernames
 
 
@@ -156,16 +192,11 @@ def calculate_time_intervals(
 
 
 def get_progress_data(
-    time_delta: timedelta, limit: int, timezone_str: str = "UTC"
+    time_delta: timedelta,
+    limit: int,
+    timezone_str: str = "UTC",
+    subscribed_by: str = None,
 ) -> dict:
-    # Fetch the data from the cache if available
-    cache_key = f"progress:get_progress_data:{int(time_delta.total_seconds())}:{limit}:{timezone_str}"
-    if cache.is_cache_fresh(cache_key, ttl=300):
-        cached_data = cache.get_cache(cache_key)
-        if cached_data:
-            cached_data["source"] = "cache"
-            return cached_data
-
     # If cache is not fresh, fetch the data
     data = {}
     performance = {
@@ -183,8 +214,21 @@ def get_progress_data(
     now = datetime.now(tz)
 
     start_perf = perf_counter()
-    usernames = fetch_usernames()
+    if subscribed_by:
+        usernames = fetch_usernames_by_subscription(subscribed_by)
+    else:
+        usernames = fetch_usernames()
     performance["get_users"] = perf_counter() - start_perf
+
+    # Fetch the data from the cache if available
+    hashed_usernames = hash(",".join(usernames))
+    cache_key = f"progress:get_progress_data:{int(time_delta.total_seconds())}:{limit}:{timezone_str}:{hashed_usernames}"
+    if cache.is_cache_fresh(cache_key, ttl=300):
+        cached_data = cache.get_cache(cache_key)
+        if cached_data:
+            cached_data["source"] = "cache"
+            cached_data["performance"] = performance
+            return cached_data
 
     # Calculate the time intervals for alignment
     time_starts = calculate_time_intervals(now, time_delta, limit)
@@ -319,3 +363,26 @@ def get_latest_interval_progress(
 ):
     time_delta = timedelta(hours=hours)
     return get_progress_data(time_delta, limit, timezone)
+
+
+@router.get("/auth/progress/latest/interval")
+def get_auth_latest_interval_progress(
+    hours: int = Query(1, description="Interval in hours", ge=1, le=24),
+    limit: int = Query(
+        24, description="Number of intervals to look back", ge=1, le=50
+    ),
+    timezone: str = Query(
+        "UTC", description="Timezone name, e.g., 'Asia/Taipei'"
+    ),
+    claims: dict = Depends(get_claims),
+):
+    time_delta = timedelta(hours=hours)
+    username = claims.get("username")
+    if not username:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Username not found in claims",
+        )
+    return get_progress_data(
+        time_delta, limit, timezone, subscribed_by=username
+    )

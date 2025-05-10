@@ -1,57 +1,64 @@
 <div class="p-4 space-y-4">
   <h1 class="text-2xl font-bold mb-4 text-center">Chart of Progress</h1>
 
-  <!-- Controls -->
-  <div class="flex flex-wrap justify-center gap-x-4 gap-y-1">
-    <div>
-      <label class="font-medium mr-2">Time Range:</label>
-      <select
-        [(ngModel)]="interval"
-        (ngModelChange)="onIntervalChange($event)"
-        class="border rounded px-1 py-[0.1rem]"
-      >
-        <option value="hour">Hourly</option>
-        <option value="day">Daily</option>
-      </select>
-    </div>
-
-    <div>
-      <label class="font-medium mr-2">Mode:</label>
-      <select
-        [(ngModel)]="mode"
-        (ngModelChange)="onModeChange($event)"
-        class="border rounded px-1 py-[0.1rem]"
-      >
-        <option value="total">Total</option>
-        <option value="delta">Delta</option>
-      </select>
-    </div>
-
-    <div>
-      <label class="font-medium mr-2">Difficulty:</label>
-      <select
-        [(ngModel)]="difficulty"
-        (ngModelChange)="onDifficultyChange($event)"
-        class="border rounded px-1 py-[0.1rem]"
-      >
-        <option value="easy">Easy</option>
-        <option value="medium">Medium</option>
-        <option value="hard">Hard</option>
-        <option value="med_hard">Med+Hard</option>
-        <option value="total">All</option>
-      </select>
-    </div>
+  <div *ngIf="!lineChartData.datasets.length">
+    <p class="text-center text-gray-500">
+      No user subscriptions found. Please subscribe to users to see the chart.
+    </p>
   </div>
+  <div *ngIf="lineChartData.datasets.length">
+    <!-- Controls -->
+    <div class="flex flex-wrap justify-center gap-x-4 gap-y-1">
+      <div>
+        <label class="font-medium mr-2">Time Range:</label>
+        <select
+          [(ngModel)]="interval"
+          (ngModelChange)="onIntervalChange($event)"
+          class="border rounded px-1 py-[0.1rem]"
+        >
+          <option value="hour">Hourly</option>
+          <option value="day">Daily</option>
+        </select>
+      </div>
 
-  <!-- Chart -->
-  <div style="height: calc(100vh - 20rem)">
-    <canvas
-      baseChart
-      *ngIf="lineChartData"
-      [data]="lineChartData"
-      [type]="lineChartType"
-      [options]="lineChartOptions"
-      class="h-full"
-    ></canvas>
+      <div>
+        <label class="font-medium mr-2">Mode:</label>
+        <select
+          [(ngModel)]="mode"
+          (ngModelChange)="onModeChange($event)"
+          class="border rounded px-1 py-[0.1rem]"
+        >
+          <option value="total">Total</option>
+          <option value="delta">Delta</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="font-medium mr-2">Difficulty:</label>
+        <select
+          [(ngModel)]="difficulty"
+          (ngModelChange)="onDifficultyChange($event)"
+          class="border rounded px-1 py-[0.1rem]"
+        >
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+          <option value="med_hard">Med+Hard</option>
+          <option value="total">All</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div style="height: calc(100vh - 20rem)">
+      <canvas
+        baseChart
+        *ngIf="lineChartData"
+        [data]="lineChartData"
+        [type]="lineChartType"
+        [options]="lineChartOptions"
+        class="h-full"
+      ></canvas>
+    </div>
   </div>
 </div>
