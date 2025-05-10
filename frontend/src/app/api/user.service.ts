@@ -32,7 +32,7 @@ export class UserService {
     private http: HttpClient,
   ) {}
 
-  private convertToCamelCase(obj: any): UserSettings {
+  private convertUserSettingsToCamelCase(obj: any): UserSettings {
     return {
       email: obj.email,
       username: obj.username,
@@ -41,7 +41,7 @@ export class UserService {
     };
   }
 
-  private convertToUnderscoreCase(settings: UserSettings): any {
+  private convertUserSettingsToUnderscoreCase(settings: UserSettings): any {
     return {
       email: settings.email,
       username: settings.username,
@@ -55,7 +55,7 @@ export class UserService {
       Authorization: `Bearer ${accessToken}`,
     });
     return this.http.get<any>(`${environment.apiBaseUrl}/user/settings`, { headers }).pipe(
-      map((data) => this.convertToCamelCase(data)),
+      map((data) => this.convertUserSettingsToCamelCase(data)),
       tap((settings) => this.userSettingsSubject.next(settings)),
       catchError((error) => {
         console.error('Failed to fetch settings:', error);
@@ -75,7 +75,7 @@ export class UserService {
     accessToken: string,
     userSettings: UserSettings,
   ): Observable<UserSettings> {
-    const underscoredSettings = this.convertToUnderscoreCase(userSettings);
+    const underscoredSettings = this.convertUserSettingsToUnderscoreCase(userSettings);
     const headers = new HttpHeaders({
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
@@ -83,7 +83,7 @@ export class UserService {
     return this.http
       .put<any>(`${environment.apiBaseUrl}/user/settings`, underscoredSettings, { headers })
       .pipe(
-        map((data) => this.convertToCamelCase(data)),
+        map((data) => this.convertUserSettingsToCamelCase(data)),
         tap((settings) => this.userSettingsSubject.next(settings)),
         catchError((error) => {
           console.error('Failed to update settings:', error);
