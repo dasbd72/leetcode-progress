@@ -109,15 +109,15 @@ export class ChartComponent implements OnInit {
             const data: number[] = [];
             if (this.mode === 'total') {
               for (let i = 0; i < timestamps.length; i++) {
-                const stats = intervalData.data[timestamps[i]]?.[username];
+                const stats = intervalData.data[timestamps[i]]?.[username] || {};
                 const amount = this.getStatValueByDifficulty(stats, this.difficulty);
                 data.push(amount);
               }
             } else if (this.mode === 'delta') {
               for (let i = 1; i < timestamps.length; i++) {
-                const prevStats = intervalData.data[timestamps[i - 1]]?.[username];
+                const prevStats = intervalData.data[timestamps[i - 1]]?.[username] || {};
                 const prevAmount = this.getStatValueByDifficulty(prevStats, this.difficulty);
-                const stats = intervalData.data[timestamps[i]]?.[username];
+                const stats = intervalData.data[timestamps[i]]?.[username] || {};
                 const amount = this.getStatValueByDifficulty(stats, this.difficulty);
                 if (stats === undefined || prevStats === undefined) {
                   data.push(0);
