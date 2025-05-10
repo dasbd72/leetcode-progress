@@ -4,8 +4,6 @@ import os
 class Environment:
     production: bool = False
     allowed_origins: list[str] = []
-    client_id: str = ""
-    cognito_idp_url: str = ""
     users_table_name: str = os.environ.get(
         "USERS_TABLE_NAME", "LeetCodeProgressUsers-1746776519"
     )
