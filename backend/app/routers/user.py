@@ -20,7 +20,7 @@ class User(BaseModel):
     leetcode_username: str
 
 
-@router.get("/user/list", response_model=list[User])
+@router.get("/auth/user/list", response_model=list[User])
 async def get_user_list(
     claims: dict = Depends(get_claims),
 ):
@@ -72,7 +72,7 @@ class UserSettings(BaseModel):
     leetcode_username: str
 
 
-@router.get("/user/settings", response_model=UserSettings)
+@router.get("/auth/user/settings", response_model=UserSettings)
 async def get_user_settings(
     claims: dict = Depends(get_claims),
 ):
@@ -100,7 +100,7 @@ async def get_user_settings(
     }
 
 
-@router.put("/user/settings", response_model=UserSettings)
+@router.put("/auth/user/settings", response_model=UserSettings)
 async def update_user_settings(
     user_settings: UserSettings,
     claims: dict = Depends(get_claims),
@@ -136,7 +136,7 @@ async def update_user_settings(
     return user_settings
 
 
-@router.get("/user/subscription/list", response_model=list[str])
+@router.get("/auth/user/subscription/list", response_model=list[str])
 async def get_user_subscriptions(
     claims: dict = Depends(get_claims),
 ):
@@ -161,7 +161,7 @@ async def get_user_subscriptions(
     return subscription_list
 
 
-@router.put("/user/subscription/list", response_model=list[str])
+@router.put("/auth/user/subscription/list", response_model=list[str])
 async def update_user_subscriptions(
     subscription_list: list[str],
     claims: dict = Depends(get_claims),

@@ -50,7 +50,7 @@ export class UserService {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${accessToken}`,
     });
-    return this.http.get<any>(`${environment.apiBaseUrl}/user/list`, { headers }).pipe(
+    return this.http.get<any>(`${environment.apiBaseUrl}/auth/user/list`, { headers }).pipe(
       map((data) => data.map((user: any) => this.convertUserToCamelCase(user))),
       catchError((error) => {
         console.error('Failed to fetch user list:', error);
@@ -88,7 +88,7 @@ export class UserService {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${accessToken}`,
     });
-    return this.http.get<any>(`${environment.apiBaseUrl}/user/settings`, { headers }).pipe(
+    return this.http.get<any>(`${environment.apiBaseUrl}/auth/user/settings`, { headers }).pipe(
       map((data) => this.convertUserSettingsToCamelCase(data)),
       tap((settings) => this.userSettingsSubject.next(settings)),
       catchError((error) => {
@@ -115,7 +115,7 @@ export class UserService {
       'Content-Type': 'application/json',
     });
     return this.http
-      .put<any>(`${environment.apiBaseUrl}/user/settings`, underscoredSettings, { headers })
+      .put<any>(`${environment.apiBaseUrl}/auth/user/settings`, underscoredSettings, { headers })
       .pipe(
         map((data) => this.convertUserSettingsToCamelCase(data)),
         tap((settings) => this.userSettingsSubject.next(settings)),
@@ -137,12 +137,14 @@ export class UserService {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${accessToken}`,
     });
-    return this.http.get<any>(`${environment.apiBaseUrl}/user/subscription/list`, { headers }).pipe(
-      catchError((error) => {
-        console.error('Failed to fetch subscriptions:', error);
-        return of([]);
-      }),
-    );
+    return this.http
+      .get<any>(`${environment.apiBaseUrl}/auth/user/subscription/list`, { headers })
+      .pipe(
+        catchError((error) => {
+          console.error('Failed to fetch subscriptions:', error);
+          return of([]);
+        }),
+      );
   }
 
   getUserSubscriptionList(): Observable<string[]> {
@@ -161,7 +163,7 @@ export class UserService {
       'Content-Type': 'application/json',
     });
     return this.http
-      .put<any>(`${environment.apiBaseUrl}/user/subscription/list`, subscriptionList, {
+      .put<any>(`${environment.apiBaseUrl}/auth/user/subscription/list`, subscriptionList, {
         headers,
       })
       .pipe(

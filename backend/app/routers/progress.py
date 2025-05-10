@@ -263,7 +263,7 @@ def get_progress_data(
     return response
 
 
-@router.get("/latest")
+@router.get("/progress/latest")
 def get_latest_user_progress():
     # Fetch the data from the cache if available
     cache_key = "progress:get_latest_user_progress"
@@ -307,7 +307,7 @@ def get_latest_user_progress():
     return response
 
 
-@router.get("/latest/interval")
+@router.get("/progress/latest/interval")
 def get_latest_interval_progress(
     hours: int = Query(1, description="Interval in hours", ge=1, le=24),
     limit: int = Query(

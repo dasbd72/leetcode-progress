@@ -25,12 +25,12 @@ export class ProgressService {
 
   getLatest(): Observable<ProgressData> {
     return this.http
-      .get<any>(`${environment.apiBaseUrl}/latest`)
+      .get<any>(`${environment.apiBaseUrl}/progress/latest`)
       .pipe(map((data) => data as ProgressData));
   }
 
   getLatestWithInterval(hours: number, limit: number, timezone?: string): Observable<IntervalData> {
-    let url = `${environment.apiBaseUrl}/latest/interval?hours=${hours}&limit=${limit}`;
+    let url = `${environment.apiBaseUrl}/progress/latest/interval?hours=${hours}&limit=${limit}`;
     if (timezone) {
       url += `&timezone=${encodeURIComponent(timezone)}`;
     }

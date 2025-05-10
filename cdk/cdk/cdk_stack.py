@@ -557,16 +557,16 @@ class BackendCdkStack(Stack):
             "/": [aws_apigatewayv2.HttpMethod.GET],
             "/{proxy+}": [aws_apigatewayv2.HttpMethod.OPTIONS],
             "/announcements": [aws_apigatewayv2.HttpMethod.GET],
-            "/latest": [aws_apigatewayv2.HttpMethod.GET],
-            "/latest/interval": [aws_apigatewayv2.HttpMethod.GET],
+            "/progress/latest": [aws_apigatewayv2.HttpMethod.GET],
+            "/progress/latest/interval": [aws_apigatewayv2.HttpMethod.GET],
         }
         authorized_path_methods = {
-            "/user/list": [aws_apigatewayv2.HttpMethod.GET],
-            "/user/settings": [
+            "/auth/user/list": [aws_apigatewayv2.HttpMethod.GET],
+            "/auth/user/settings": [
                 aws_apigatewayv2.HttpMethod.GET,
                 aws_apigatewayv2.HttpMethod.PUT,
             ],
-            "/user/subscription/list": [
+            "/auth/user/subscription/list": [
                 aws_apigatewayv2.HttpMethod.GET,
                 aws_apigatewayv2.HttpMethod.PUT,
             ],
