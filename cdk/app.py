@@ -10,14 +10,16 @@ from cdk.cdk_stack import (
     BackendCdkStack,
 )
 
+env = cdk.Environment(
+    account=os.getenv("CDK_DEFAULT_ACCOUNT"),
+    region=os.getenv("CDK_DEFAULT_REGION"),
+)
+
 app = cdk.App()
 resource_stack = ResourceCdkStack(
     app,
     "LeetcodeProgressResourceCdkStack",
-    env=cdk.Environment(
-        account=os.getenv("CDK_DEFAULT_ACCOUNT"),
-        region=os.getenv("CDK_DEFAULT_REGION"),
-    ),
+    env=env,
     removal_policy=cdk.RemovalPolicy.RETAIN,
 )
 scraper_stack = ScraperCdkStack(
@@ -25,10 +27,7 @@ scraper_stack = ScraperCdkStack(
     "LeetcodeProgressScraperCdkStack",
     users_table=resource_stack.users_table,
     progress_table=resource_stack.progress_table,
-    env=cdk.Environment(
-        account=os.getenv("CDK_DEFAULT_ACCOUNT"),
-        region=os.getenv("CDK_DEFAULT_REGION"),
-    ),
+    env=env,
 )
 backend_stack = BackendCdkStack(
     app,
@@ -37,20 +36,14 @@ backend_stack = BackendCdkStack(
     progress_table=resource_stack.progress_table,
     backend_cache_bucket=resource_stack.backend_cache_bucket,
     distribution=resource_stack.distribution,
-    env=cdk.Environment(
-        account=os.getenv("CDK_DEFAULT_ACCOUNT"),
-        region=os.getenv("CDK_DEFAULT_REGION"),
-    ),
+    env=env,
 )
 frontend_stack = FrontendCdkStack(
     app,
     "LeetcodeProgressFrontendCdkStack",
     frontend_bucket=resource_stack.frontend_bucket,
     distribution=resource_stack.distribution,
-    env=cdk.Environment(
-        account=os.getenv("CDK_DEFAULT_ACCOUNT"),
-        region=os.getenv("CDK_DEFAULT_REGION"),
-    ),
+    env=env,
 )
 
 app.synth()
