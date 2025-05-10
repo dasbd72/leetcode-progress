@@ -561,7 +561,12 @@ class BackendCdkStack(Stack):
             "/latest/interval": [aws_apigatewayv2.HttpMethod.GET],
         }
         authorized_path_methods = {
+            "/user/list": [aws_apigatewayv2.HttpMethod.GET],
             "/user/settings": [
+                aws_apigatewayv2.HttpMethod.GET,
+                aws_apigatewayv2.HttpMethod.PUT,
+            ],
+            "/user/subscription/list": [
                 aws_apigatewayv2.HttpMethod.GET,
                 aws_apigatewayv2.HttpMethod.PUT,
             ],

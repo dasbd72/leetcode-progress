@@ -1,64 +1,112 @@
-<div *ngIf="isLoading" class="flex justify-center mt-4">
-  <mat-spinner></mat-spinner>
-</div>
-
 <div class="max-w-4xl mx-auto px-4 py-4 bg-white shadow-lg rounded-lg">
-  <form (ngSubmit)="onSubmit()">
-    <h1 class="text-2xl font-bold mb-4 text-center">Settings</h1>
-    <div class="flex justify-center">
-      <mat-form-field>
-        <mat-label> username </mat-label>
-        <input
-          matInput
-          type="username"
-          id="username"
-          name="username"
-          disabled
-          [(ngModel)]="userSettings.username"
-        />
-      </mat-form-field>
+  <form (ngSubmit)="onSubmitUserSettings()">
+    <h1 class="text-2xl font-bold text-center">Settings</h1>
+    <div *ngIf="isLoadingSettings" class="flex justify-center mt-4">
+      <mat-spinner></mat-spinner>
     </div>
-    <div class="flex justify-center">
-      <mat-form-field>
-        <mat-label> email </mat-label>
-        <input
-          matInput
-          type="email"
-          id="email"
-          name="email"
-          required
-          [(ngModel)]="userSettings.email"
-        />
-      </mat-form-field>
-    </div>
-    <div class="flex justify-center">
-      <mat-form-field>
-        <mat-label> preferred username </mat-label>
-        <input
-          matInput
-          type="preferred_username"
-          id="preferred_username"
-          name="preferred_username"
-          required
-          [(ngModel)]="userSettings.preferredUsername"
-        />
-      </mat-form-field>
-    </div>
-    <div class="flex justify-center">
-      <mat-form-field>
-        <mat-label> leetcode username </mat-label>
-        <input
-          matInput
-          type="leetcode_username"
-          id="leetcode_username"
-          name="leetcode_username"
-          required
-          [(ngModel)]="userSettings.leetcodeUsername"
-        />
-      </mat-form-field>
-    </div>
-    <div class="flex justify-center">
-      <button mat-button type="submit">Update Settings</button>
+    <div *ngIf="!isLoadingSettings" class="mt-4">
+      <div class="flex justify-center">
+        <mat-form-field>
+          <mat-label> username </mat-label>
+          <input
+            matInput
+            type="username"
+            id="username"
+            name="username"
+            disabled
+            [(ngModel)]="userSettings.username"
+          />
+        </mat-form-field>
+      </div>
+      <div class="flex justify-center">
+        <mat-form-field>
+          <mat-label> email </mat-label>
+          <input
+            matInput
+            type="email"
+            id="email"
+            name="email"
+            required
+            [(ngModel)]="userSettings.email"
+          />
+        </mat-form-field>
+      </div>
+      <div class="flex justify-center">
+        <mat-form-field>
+          <mat-label> preferred username </mat-label>
+          <input
+            matInput
+            type="preferred_username"
+            id="preferred_username"
+            name="preferred_username"
+            required
+            [(ngModel)]="userSettings.preferredUsername"
+          />
+        </mat-form-field>
+      </div>
+      <div class="flex justify-center">
+        <mat-form-field>
+          <mat-label> leetcode username </mat-label>
+          <input
+            matInput
+            type="leetcode_username"
+            id="leetcode_username"
+            name="leetcode_username"
+            required
+            [(ngModel)]="userSettings.leetcodeUsername"
+          />
+        </mat-form-field>
+      </div>
+      <div class="flex justify-center">
+        <button mat-button type="submit">Update Settings</button>
+      </div>
     </div>
   </form>
+</div>
+
+<div class="max-w-4xl mx-auto px-4 py-4 bg-white shadow-lg rounded-lg mt-4">
+  <h1 class="text-2xl font-bold text-center">Subscription</h1>
+  <div *ngIf="isLoadingSubscription" class="flex justify-center mt-4">
+    <mat-spinner></mat-spinner>
+  </div>
+  <div *ngIf="!isLoadingSubscription" class="mt-4">
+    <mat-paginator
+      (page)="onPageChange($event)"
+      [length]="displaySettings.length"
+      [pageIndex]="displaySettings.pageIndex"
+      [pageSize]="displaySettings.pageSize"
+      [pageSizeOptions]="[5, 10, 25, 100]"
+      aria-label="Select page"
+    >
+    </mat-paginator>
+    <table class="table-auto w-full border-collapse">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="px-4 py-1 text-left border-b border-gray-300">Preferred Username</th>
+          <th class="px-4 py-1 text-left border-b border-gray-300">LeetCode Username</th>
+          <th class="px-4 py-1 text-center border-b border-gray-300">Subscribed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let index of displayIndices" class="hover:bg-gray-50">
+          <td class="px-4 py-1 text-left border-b border-gray-200">
+            {{ subscriptionElementList[index].preferredUsername }}
+          </td>
+          <td class="px-4 py-1 text-left border-b border-gray-200">
+            {{ subscriptionElementList[index].leetcodeUsername }}
+          </td>
+          <td class="px-4 py-1 text-center border-b border-gray-200 h-1">
+            <mat-checkbox
+              [(ngModel)]="subscriptionElementList[index].subscribed"
+              (change)="onSubscriptionClicked(index)"
+            >
+            </mat-checkbox>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="flex justify-center mt-4">
+      <button mat-button (click)="onSumbitSubscriptionList()">Update Subscription</button>
+    </div>
+  </div>
 </div>
