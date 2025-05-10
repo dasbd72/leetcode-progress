@@ -25,18 +25,18 @@ def fetch_usernames() -> list[str]:
     return usernames
 
 
-def fetch_usernames_by_subscription(subscribed_by: str) -> list[str]:
+def fetch_usernames_by_following(followed_by: str) -> list[str]:
     try:
         response = users_table.get_item(
-            Key={"username": subscribed_by},
-            ProjectionExpression="subscription_list",
+            Key={"username": followed_by},
+            ProjectionExpression="following_list",
         )
         item = response.get("Item", {})
-        subscription_list = item.get("subscription_list", [])
+        following_list = item.get("following_list", [])
         usernames = []
-        if subscription_list:
+        if following_list:
             batch_request_keys = [
-                {"username": username} for username in subscription_list
+                {"username": username} for username in following_list
             ]
             response = dynamodb.meta.client.batch_get_item(
                 RequestItems={
@@ -53,10 +53,10 @@ def fetch_usernames_by_subscription(subscribed_by: str) -> list[str]:
             ]
             usernames = sorted(usernames)
     except Exception as e:
-        print(f"Error fetching subscription list: {e}")
+        print(f"Error fetching following list: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to fetch subscription list",
+            detail="Failed to fetch following list",
         )
     return usernames
 
@@ -197,7 +197,7 @@ def get_progress_data(
     time_delta: timedelta,
     limit: int,
     timezone_str: str = "UTC",
-    subscribed_by: str = None,
+    followed_by: str = None,
 ) -> dict:
     # If cache is not fresh, fetch the data
     data = {}
@@ -216,8 +216,8 @@ def get_progress_data(
     now = datetime.now(tz)
 
     start_perf = perf_counter()
-    if subscribed_by:
-        usernames = fetch_usernames_by_subscription(subscribed_by)
+    if followed_by:
+        usernames = fetch_usernames_by_following(followed_by)
     else:
         usernames = fetch_usernames()
     performance["get_users"] = perf_counter() - start_perf
@@ -385,6 +385,4 @@ def get_auth_latest_interval_progress(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Username not found in claims",
         )
-    return get_progress_data(
-        time_delta, limit, timezone, subscribed_by=username
-    )
+    return get_progress_data(time_delta, limit, timezone, followed_by=username)

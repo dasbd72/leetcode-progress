@@ -48,4 +48,4 @@ Tracks your LeetCode progress.
 - [ ] Add start date option for the chart.
 - [ ] Make timestamps constant in 10 minutes intervals to reduce timestamp search operation.
 - [x] Setup CDK for all AWS resources.
-- [x] Enable user subscriptions.
+- [x] Enable user following.

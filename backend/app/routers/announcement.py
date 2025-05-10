@@ -13,8 +13,8 @@ async def get_announcement():
                 "date": "2025-03-08",
             },
             {
-                "title": "Subscribe Other Users",
-                "content": "You can now subscribe to other users!\nSee their progress and achievements!",
+                "title": "Follow Other Users",
+                "content": "You can now follow other users!\nSee their progress and achievements!",
                 "date": "2025-05-10",
             },
         ]

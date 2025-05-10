@@ -133,52 +133,52 @@ export class UserService {
     );
   }
 
-  private fetchUserSubscriptionList(accessToken: string): Observable<string[]> {
+  private fetchUserFollowingList(accessToken: string): Observable<string[]> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${accessToken}`,
     });
     return this.http
-      .get<any>(`${environment.apiBaseUrl}/auth/user/subscription/list`, { headers })
+      .get<any>(`${environment.apiBaseUrl}/auth/user/following/list`, { headers })
       .pipe(
         catchError((error) => {
-          console.error('Failed to fetch subscriptions:', error);
+          console.error('Failed to fetch following list:', error);
           return of([]);
         }),
       );
   }
 
-  getUserSubscriptionList(): Observable<string[]> {
+  getUserFollowingList(): Observable<string[]> {
     return this.authService.authData$.pipe(
       filter((authData) => authData.isAuthenticated && !!authData.accessToken),
-      switchMap((authData) => this.fetchUserSubscriptionList(authData.accessToken)),
+      switchMap((authData) => this.fetchUserFollowingList(authData.accessToken)),
     );
   }
 
-  private updateUserSubscriptionListRequest(
+  private updateUserFollowingListRequest(
     accessToken: string,
-    subscriptionList: string[],
+    followingList: string[],
   ): Observable<string[]> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     });
     return this.http
-      .put<any>(`${environment.apiBaseUrl}/auth/user/subscription/list`, subscriptionList, {
+      .put<any>(`${environment.apiBaseUrl}/auth/user/following/list`, followingList, {
         headers,
       })
       .pipe(
         catchError((error) => {
-          console.error('Failed to update subscriptions:', error);
+          console.error('Failed to update following list:', error);
           return of([]);
         }),
       );
   }
 
-  updateUserSubscriptionList(subscriptionList: string[]): Observable<string[]> {
+  updateUserFollowingList(followingList: string[]): Observable<string[]> {
     return this.authService.authData$.pipe(
       filter((authData) => authData.isAuthenticated && !!authData.accessToken),
       switchMap((authData) =>
-        this.updateUserSubscriptionListRequest(authData.accessToken, subscriptionList),
+        this.updateUserFollowingListRequest(authData.accessToken, followingList),
       ),
     );
   }

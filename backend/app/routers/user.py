@@ -136,8 +136,8 @@ async def update_user_settings(
     return user_settings
 
 
-@router.get("/auth/user/subscription/list", response_model=list[str])
-async def get_user_subscriptions(
+@router.get("/auth/user/following/list", response_model=list[str])
+async def get_user_following_list(
     claims: dict = Depends(get_claims),
 ):
     username = claims.get("username")
@@ -149,21 +149,21 @@ async def get_user_subscriptions(
     try:
         response = users_table.get_item(Key={"username": username})
         item = response.get("Item")
-        subscription_list = []
+        following_list = []
         if item:
-            subscription_list = item.get("subscription_list", [])
+            following_list = item.get("following_list", [])
     except Exception as e:
-        print(f"Error fetching user subscriptions for {username}: {e}")
+        print(f"Error fetching user following for {username}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to fetch user subscriptions",
+            detail="Failed to fetch user following",
         )
-    return subscription_list
+    return following_list
 
 
-@router.put("/auth/user/subscription/list", response_model=list[str])
-async def update_user_subscriptions(
-    subscription_list: list[str],
+@router.put("/auth/user/following/list", response_model=list[str])
+async def update_user_following_list(
+    following_list: list[str],
     claims: dict = Depends(get_claims),
 ):
     username = claims.get("username")
@@ -175,19 +175,19 @@ async def update_user_subscriptions(
     try:
         response = users_table.update_item(
             Key={"username": username},
-            UpdateExpression="SET subscription_list = :sub_list",
-            ExpressionAttributeValues={":sub_list": subscription_list},
+            UpdateExpression="SET following_list = :sub_list",
+            ExpressionAttributeValues={":sub_list": following_list},
             ReturnValues="UPDATED_NEW",  # Optional: Can be used to check response
         )
         if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to update user subscriptions in DynamoDB",
+                detail="Failed to update user following list in DynamoDB",
             )
     except Exception as e:
-        print(f"Error updating user subscriptions for {username}: {e}")
+        print(f"Error updating user following list for {username}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to update user subscriptions",
+            detail="Failed to update user following list",
         )
-    return subscription_list
+    return following_list

@@ -65,11 +65,11 @@
 </div>
 
 <div class="max-w-4xl mx-auto px-4 py-4 bg-white shadow-lg rounded-lg mt-4">
-  <h1 class="text-2xl font-bold text-center">Subscription</h1>
-  <div *ngIf="isLoadingSubscription" class="flex justify-center mt-4">
+  <h1 class="text-2xl font-bold text-center">Following</h1>
+  <div *ngIf="isLoadingFollowing" class="flex justify-center mt-4">
     <mat-spinner></mat-spinner>
   </div>
-  <div *ngIf="!isLoadingSubscription" class="mt-4">
+  <div *ngIf="!isLoadingFollowing" class="mt-4">
     <mat-paginator
       (page)="onPageChange($event)"
       [length]="displaySettings.length"
@@ -84,21 +84,21 @@
         <tr class="bg-gray-100">
           <th class="px-4 py-1 text-left border-b border-gray-300">Preferred Username</th>
           <th class="px-4 py-1 text-left border-b border-gray-300">LeetCode Username</th>
-          <th class="px-4 py-1 text-center border-b border-gray-300">Subscribed</th>
+          <th class="px-4 py-1 text-center border-b border-gray-300">Following</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let index of displayIndices" class="hover:bg-gray-50">
           <td class="px-4 py-1 text-left border-b border-gray-200">
-            {{ subscriptionElementList[index].preferredUsername }}
+            {{ followingElementList[index].preferredUsername }}
           </td>
           <td class="px-4 py-1 text-left border-b border-gray-200">
-            {{ subscriptionElementList[index].leetcodeUsername }}
+            {{ followingElementList[index].leetcodeUsername }}
           </td>
           <td class="px-4 py-1 text-center border-b border-gray-200 h-1">
             <mat-checkbox
-              [(ngModel)]="subscriptionElementList[index].subscribed"
-              (change)="onSubscriptionClicked(index)"
+              [(ngModel)]="followingElementList[index].following"
+              (change)="onFollowingClicked(index)"
             >
             </mat-checkbox>
           </td>
@@ -107,10 +107,10 @@
     </table>
     <div class="flex justify-center mt-4">
       <div class="flex">
-        <button mat-button (click)="onSelectAllSubscriptionClicked()">Select / Deselect All</button>
+        <button mat-button (click)="onSelectAllFollowingClicked()">Select / Deselect All</button>
       </div>
       <div class="flex">
-        <button mat-button (click)="onSumbitSubscriptionList()">Update Subscription</button>
+        <button mat-button (click)="onSumbitFollowingList()">Update Following</button>
       </div>
     </div>
   </div>

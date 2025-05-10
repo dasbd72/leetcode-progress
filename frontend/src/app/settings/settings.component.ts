@@ -14,11 +14,11 @@ import { catchError, filter, finalize, map, of, switchMap, take, tap } from 'rxj
 import { DefaultUserSettings, User, UserService, UserSettings } from '../api/user.service';
 import { AuthService } from '../auth/auth.service';
 
-interface SubscriptionElement {
+interface FollowingElement {
   username: string;
   preferredUsername: string;
   leetcodeUsername: string;
-  subscribed: boolean;
+  following: boolean;
 }
 
 @Component({
@@ -41,12 +41,12 @@ interface SubscriptionElement {
 })
 export class SettingsComponent implements OnChanges, OnInit {
   isLoadingUserList = false;
-  isLoadingSubscription = false;
+  isLoadingFollowing = false;
   isLoadingSettings = false;
-  isLoadingSubscriptionList = false;
+  isLoadingFollowingList = false;
   userList: User[] = [];
   userSettings: UserSettings = DefaultUserSettings;
-  subscriptionList: string[] = [];
+  followingList: string[] = [];
   displaySettings: {
     length: number;
     pageSize: number;
@@ -56,7 +56,7 @@ export class SettingsComponent implements OnChanges, OnInit {
     pageSize: 25,
     pageIndex: 0,
   };
-  subscriptionElementList: SubscriptionElement[] = [];
+  followingElementList: FollowingElement[] = [];
   displayIndices: number[] = [];
 
   constructor(
@@ -67,11 +67,11 @@ export class SettingsComponent implements OnChanges, OnInit {
   ngOnInit() {
     this.loadSettings();
     this.loadUserList();
-    this.loadSubscriptionList();
+    this.loadFollowingList();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['userList'] || changes['subscriptionList']) {
+    if (changes['userList'] || changes['followingList']) {
       this.updateDisplayedRows();
     }
   }
@@ -82,12 +82,12 @@ export class SettingsComponent implements OnChanges, OnInit {
 
   private setLoadingUserList(loading: boolean) {
     this.isLoadingUserList = loading;
-    this.isLoadingSubscription = this.isLoadingUserList || this.isLoadingSubscriptionList;
+    this.isLoadingFollowing = this.isLoadingUserList || this.isLoadingFollowingList;
   }
 
-  private setLoadingSubscriptionList(loading: boolean) {
-    this.isLoadingSubscriptionList = loading;
-    this.isLoadingSubscription = this.isLoadingUserList || this.isLoadingSubscriptionList;
+  private setLoadingFollowingList(loading: boolean) {
+    this.isLoadingFollowingList = loading;
+    this.isLoadingFollowing = this.isLoadingUserList || this.isLoadingFollowingList;
   }
 
   private handleSettingsLoaded(settings: UserSettings | null) {
@@ -134,15 +134,15 @@ export class SettingsComponent implements OnChanges, OnInit {
 
   private updateDisplayedRows() {
     if (!this.userList) {
-      console.warn('User list or subscription list is not available.');
+      console.warn('User list or following list is not available.');
       return;
     }
     this.displaySettings.length = this.userList.length;
-    this.subscriptionElementList = this.userList.map((user) => ({
+    this.followingElementList = this.userList.map((user) => ({
       username: user.username,
       preferredUsername: user.preferredUsername,
       leetcodeUsername: user.leetcodeUsername,
-      subscribed: this.subscriptionList.includes(user.username),
+      following: this.followingList.includes(user.username),
     }));
     this.displayIndices = Array.from(
       {
@@ -169,10 +169,10 @@ export class SettingsComponent implements OnChanges, OnInit {
     }
   }
 
-  private handleSubscriptionListLoaded(subscriptionList: string[] | null) {
-    if (subscriptionList) {
-      this.subscriptionList = [...subscriptionList];
-      this.updateDisplayedRows(); // Update displayed rows after loading subscription list
+  private handleFollowingListLoaded(followingList: string[] | null) {
+    if (followingList) {
+      this.followingList = [...followingList];
+      this.updateDisplayedRows(); // Update displayed rows after loading following list
     }
   }
 
@@ -198,61 +198,59 @@ export class SettingsComponent implements OnChanges, OnInit {
       .subscribe();
   }
 
-  private loadSubscriptionList() {
+  private loadFollowingList() {
     this.authService.authData$
       .pipe(
         filter((authData) => authData.isAuthenticated),
         take(1),
-        tap(() => this.setLoadingSubscriptionList(true)),
-        switchMap(() => this.userService.getUserSubscriptionList()),
-        tap((subscriptionList) => this.handleSubscriptionListLoaded(subscriptionList)),
-        tap(() => this.setLoadingSubscriptionList(false)),
+        tap(() => this.setLoadingFollowingList(true)),
+        switchMap(() => this.userService.getUserFollowingList()),
+        tap((followingList) => this.handleFollowingListLoaded(followingList)),
+        tap(() => this.setLoadingFollowingList(false)),
         catchError((error) => {
-          console.error('Failed to load subscription list:', error);
+          console.error('Failed to load following list:', error);
           return of(null);
         }),
-        finalize(() => this.setLoadingSubscriptionList(false)),
+        finalize(() => this.setLoadingFollowingList(false)),
       )
       .subscribe();
   }
 
-  onSubscriptionClicked(index: number) {
-    if (this.subscriptionElementList[index].subscribed) {
-      this.subscriptionList.push(this.subscriptionElementList[index].username);
+  onFollowingClicked(index: number) {
+    if (this.followingElementList[index].following) {
+      this.followingList.push(this.followingElementList[index].username);
     } else {
-      const subIndex = this.subscriptionList.indexOf(this.subscriptionElementList[index].username);
+      const subIndex = this.followingList.indexOf(this.followingElementList[index].username);
       if (subIndex > -1) {
-        this.subscriptionList.splice(subIndex, 1);
+        this.followingList.splice(subIndex, 1);
       }
     }
   }
 
-  onSelectAllSubscriptionClicked() {
-    if (this.subscriptionElementList.every((element) => element.subscribed)) {
-      this.subscriptionElementList.forEach((element) => (element.subscribed = false));
-      this.subscriptionList = [];
+  onSelectAllFollowingClicked() {
+    if (this.followingElementList.every((element) => element.following)) {
+      this.followingElementList.forEach((element) => (element.following = false));
+      this.followingList = [];
     } else {
-      this.subscriptionElementList.forEach((element) => (element.subscribed = true));
-      this.subscriptionList = this.subscriptionElementList.map((element) => element.username);
+      this.followingElementList.forEach((element) => (element.following = true));
+      this.followingList = this.followingElementList.map((element) => element.username);
     }
   }
 
-  onSumbitSubscriptionList() {
+  onSumbitFollowingList() {
     this.authService.authData$
       .pipe(
         filter((authData) => authData.isAuthenticated),
         take(1),
-        tap(() => this.setLoadingSubscriptionList(true)),
-        switchMap(() => this.userService.updateUserSubscriptionList(this.subscriptionList)), // Pass subscriptionList
-        tap((updatedSubscriptionList) =>
-          this.handleSubscriptionListLoaded(updatedSubscriptionList),
-        ),
-        tap(() => this.setLoadingSubscriptionList(false)),
+        tap(() => this.setLoadingFollowingList(true)),
+        switchMap(() => this.userService.updateUserFollowingList(this.followingList)), // Pass followingList
+        tap((updatedFollowingList) => this.handleFollowingListLoaded(updatedFollowingList)),
+        tap(() => this.setLoadingFollowingList(false)),
         catchError((error) => {
-          console.error('Failed to update subscription list:', error);
+          console.error('Failed to update following list:', error);
           return of(null);
         }),
-        finalize(() => this.setLoadingSubscriptionList(false)),
+        finalize(() => this.setLoadingFollowingList(false)),
       )
       .subscribe();
   }

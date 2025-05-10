@@ -566,7 +566,7 @@ class BackendCdkStack(Stack):
                 aws_apigatewayv2.HttpMethod.GET,
                 aws_apigatewayv2.HttpMethod.PUT,
             ],
-            "/auth/user/subscription/list": [
+            "/auth/user/following/list": [
                 aws_apigatewayv2.HttpMethod.GET,
                 aws_apigatewayv2.HttpMethod.PUT,
             ],

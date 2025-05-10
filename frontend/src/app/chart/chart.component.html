@@ -5,9 +5,7 @@
     <mat-spinner></mat-spinner>
   </div>
   <div *ngIf="!isLoadingChart && !lineChartData.datasets.length">
-    <p class="text-center text-gray-500">
-      No user subscriptions found. Please subscribe to users to see the chart.
-    </p>
+    <p class="text-center text-gray-500">No users found. Please follow users to see the chart.</p>
   </div>
   <div *ngIf="lineChartData.datasets.length">
     <!-- Controls -->
