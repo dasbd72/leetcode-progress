@@ -1,7 +1,10 @@
 <div class="p-4 space-y-4">
   <h1 class="text-2xl font-bold mb-4 text-center">Chart of Progress</h1>
 
-  <div *ngIf="!lineChartData.datasets.length">
+  <div *ngIf="isLoadingChart" class="flex justify-center mt-4">
+    <mat-spinner></mat-spinner>
+  </div>
+  <div *ngIf="!isLoadingChart && !lineChartData.datasets.length">
     <p class="text-center text-gray-500">
       No user subscriptions found. Please subscribe to users to see the chart.
     </p>

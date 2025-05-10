@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { catchError, take, tap } from 'rxjs';
+import { catchError, finalize, take, tap } from 'rxjs';
 
 import { ProgressService } from '../api/progress.service';
 import { ChartConfiguration, ChartDataset, ChartType } from 'chart.js';
@@ -15,13 +16,18 @@ type ChartDifficulty = 'easy' | 'medium' | 'hard' | 'med_hard' | 'total';
 @Component({
   selector: 'app-chart',
   standalone: true,
-  imports: [CommonModule, FormsModule, BaseChartDirective],
+  imports: [CommonModule, FormsModule, BaseChartDirective, MatProgressSpinnerModule],
   providers: [provideCharts(withDefaultRegisterables())],
   templateUrl: './chart.component.html',
   styleUrl: './chart.component.css',
 })
 export class ChartComponent implements OnInit {
   constructor(private progressService: ProgressService) {}
+
+  isLoadingChart = false;
+  setLoadingChart(loading: boolean) {
+    this.isLoadingChart = loading;
+  }
 
   lineChartType: ChartType = 'line';
   lineChartData: ChartConfiguration['data'] = {
@@ -72,6 +78,7 @@ export class ChartComponent implements OnInit {
     const limit = this.interval === 'hour' ? 48 : 24;
     const hours = this.interval === 'hour' ? 1 : 24;
 
+    this.setLoadingChart(true);
     this.progressService
       .getLatestWithInterval(hours, limit, timezone)
       .pipe(
@@ -134,6 +141,9 @@ export class ChartComponent implements OnInit {
         catchError((err) => {
           console.error('Failed to fetch chart data:', err);
           return [];
+        }),
+        finalize(() => {
+          this.setLoadingChart(false);
         }),
       )
       .subscribe();
