@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import datetime, timedelta
+import urllib.parse
 
 import boto3
 import pytz
@@ -10,7 +11,16 @@ s3 = boto3.client("s3")
 CACHE_TTL = int(os.environ.get("CACHE_TTL", "60"))  # e.g., cache for 1 hour
 
 
+def encode_cache_key(key: str) -> str:
+    """
+    Encode the cache key to be used in S3.
+    This is a simple example; you might want to use a more robust encoding scheme.
+    """
+    return urllib.parse.quote_plus(key, safe="")
+
+
 def is_cache_fresh(cache_key: str, ttl: int = CACHE_TTL) -> bool:
+    cache_key = encode_cache_key(cache_key)
     if not environment.production:
         return False
     try:
@@ -26,6 +36,7 @@ def is_cache_fresh(cache_key: str, ttl: int = CACHE_TTL) -> bool:
 
 
 def get_cache(cache_key: str) -> dict | None:
+    cache_key = encode_cache_key(cache_key)
     if not environment.production:
         return
     try:
@@ -38,6 +49,7 @@ def get_cache(cache_key: str) -> dict | None:
 
 
 def put_cache(cache_key: str, data: dict) -> None:
+    cache_key = encode_cache_key(cache_key)
     if not environment.production:
         return
     s3.put_object(

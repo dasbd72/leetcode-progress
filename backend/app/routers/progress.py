@@ -8,6 +8,7 @@ from boto3.dynamodb.conditions import Key
 from environment import environment
 from authentication import get_claims
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from hashlib import sha256
 
 router = APIRouter()
 
@@ -221,7 +222,7 @@ def get_progress_data(
     performance["get_users"] = perf_counter() - start_perf
 
     # Fetch the data from the cache if available
-    hashed_usernames = hash(",".join(usernames))
+    hashed_usernames = sha256(",".join(usernames).encode("utf-8")).hexdigest()
     cache_key = f"progress:get_progress_data:{int(time_delta.total_seconds())}:{limit}:{timezone_str}:{hashed_usernames}"
     if cache.is_cache_fresh(cache_key, ttl=300):
         cached_data = cache.get_cache(cache_key)
