@@ -3,7 +3,7 @@ from typing import Any
 from fastapi import Request
 
 
-def get_cognito_claims(request: Request) -> dict[str, Any]:
+def get_claims(request: Request) -> dict[str, Any]:
     """Extracts Cognito JWT claims from the Lambda event."""
     # Get the original Lambda event from the ASGI scope
     event = request.scope.get("aws.event", {})

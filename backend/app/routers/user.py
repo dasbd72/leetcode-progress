@@ -1,5 +1,5 @@
 import boto3
-from authentication import get_cognito_claims
+from authentication import get_claims
 from environment import environment
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
@@ -23,7 +23,7 @@ class UserSettings(BaseModel):
 
 @router.get("/user/settings", response_model=UserSettings)
 async def get_user_settings(
-    claims: dict = Depends(get_cognito_claims),
+    claims: dict = Depends(get_claims),
 ):
     username = claims.get("username")
     if not username:
@@ -52,7 +52,7 @@ async def get_user_settings(
 @router.put("/user/settings", response_model=UserSettings)
 async def update_user_settings(
     user_settings: UserSettings,
-    claims: dict = Depends(get_cognito_claims),
+    claims: dict = Depends(get_claims),
 ):
     username = claims.get("username")
     if not username:
