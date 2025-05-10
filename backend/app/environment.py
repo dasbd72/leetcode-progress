@@ -2,8 +2,11 @@ import os
 
 
 class Environment:
-    production: bool = False
-    allowed_origins: list[str] = []
+    production: bool = os.environ.get("PRODUCTION", "true").lower() == "true"
+    allowed_origins: list[str] = os.environ.get(
+        "ALLOWED_ORIGINS",
+        "https://leetcode-progress.dasbd72.com,https://d36dg9dunac222.cloudfront.net",
+    ).split(",")
     users_table_name: str = os.environ.get(
         "USERS_TABLE_NAME", "LeetCodeProgressUsers-1746776519"
     )
@@ -16,18 +19,6 @@ class Environment:
     )
 
 
-ENV: str = os.getenv("environment", "production")
-
 environment = Environment()
-
-if ENV == "production":
-    environment.production = True
-    environment.allowed_origins = [
-        "https://leetcode-progress.dasbd72.com",
-        "https://d36dg9dunac222.cloudfront.net",
-    ]
-else:
-    environment.production = False
-    environment.allowed_origins = ["*"]
 
 print(f"allowed_origins: {environment.allowed_origins}")

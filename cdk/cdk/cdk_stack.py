@@ -332,6 +332,13 @@ class BackendCdkStack(Stack):
                 timeout=Duration.seconds(10),
                 memory_size=128,
                 environment={
+                    "PRODUCTION": "true",
+                    "ALLOWED_ORIGINS": ",".join(
+                        [
+                            "https://leetcode-progress.dasbd72.com",
+                            "https://d36dg9dunac222.cloudfront.net",
+                        ]
+                    ),
                     "USERS_TABLE_NAME": users_table.table_name,
                     "PROGRESS_TABLE_NAME": progress_table.table_name,
                     "CACHE_BUCKET_NAME": backend_cache_bucket.bucket_name,
