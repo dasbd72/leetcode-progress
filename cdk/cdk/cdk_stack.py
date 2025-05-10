@@ -22,6 +22,10 @@ from aws_cdk import (
 from constructs import Construct
 
 
+DOMAIN_NAME = "leetcode-progress.dasbd72.com"
+USER_POOL_ARN = "arn:aws:cognito-idp:ap-northeast-1:718795813953:userpool/ap-northeast-1_MSLz0uAQD"
+
+
 class ResourceCdkStack(Stack):
     def __init__(
         self,
@@ -433,7 +437,7 @@ class BackendCdkStack(Stack):
                     "PRODUCTION": "true",
                     "ALLOWED_ORIGINS": ",".join(
                         [
-                            "https://leetcode-progress.dasbd72.com",
+                            f"https://{DOMAIN_NAME}",
                             f"https://{distribution.distribution_domain_name}",
                         ]
                     ),
@@ -479,7 +483,7 @@ class BackendCdkStack(Stack):
         cognito_user_pool = aws_cognito.UserPool.from_user_pool_arn(
             self,
             "LeetCodeProgressUserPool",
-            "arn:aws:cognito-idp:ap-northeast-1:718795813953:userpool/ap-northeast-1_MSLz0uAQD",
+            USER_POOL_ARN,
         )
         cognito_user_pool_client = aws_cognito.UserPoolClient(
             self,
@@ -500,8 +504,8 @@ class BackendCdkStack(Stack):
             o_auth=aws_cognito.OAuthSettings(
                 callback_urls=[
                     "http://localhost:4200",
-                    "https://d36dg9dunac222.cloudfront.net",
-                    "https://leetcode-progress.dasbd72.com",
+                    f"https://{distribution.distribution_domain_name}",
+                    f"https://{DOMAIN_NAME}",
                 ],
                 flows=aws_cognito.OAuthFlows(
                     authorization_code_grant=True,
@@ -510,8 +514,8 @@ class BackendCdkStack(Stack):
                 ),
                 logout_urls=[
                     "http://localhost:4200",
-                    "https://d36dg9dunac222.cloudfront.net",
-                    "https://leetcode-progress.dasbd72.com",
+                    f"https://{distribution.distribution_domain_name}",
+                    f"https://{DOMAIN_NAME}",
                 ],
                 scopes=[
                     aws_cognito.OAuthScope.OPENID,
