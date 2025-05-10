@@ -51,6 +51,7 @@ def fetch_usernames_by_subscription(subscribed_by: str) -> list[str]:
                 for item in response["Responses"].get(users_table.name, [])
                 if "leetcode_username" in item
             ]
+            usernames = sorted(usernames)
     except Exception as e:
         print(f"Error fetching subscription list: {e}")
         raise HTTPException(
