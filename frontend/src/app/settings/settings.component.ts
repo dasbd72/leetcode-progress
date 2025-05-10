@@ -227,6 +227,16 @@ export class SettingsComponent implements OnChanges, OnInit {
     }
   }
 
+  onSelectAllSubscriptionClicked() {
+    if (this.subscriptionElementList.every((element) => element.subscribed)) {
+      this.subscriptionElementList.forEach((element) => (element.subscribed = false));
+      this.subscriptionList = [];
+    } else {
+      this.subscriptionElementList.forEach((element) => (element.subscribed = true));
+      this.subscriptionList = this.subscriptionElementList.map((element) => element.username);
+    }
+  }
+
   onSumbitSubscriptionList() {
     this.authService.authData$
       .pipe(

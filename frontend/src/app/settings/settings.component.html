@@ -106,7 +106,12 @@
       </tbody>
     </table>
     <div class="flex justify-center mt-4">
-      <button mat-button (click)="onSumbitSubscriptionList()">Update Subscription</button>
+      <div class="flex">
+        <button mat-button (click)="onSelectAllSubscriptionClicked()">Select / Deselect All</button>
+      </div>
+      <div class="flex">
+        <button mat-button (click)="onSumbitSubscriptionList()">Update Subscription</button>
+      </div>
     </div>
   </div>
 </div>
