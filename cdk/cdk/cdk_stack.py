@@ -25,6 +25,16 @@ from constructs import Construct
 DOMAIN_NAME = "leetcode-progress.dasbd72.com"
 USER_POOL_ARN = "arn:aws:cognito-idp:ap-northeast-1:718795813953:userpool/ap-northeast-1_MSLz0uAQD"
 
+DENY_CLOUDWATCH_LOGGING_POLICY_DOCUMENT = aws_iam.PolicyDocument(
+    statements=[
+        aws_iam.PolicyStatement(
+            effect=aws_iam.Effect.DENY,
+            actions=["logs:*"],
+            resources=["arn:aws:logs:*:*:*"],
+        )
+    ]
+)
+
 
 class ResourceCdkStack(Stack):
     def __init__(
@@ -257,6 +267,9 @@ class ScraperCdkStack(Stack):
             self,
             "ScraperLambdaRole",
             assumed_by=aws_iam.ServicePrincipal("lambda.amazonaws.com"),
+            inline_policies={
+                "DenyCloudWatchLoggingPolicy": DENY_CLOUDWATCH_LOGGING_POLICY_DOCUMENT,
+            },
             managed_policies=[
                 # AWS managed policy for basic Lambda execution (logging)
                 aws_iam.ManagedPolicy.from_aws_managed_policy_name(
@@ -390,6 +403,9 @@ class BackendCdkStack(Stack):
             self,
             "BackendLambdaRole",
             assumed_by=aws_iam.ServicePrincipal("lambda.amazonaws.com"),
+            inline_policies={
+                "DenyCloudWatchLoggingPolicy": DENY_CLOUDWATCH_LOGGING_POLICY_DOCUMENT,
+            },
             managed_policies=[
                 # AWS managed policy for basic Lambda execution (logging)
                 aws_iam.ManagedPolicy.from_aws_managed_policy_name(
