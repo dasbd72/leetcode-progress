@@ -3,6 +3,7 @@ import os
 
 class Environment:
     production: bool = os.environ.get("PRODUCTION", "true").lower() == "true"
+    development_username: str = os.environ.get("DEVELOPMENT_USERNAME")
     allowed_origins: list[str] = os.environ.get(
         "ALLOWED_ORIGINS",
         "https://leetcode-progress.dasbd72.com,https://d36dg9dunac222.cloudfront.net",

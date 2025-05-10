@@ -21,7 +21,8 @@ def run_command(cmd: str, env: dict = None) -> bool:
 def main():
     os.chdir("app")
     env = os.environ.copy()
-    env["PRODUCTION"] = "true"
+    env["PRODUCTION"] = "false"
+    env["DEVELOPMENT_USERNAME"] = "development_user"
     env["ALLOWED_ORIGINS"] = "*"
     run_command("uvicorn main:app --reload --host 127.0.0.1 --port 8000", env)
 
