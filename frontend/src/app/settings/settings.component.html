@@ -1,117 +1,123 @@
-<div class="max-w-4xl mx-auto px-4 py-4 bg-white shadow-lg rounded-lg">
-  <form (ngSubmit)="onSubmitUserSettings()">
-    <h1 class="text-2xl font-bold text-center">Settings</h1>
-    <div *ngIf="isLoadingSettings" class="flex justify-center mt-4">
-      <mat-spinner></mat-spinner>
+<mat-tab-group animationDuration="0ms">
+  <mat-tab label="Settings">
+    <div class="flex flex-col grow overflow-hidden">
+      <form (ngSubmit)="onSubmitUserSettings()">
+        <div *ngIf="isLoadingSettings" class="flex justify-center mt-4">
+          <mat-spinner></mat-spinner>
+        </div>
+        <div *ngIf="!isLoadingSettings" class="mt-4">
+          <div class="flex justify-center">
+            <mat-form-field>
+              <mat-label> username </mat-label>
+              <input
+                matInput
+                type="username"
+                id="username"
+                name="username"
+                disabled
+                [(ngModel)]="userSettings.username"
+              />
+            </mat-form-field>
+          </div>
+          <div class="flex justify-center">
+            <mat-form-field>
+              <mat-label> email </mat-label>
+              <input
+                matInput
+                type="email"
+                id="email"
+                name="email"
+                required
+                [(ngModel)]="userSettings.email"
+              />
+            </mat-form-field>
+          </div>
+          <div class="flex justify-center">
+            <mat-form-field>
+              <mat-label> preferred username </mat-label>
+              <input
+                matInput
+                type="preferred_username"
+                id="preferred_username"
+                name="preferred_username"
+                required
+                [(ngModel)]="userSettings.preferredUsername"
+              />
+            </mat-form-field>
+          </div>
+          <div class="flex justify-center">
+            <mat-form-field>
+              <mat-label> leetcode username </mat-label>
+              <input
+                matInput
+                type="leetcode_username"
+                id="leetcode_username"
+                name="leetcode_username"
+                required
+                [(ngModel)]="userSettings.leetcodeUsername"
+              />
+            </mat-form-field>
+          </div>
+          <div class="flex justify-center">
+            <button mat-button type="submit">Update Settings</button>
+          </div>
+        </div>
+      </form>
     </div>
-    <div *ngIf="!isLoadingSettings" class="mt-4">
-      <div class="flex justify-center">
-        <mat-form-field>
-          <mat-label> username </mat-label>
-          <input
-            matInput
-            type="username"
-            id="username"
-            name="username"
-            disabled
-            [(ngModel)]="userSettings.username"
-          />
-        </mat-form-field>
-      </div>
-      <div class="flex justify-center">
-        <mat-form-field>
-          <mat-label> email </mat-label>
-          <input
-            matInput
-            type="email"
-            id="email"
-            name="email"
-            required
-            [(ngModel)]="userSettings.email"
-          />
-        </mat-form-field>
-      </div>
-      <div class="flex justify-center">
-        <mat-form-field>
-          <mat-label> preferred username </mat-label>
-          <input
-            matInput
-            type="preferred_username"
-            id="preferred_username"
-            name="preferred_username"
-            required
-            [(ngModel)]="userSettings.preferredUsername"
-          />
-        </mat-form-field>
-      </div>
-      <div class="flex justify-center">
-        <mat-form-field>
-          <mat-label> leetcode username </mat-label>
-          <input
-            matInput
-            type="leetcode_username"
-            id="leetcode_username"
-            name="leetcode_username"
-            required
-            [(ngModel)]="userSettings.leetcodeUsername"
-          />
-        </mat-form-field>
-      </div>
-      <div class="flex justify-center">
-        <button mat-button type="submit">Update Settings</button>
-      </div>
-    </div>
-  </form>
-</div>
+  </mat-tab>
 
-<div class="max-w-4xl mx-auto px-4 py-4 bg-white shadow-lg rounded-lg mt-4">
-  <h1 class="text-2xl font-bold text-center">Following</h1>
-  <div *ngIf="isLoadingFollowing" class="flex justify-center mt-4">
-    <mat-spinner></mat-spinner>
-  </div>
-  <div *ngIf="!isLoadingFollowing" class="mt-4">
-    <mat-paginator
-      (page)="onPageChange($event)"
-      [length]="displaySettings.length"
-      [pageIndex]="displaySettings.pageIndex"
-      [pageSize]="displaySettings.pageSize"
-      [pageSizeOptions]="[5, 10, 25, 100]"
-      aria-label="Select page"
-    >
-    </mat-paginator>
-    <table class="table-auto w-full border-collapse">
-      <thead>
-        <tr class="bg-gray-100">
-          <th class="px-4 py-1 text-left border-b border-gray-300">Preferred Username</th>
-          <th class="px-4 py-1 text-left border-b border-gray-300">LeetCode Username</th>
-          <th class="px-4 py-1 text-center border-b border-gray-300">Following</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let index of displayIndices" class="hover:bg-gray-50">
-          <td class="px-4 py-1 text-left border-b border-gray-200">
-            {{ followingElementList[index].preferredUsername }}
-          </td>
-          <td class="px-4 py-1 text-left border-b border-gray-200">
-            {{ followingElementList[index].leetcodeUsername }}
-          </td>
-          <td class="px-4 py-1 text-center border-b border-gray-200 h-1">
-            <mat-checkbox
-              [(ngModel)]="followingElementList[index].following"
-              (change)="onFollowingClicked(index)"
-            >
-            </mat-checkbox>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="flex justify-center mt-4">
-      <div class="flex">
-        <button mat-button (click)="onSelectAllFollowingClicked()">Select / Deselect All</button>
+  <mat-tab label="Following">
+    <div class="flex flex-col grow overflow-hidden">
+      <div *ngIf="isLoadingFollowing" class="flex justify-center mt-4">
+        <mat-spinner></mat-spinner>
       </div>
-      <div class="flex">
-        <button mat-button (click)="onSumbitFollowingList()">Update Following</button>
+      <div *ngIf="!isLoadingFollowing">
+        <mat-paginator
+          (page)="onPageChange($event)"
+          [length]="displaySettings.length"
+          [pageIndex]="displaySettings.pageIndex"
+          [pageSize]="displaySettings.pageSize"
+          [pageSizeOptions]="[5, 10, 25, 100]"
+          aria-label="Select page"
+        >
+        </mat-paginator>
+        <table class="table-auto w-full border-collapse">
+          <thead>
+            <tr class="bg-gray-100">
+              <th class="px-4 py-1 text-left border-b border-gray-300">Preferred Username</th>
+              <th class="px-4 py-1 text-left border-b border-gray-300">LeetCode Username</th>
+              <th class="px-4 py-1 text-center border-b border-gray-300">Following</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let index of displayIndices" class="hover:bg-gray-50">
+              <td class="px-4 py-1 text-left border-b border-gray-200">
+                {{ followingElementList[index].preferredUsername }}
+              </td>
+              <td class="px-4 py-1 text-left border-b border-gray-200">
+                {{ followingElementList[index].leetcodeUsername }}
+              </td>
+              <td class="px-4 py-1 text-center border-b border-gray-200">
+                <mat-checkbox
+                  [(ngModel)]="followingElementList[index].following"
+                  (change)="onFollowingClicked(index)"
+                >
+                </mat-checkbox>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="flex justify-center mt-4">
+          <div class="flex">
+            <button mat-button (click)="onSelectAllFollowingClicked()">
+              Select / Deselect All
+            </button>
+          </div>
+          <div class="flex">
+            <button mat-button (click)="onSumbitFollowingList()">Update Following</button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
+  </mat-tab>
+</mat-tab-group>
