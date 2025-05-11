@@ -55,7 +55,7 @@ def lambda_handler(event, context):
                 errors.append(
                     {
                         "operation": "fetch_progress",
-                        "username": username,
+                        "username": leetcode_username,
                         "error": str(e),
                     }
                 )
