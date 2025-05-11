@@ -281,7 +281,7 @@ class ScraperCdkStack(Stack):
 
         # Grant the Lambda role permissions to interact with the DynamoDB tables
         # The original policy had Scan on users and Write on progress.
-        users_table.grant_read_data(
+        users_table.grant_read_write_data(
             lambda_role
         )  # Grant read (Scan, Query, GetItem) access to users table
         progress_table.grant_write_data(
