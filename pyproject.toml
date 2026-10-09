@@ -1,0 +1,17 @@
+[project]
+name = "leetcode-progress"
+version = "0.0.0"
+description = "LeetCode progress tracker — uv workspace root"
+requires-python = ">=3.10,<3.11"
+dependencies = []
+
+# Repo-level one-off scripts (scripts/) run against these dev dependencies
+# rather than being promoted to a fourth workspace member.
+[dependency-groups]
+dev = ["boto3", "pytz", "requests"]
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["backend", "scraper", "cdk"]

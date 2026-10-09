@@ -1,0 +1,26 @@
+[project]
+name = "backend"
+version = "0.0.0"
+description = "LeetCode progress FastAPI backend (AWS Lambda)"
+requires-python = ">=3.10,<3.11"
+# Runtime dependencies — these are exported to layer/requirements.txt and
+# bundled into the Lambda layer. Keep in sync via `uv export` (pre-commit hook).
+dependencies = [
+    "requests",
+    "fastapi",
+    "mangum",
+    "boto3",
+    "pytz",
+    "python-jose",
+]
+
+[dependency-groups]
+dev = [
+    "uvicorn[standard]",
+    "black",
+    "flake8",
+    "isort",
+]
+
+[tool.uv]
+package = false
