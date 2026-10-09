@@ -1,8 +1,7 @@
 from typing import Any
 
-from fastapi import Request
-
 from environment import environment
+from fastapi import Request
 
 
 def get_claims_development() -> dict[str, Any]:

@@ -17,9 +17,6 @@ dependencies = [
 [dependency-groups]
 dev = [
     "uvicorn[standard]",
-    "black",
-    "flake8",
-    "isort",
 ]
 
 [tool.uv]

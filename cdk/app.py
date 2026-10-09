@@ -2,12 +2,11 @@
 import os
 
 import aws_cdk as cdk
-
 from cdk.cdk_stack import (
+    BackendCdkStack,
     FrontendCdkStack,
     ResourceCdkStack,
     ScraperCdkStack,
-    BackendCdkStack,
 )
 
 env = cdk.Environment(

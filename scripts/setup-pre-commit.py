@@ -44,9 +44,7 @@ def setup_pre_commit():
                 )
 
         except subprocess.CalledProcessError:
-            raise Exception(
-                "pre-commit could not be found. Skipping pre-commit setup."
-            )
+            raise Exception("pre-commit could not be found. Skipping pre-commit setup.")
 
     except Exception as e:
         print(f"An error occurred: {e}")

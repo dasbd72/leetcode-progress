@@ -32,9 +32,7 @@ def lambda_handler(event, context):
     start_perf = perf_counter()
     users_response = users_table.scan()
     user_items = users_response.get("Items", [])
-    leetcode_usernames = list(
-        set(user["leetcode_username"] for user in user_items)
-    )
+    leetcode_usernames = list(set(user["leetcode_username"] for user in user_items))
     performance["get_users"] = perf_counter() - start_perf
 
     # Fetch progress for each user
@@ -91,7 +89,7 @@ def lambda_handler(event, context):
     for user_item in user_items:
         username = user_item["username"]
         leetcode_username = user_item["leetcode_username"]
-        if not leetcode_username in result:
+        if leetcode_username not in result:
             continue
         stats = result[leetcode_username]
         try:

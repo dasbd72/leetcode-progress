@@ -12,9 +12,7 @@ def migrate_data(source_table_name, dest_table_name):
 
     # Paginate through all items if the table is large
     while "LastEvaluatedKey" in response:
-        response = source_table.scan(
-            ExclusiveStartKey=response["LastEvaluatedKey"]
-        )
+        response = source_table.scan(ExclusiveStartKey=response["LastEvaluatedKey"])
         items.extend(response["Items"])
 
     # Write each item to the destination table

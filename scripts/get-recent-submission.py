@@ -1,5 +1,7 @@
-import requests
 import json
+
+import requests
+
 
 def main():
     query = """
@@ -12,21 +14,12 @@ def main():
         }
     }
     """
-    variables = {
-        "username": "winstonwang",
-        "limit": 15
-    }
+    variables = {"username": "winstonwang", "limit": 15}
     operationName = "recentAcSubmissions"
 
     url = "https://leetcode.com/graphql"
-    payload = {
-        "query": query,
-        "variables": variables,
-        "operationName": operationName
-    }
-    headers = {
-        "Content-Type": "application/json"
-    }
+    payload = {"query": query, "variables": variables, "operationName": operationName}
+    headers = {"Content-Type": "application/json"}
 
     try:
         response = requests.post(url, data=json.dumps(payload), headers=headers)

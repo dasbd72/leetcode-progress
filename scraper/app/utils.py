@@ -35,9 +35,7 @@ def fetch_question_progress(user_slug: str):
 
     if response.status_code == 200:
         data = response.json()
-        data = data["data"]["userProfileUserQuestionProgressV2"][
-            "numAcceptedQuestions"
-        ]
+        data = data["data"]["userProfileUserQuestionProgressV2"]["numAcceptedQuestions"]
         response = {
             "EASY": 0,
             "MEDIUM": 0,

@@ -8,10 +8,23 @@ dependencies = []
 # Repo-level one-off scripts (scripts/) run against these dev dependencies
 # rather than being promoted to a fourth workspace member.
 [dependency-groups]
-dev = ["boto3", "pytz", "requests"]
+dev = ["boto3", "pytz", "requests", "ruff"]
 
 [tool.uv]
 package = false
 
 [tool.uv.workspace]
 members = ["backend", "scraper", "cdk"]
+
+# Single Ruff configuration governing backend, scraper, cdk, and scripts.
+# Replaces black + flake8 + isort.
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+extend-exclude = ["cdk.out", ".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+# The formatter owns line length; don't also flag long strings/URLs it won't wrap
+# (matches the prior black-based setup, which did not enforce E501 in the linter).
+ignore = ["E501"]

@@ -1,14 +1,14 @@
 from datetime import datetime, timedelta
+from hashlib import sha256
 from time import perf_counter
 
 import boto3
 import cache
 import pytz
+from authentication import get_claims
 from boto3.dynamodb.conditions import Key
 from environment import environment
-from authentication import get_claims
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from hashlib import sha256
 
 router = APIRouter()
 
@@ -35,9 +35,7 @@ def fetch_usernames_by_following(followed_by: str) -> list[str]:
         following_list = item.get("following_list", [])
         usernames = []
         if following_list:
-            batch_request_keys = [
-                {"username": username} for username in following_list
-            ]
+            batch_request_keys = [{"username": username} for username in following_list]
             response = dynamodb.meta.client.batch_get_item(
                 RequestItems={
                     users_table.name: {
@@ -74,11 +72,7 @@ def fetch_timestamps(
         ExpressionAttributeNames={"#ts": "timestamp"},
     )
     timestamps = sorted(
-        set(
-            int(item["timestamp"])
-            for item in response["Items"]
-            if "timestamp" in item
-        )
+        set(int(item["timestamp"]) for item in response["Items"] if "timestamp" in item)
     )
     return timestamps
 
@@ -113,9 +107,7 @@ def find_timestamps(
     selected_timestamps = {}
     for time_start in time_starts:
         time_end = time_start + time_delta_seconds
-        candidates = [
-            ts for ts in all_timestamps if time_start <= ts < time_end
-        ]
+        candidates = [ts for ts in all_timestamps if time_start <= ts < time_end]
         if candidates:
             selected_timestamps[min(candidates)] = time_start
     return selected_timestamps
@@ -247,9 +239,7 @@ def get_progress_data(
     # Find the timestamps that fall within the time intervals
     # and align them with the start of the intervals
     start_perf = perf_counter()
-    selected_timestamps = find_timestamps(
-        all_timestamps, time_starts, time_delta
-    )
+    selected_timestamps = find_timestamps(all_timestamps, time_starts, time_delta)
     # If the last timestamp is not in the selected timestamps, add it
     if all_timestamps and all_timestamps[-1] not in selected_timestamps:
         is_latest_added = True
@@ -260,9 +250,7 @@ def get_progress_data(
     # for each user
     start_perf = perf_counter()
     for username in usernames:
-        first_timestamp = fetch_first_timestamp(
-            username, time_delta, limit, now
-        )
+        first_timestamp = fetch_first_timestamp(username, time_delta, limit, now)
         if first_timestamp is None:
             continue
         # Prune selected timestamps to only include those after the first timestamp
@@ -356,12 +344,8 @@ def get_latest_user_progress():
 @router.get("/progress/latest/interval")
 def get_latest_interval_progress(
     hours: int = Query(1, description="Interval in hours", ge=1, le=24),
-    limit: int = Query(
-        24, description="Number of intervals to look back", ge=1, le=50
-    ),
-    timezone: str = Query(
-        "UTC", description="Timezone name, e.g., 'Asia/Taipei'"
-    ),
+    limit: int = Query(24, description="Number of intervals to look back", ge=1, le=50),
+    timezone: str = Query("UTC", description="Timezone name, e.g., 'Asia/Taipei'"),
 ):
     time_delta = timedelta(hours=hours)
     return get_progress_data(time_delta, limit, timezone)
@@ -370,12 +354,8 @@ def get_latest_interval_progress(
 @router.get("/auth/progress/latest/interval")
 def get_auth_latest_interval_progress(
     hours: int = Query(1, description="Interval in hours", ge=1, le=24),
-    limit: int = Query(
-        24, description="Number of intervals to look back", ge=1, le=50
-    ),
-    timezone: str = Query(
-        "UTC", description="Timezone name, e.g., 'Asia/Taipei'"
-    ),
+    limit: int = Query(24, description="Number of intervals to look back", ge=1, le=50),
+    timezone: str = Query("UTC", description="Timezone name, e.g., 'Asia/Taipei'"),
     claims: dict = Depends(get_claims),
 ):
     time_delta = timedelta(hours=hours)

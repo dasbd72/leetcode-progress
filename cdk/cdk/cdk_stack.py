@@ -4,9 +4,13 @@ from aws_cdk import (
     Duration,
     RemovalPolicy,
     Stack,
+    aws_apigatewayv2,
+    aws_apigatewayv2_authorizers,
+    aws_apigatewayv2_integrations,
     aws_certificatemanager,
     aws_cloudfront,
     aws_cloudfront_origins,
+    aws_cognito,
     aws_dynamodb,
     aws_events,
     aws_events_targets,
@@ -14,16 +18,13 @@ from aws_cdk import (
     aws_lambda,
     aws_s3,
     aws_s3_deployment,
-    aws_apigatewayv2,
-    aws_apigatewayv2_integrations,
-    aws_apigatewayv2_authorizers,
-    aws_cognito,
 )
 from constructs import Construct
 
-
 DOMAIN_NAME = "leetcode-progress.dasbd72.com"
-USER_POOL_ARN = "arn:aws:cognito-idp:ap-northeast-1:718795813953:userpool/ap-northeast-1_MSLz0uAQD"
+USER_POOL_ARN = (
+    "arn:aws:cognito-idp:ap-northeast-1:718795813953:userpool/ap-northeast-1_MSLz0uAQD"
+)
 
 DENY_CLOUDWATCH_LOGGING_POLICY_DOCUMENT = aws_iam.PolicyDocument(
     statements=[
@@ -179,9 +180,7 @@ class ResourceCdkStack(Stack):
             aws_iam.PolicyStatement(
                 actions=["s3:GetObject"],
                 resources=[self.frontend_bucket.arn_for_objects("*")],
-                principals=[
-                    aws_iam.ServicePrincipal("cloudfront.amazonaws.com")
-                ],
+                principals=[aws_iam.ServicePrincipal("cloudfront.amazonaws.com")],
                 conditions={
                     "StringEquals": {
                         "AWS:SourceArn": f"arn:aws:cloudfront::{self.account}:distribution/{self.distribution.distribution_id}"
@@ -219,9 +218,7 @@ class ResourceCdkStack(Stack):
         )
 
         # Output the bucket names
-        CfnOutput(
-            self, "FrontendBucketName", value=self.frontend_bucket.bucket_name
-        )
+        CfnOutput(self, "FrontendBucketName", value=self.frontend_bucket.bucket_name)
         CfnOutput(
             self,
             "CloudFrontDistributionDomainName",
@@ -343,9 +340,7 @@ class ScraperCdkStack(Stack):
 
         # Add the Lambda function as a target for the EventBridge Rule
         # CDK automatically adds the necessary permissions (lambda:InvokeFunction)
-        schedule_rule.add_target(
-            aws_events_targets.LambdaFunction(scraper_function)
-        )
+        schedule_rule.add_target(aws_events_targets.LambdaFunction(scraper_function))
 
         # Output the Lambda function details
         CfnOutput(
@@ -438,32 +433,30 @@ class BackendCdkStack(Stack):
             ],
         )
 
-        backend_function = (
-            aws_lambda.Function(  # Use standard aws_lambda.Function
-                self,
-                "LeetCodeProgressBackendFunction",
-                function_name="leetcode-progress-backend",
-                code=aws_lambda.Code.from_asset("../backend/app"),
-                handler="main.handler",
-                runtime=aws_lambda.Runtime.PYTHON_3_10,
-                architecture=aws_lambda.Architecture.ARM_64,
-                timeout=Duration.seconds(10),
-                memory_size=128,
-                environment={
-                    "PRODUCTION": "true",
-                    "ALLOWED_ORIGINS": ",".join(
-                        [
-                            f"https://{DOMAIN_NAME}",
-                            f"https://{distribution.distribution_domain_name}",
-                        ]
-                    ),
-                    "USERS_TABLE_NAME": users_table.table_name,
-                    "PROGRESS_TABLE_NAME": progress_table.table_name,
-                    "CACHE_BUCKET_NAME": backend_cache_bucket.bucket_name,
-                },
-                role=backend_function_role,
-                layers=[backend_layer],
-            )
+        backend_function = aws_lambda.Function(  # Use standard aws_lambda.Function
+            self,
+            "LeetCodeProgressBackendFunction",
+            function_name="leetcode-progress-backend",
+            code=aws_lambda.Code.from_asset("../backend/app"),
+            handler="main.handler",
+            runtime=aws_lambda.Runtime.PYTHON_3_10,
+            architecture=aws_lambda.Architecture.ARM_64,
+            timeout=Duration.seconds(10),
+            memory_size=128,
+            environment={
+                "PRODUCTION": "true",
+                "ALLOWED_ORIGINS": ",".join(
+                    [
+                        f"https://{DOMAIN_NAME}",
+                        f"https://{distribution.distribution_domain_name}",
+                    ]
+                ),
+                "USERS_TABLE_NAME": users_table.table_name,
+                "PROGRESS_TABLE_NAME": progress_table.table_name,
+                "CACHE_BUCKET_NAME": backend_cache_bucket.bucket_name,
+            },
+            role=backend_function_role,
+            layers=[backend_layer],
         )
 
         # Grant the Backend Lambda role permissions to interact with DynamoDB tables
@@ -627,9 +620,7 @@ class FrontendCdkStack(Stack):
             self,
             "DeployWebsite",
             sources=[
-                aws_s3_deployment.Source.asset(
-                    "../frontend/dist/frontend/browser"
-                )
+                aws_s3_deployment.Source.asset("../frontend/dist/frontend/browser")
             ],
             destination_bucket=frontend_bucket,
             distribution=distribution,  # Specify the distribution to invalidate cache
