@@ -2,7 +2,7 @@
 name = "leetcode-progress"
 version = "0.0.0"
 description = "LeetCode progress tracker — uv workspace root"
-requires-python = ">=3.10,<3.11"
+requires-python = ">=3.12,<3.13"
 dependencies = []
 
 # Repo-level one-off scripts (scripts/) run against these dev dependencies
@@ -20,7 +20,7 @@ members = ["backend", "scraper", "cdk"]
 # Replaces black + flake8 + isort.
 [tool.ruff]
 line-length = 88
-target-version = "py310"
+target-version = "py312"
 extend-exclude = ["cdk.out", ".venv"]
 
 [tool.ruff.lint]

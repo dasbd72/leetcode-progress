@@ -2,7 +2,7 @@
 name = "scraper"
 version = "0.0.0"
 description = "LeetCode progress scraper (AWS Lambda)"
-requires-python = ">=3.10,<3.11"
+requires-python = ">=3.12,<3.13"
 # Runtime dependencies — exported to layer/requirements.txt and bundled into
 # the Lambda layer. Keep in sync via `uv export` (pre-commit hook).
 dependencies = [

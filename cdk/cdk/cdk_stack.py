@@ -292,7 +292,7 @@ class ScraperCdkStack(Stack):
             code=aws_lambda.Code.from_asset(
                 "../scraper/layer",
                 bundling=BundlingOptions(
-                    image=aws_lambda.Runtime.PYTHON_3_10.bundling_image,
+                    image=aws_lambda.Runtime.PYTHON_3_12.bundling_image,
                     command=[
                         "bash",
                         "-c",
@@ -304,7 +304,7 @@ class ScraperCdkStack(Stack):
                 aws_lambda.Architecture.ARM_64,
             ],
             compatible_runtimes=[
-                aws_lambda.Runtime.PYTHON_3_10,
+                aws_lambda.Runtime.PYTHON_3_12,
             ],
         )
 
@@ -315,7 +315,7 @@ class ScraperCdkStack(Stack):
             function_name="leetcode-progress-scraper",
             code=aws_lambda.Code.from_asset("../scraper/app"),
             handler="main.lambda_handler",
-            runtime=aws_lambda.Runtime.PYTHON_3_10,
+            runtime=aws_lambda.Runtime.PYTHON_3_12,
             architecture=aws_lambda.Architecture.ARM_64,
             timeout=Duration.seconds(60),
             memory_size=128,
@@ -417,7 +417,7 @@ class BackendCdkStack(Stack):
             code=aws_lambda.Code.from_asset(
                 "../backend/layer",
                 bundling=BundlingOptions(
-                    image=aws_lambda.Runtime.PYTHON_3_10.bundling_image,
+                    image=aws_lambda.Runtime.PYTHON_3_12.bundling_image,
                     command=[
                         "bash",
                         "-c",
@@ -429,7 +429,7 @@ class BackendCdkStack(Stack):
                 aws_lambda.Architecture.ARM_64,
             ],
             compatible_runtimes=[
-                aws_lambda.Runtime.PYTHON_3_10,
+                aws_lambda.Runtime.PYTHON_3_12,
             ],
         )
 
@@ -439,7 +439,7 @@ class BackendCdkStack(Stack):
             function_name="leetcode-progress-backend",
             code=aws_lambda.Code.from_asset("../backend/app"),
             handler="main.handler",
-            runtime=aws_lambda.Runtime.PYTHON_3_10,
+            runtime=aws_lambda.Runtime.PYTHON_3_12,
             architecture=aws_lambda.Architecture.ARM_64,
             timeout=Duration.seconds(10),
             memory_size=128,
