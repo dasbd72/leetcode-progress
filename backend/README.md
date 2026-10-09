@@ -1,5 +1,30 @@
 # Backend
 
+FastAPI app deployed to AWS Lambda (via Mangum) behind API Gateway.
+
+## Development
+
+Dependencies are managed by the uv workspace at the repository root (Python is
+pinned to 3.12 via `.python-version`; uv fetches it automatically). From the
+repo root:
+
+```bash
+uv sync --all-packages
+```
+
+Serve the API locally (run from this `backend/` directory — the script
+`chdir`s into `app/` and sets development env vars):
+
+```bash
+cd backend
+uv run python scripts/serve.py
+```
+
+Runtime dependencies live in `backend/pyproject.toml`. After changing them, run
+`uv lock`; the `backend/layer/requirements.txt` bundled into the Lambda layer is
+**generated** from `uv.lock` (do not edit by hand) and kept fresh by a
+pre-commit hook.
+
 ## Operation Logs
 
 - 2025-03-25: Add scan and batchGetItem permission

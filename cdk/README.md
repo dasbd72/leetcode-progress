@@ -1,58 +1,50 @@
+# CDK — LeetCode Progress infrastructure
 
-# Welcome to your CDK Python project
+AWS CDK (Python) app that provisions the LeetCode Progress resources, scraper
+Lambda, backend Lambda + API Gateway, and the frontend S3 bucket + CloudFront
+distribution.
 
-This is a blank project for CDK development with Python.
+## Prerequisites
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+- [uv](https://docs.astral.sh/uv/) (manages Python + dependencies)
+- Docker (used by CDK to bundle the Lambda layers)
+- The AWS CDK Toolkit (`cdk`) and configured AWS credentials
 
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
+Python is pinned to **3.12** via the repo-root `.python-version`; uv fetches it
+automatically, so you do **not** need a system Python 3.12.
 
-To manually create a virtualenv on MacOS and Linux:
+## Setup
 
-```
-python3 -m venv .venv
-```
+Dependencies are managed by the uv workspace at the repository root (members:
+`backend`, `scraper`, `cdk`). From the repo root:
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
-
-```
-source .venv/bin/activate
+```bash
+uv sync --all-packages
 ```
 
-If you are a Windows platform, you would activate the virtualenv like this:
+This creates a single `.venv` at the repo root shared by all members.
 
-```
-% .venv\Scripts\activate.bat
-```
+## Usage
 
-Once the virtualenv is activated, you can install the required dependencies.
+Run CDK commands from this directory. `cdk.json` runs the app via
+`uv run python app.py`, so the workspace environment is used automatically:
 
-```
-pip install -r requirements.txt
-```
-
-At this point you can now synthesize the CloudFormation template for this code.
-
-```
-cdk synth
+```bash
+cd cdk
+uv run cdk synth     # synthesize CloudFormation (bundles Lambda layers via Docker)
+uv run cdk diff      # compare against the deployed stacks
+uv run cdk deploy    # deploy to the configured AWS account/region
+uv run cdk ls        # list stacks
 ```
 
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
+## Dependencies & Lambda layers
 
-## Useful commands
-
-* `cdk ls`          list all stacks in the app
-* `cdk synth`       emits the synthesized CloudFormation template
-* `cdk deploy`      deploy this stack to your default AWS account/region
-* `cdk diff`        compare deployed stack with current state
-* `cdk docs`        open CDK documentation
-
-Enjoy!
+- Add or change dependencies by editing the relevant `pyproject.toml`
+  (`backend/`, `scraper/`, or `cdk/`), then run `uv lock` and
+  `uv sync --all-packages`.
+- The Lambda layer `requirements.txt` files (`backend/layer/requirements.txt`,
+  `scraper/layer/requirements.txt`) are **generated** from `uv.lock` — do not
+  edit them by hand. A pre-commit hook regenerates them and fails the commit if
+  they are stale (see `scripts/check-layer-requirements.sh`). CDK bundles each
+  layer by `pip install`-ing its generated `requirements.txt` inside the
+  Python 3.12 image, so deploys never require uv.

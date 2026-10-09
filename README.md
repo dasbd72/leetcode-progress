@@ -25,6 +25,29 @@ Tracks your LeetCode progress.
   - AWS DynamoDB
   - AWS EventBridge
 
+## Development
+
+The Python projects (`backend`, `scraper`, `cdk`) are managed as a single
+[uv](https://docs.astral.sh/uv/) workspace at the repo root, sharing one
+`uv.lock`. Python is pinned to **3.12** via `.python-version` (uv fetches it
+automatically).
+
+```bash
+uv sync --all-packages   # set up the shared .venv for all members
+uv run ruff check        # lint (Ruff replaces black/flake8/isort)
+uv run ruff format       # format
+```
+
+Pre-commit runs Ruff and a hook that keeps each Lambda layer's generated
+`requirements.txt` in sync with `uv.lock`:
+
+```bash
+uvx pre-commit install
+```
+
+See `cdk/README.md` for synth/deploy and `backend/README.md` for running the
+API locally.
+
 ## TODOs
 
 - [x] Backend to scrape specified users' progress from LeetCode.
