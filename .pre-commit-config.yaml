@@ -7,4 +7,23 @@ repos:
       - id: check-added-large-files
       - id: check-merge-conflict
       - id: check-json
+        # tsconfig.*.json and editor .vscode/*.json are JSONC (comments /
+        # trailing commas), which the strict JSON check cannot parse.
+        exclude: '(\.vscode/.*\.json|tsconfig.*\.json)$'
       - id: check-yaml
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.14
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: uv-export-layers
+        name: uv export Lambda layer requirements
+        entry: scripts/check-layer-requirements.sh
+        language: system
+        pass_filenames: false
+        files: ^(uv\.lock|backend/pyproject\.toml|scraper/pyproject\.toml|backend/layer/requirements\.txt|scraper/layer/requirements\.txt)$
