@@ -293,6 +293,11 @@ class ScraperCdkStack(Stack):
                 "../scraper/layer",
                 bundling=BundlingOptions(
                     image=aws_lambda.Runtime.PYTHON_3_12.bundling_image,
+                    # Force arm64 wheels regardless of the host/CI runner's own
+                    # architecture — the function below is compiled for ARM_64,
+                    # and without this pip resolves wheels for whatever CPU is
+                    # running `cdk deploy`, breaking native deps (e.g. pydantic).
+                    platform="linux/arm64",
                     command=[
                         "bash",
                         "-c",
@@ -418,6 +423,11 @@ class BackendCdkStack(Stack):
                 "../backend/layer",
                 bundling=BundlingOptions(
                     image=aws_lambda.Runtime.PYTHON_3_12.bundling_image,
+                    # Force arm64 wheels regardless of the host/CI runner's own
+                    # architecture — the function below is compiled for ARM_64,
+                    # and without this pip resolves wheels for whatever CPU is
+                    # running `cdk deploy`, breaking native deps (e.g. pydantic).
+                    platform="linux/arm64",
                     command=[
                         "bash",
                         "-c",
