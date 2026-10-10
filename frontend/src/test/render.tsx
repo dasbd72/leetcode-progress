@@ -1,4 +1,4 @@
-import { QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, type RenderOptions } from '@testing-library/react';
 import { type ReactElement, type ReactNode } from 'react';
 import { AuthContext, type AuthContextProps, AuthProvider } from 'react-oidc-context';
@@ -6,7 +6,6 @@ import { MemoryRouter } from 'react-router-dom';
 
 import { oidcConfig } from '@/auth/oidcConfig';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
-import { createQueryClient } from '@/lib/queryClient';
 
 interface Options extends Omit<RenderOptions, 'wrapper'> {
   route?: string;
@@ -20,7 +19,9 @@ export function renderWithProviders(
   ui: ReactElement,
   { route = '/', authValue, ...options }: Options = {},
 ) {
-  const queryClient = createQueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false, gcTime: 0 } },
+  });
 
   function Auth({ children }: { children: ReactNode }) {
     if (authValue) return <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>;
