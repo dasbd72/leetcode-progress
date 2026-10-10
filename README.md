@@ -9,8 +9,9 @@ Tracks your LeetCode progress.
 ## Tech Stack
 
 - Frontend
-  - Angular
-  - AWS s3
+  - React + TypeScript + Vite
+  - Tailwind CSS v4
+  - AWS S3
   - AWS CloudFront
   - AWS Cognito
   - Google OAuth
@@ -24,6 +25,9 @@ Tracks your LeetCode progress.
   - AWS Lambda
   - AWS DynamoDB
   - AWS EventBridge
+- Infra
+  - AWS CDK (Python)
+  - GitHub Actions (CI + deploy on push to `main`)
 
 ## Development
 
@@ -45,8 +49,16 @@ Pre-commit runs Ruff and a hook that keeps each Lambda layer's generated
 uvx pre-commit install
 ```
 
-See `cdk/README.md` for synth/deploy and `backend/README.md` for running the
-API locally.
+See `cdk/README.md` for synth/deploy, `backend/README.md` for running the API
+locally, and `frontend/README.md` for the frontend dev server and build.
+
+## Deployment
+
+Pushes to `main` trigger `.github/workflows/deploy.yml`, which typechecks,
+lints, and tests the frontend and Python workspace, builds the frontend, then
+runs `cdk deploy --all` for all four stacks (resources, scraper, backend,
+frontend) via an AWS OIDC role (`AWS_DEPLOY_ROLE_ARN` repo secret — no long-lived
+AWS credentials stored in GitHub).
 
 ## TODOs
 
@@ -72,3 +84,4 @@ API locally.
 - [ ] Make timestamps constant in 10 minutes intervals to reduce timestamp search operation.
 - [x] Setup CDK for all AWS resources.
 - [x] Enable user following.
+- [x] Automate deploys via GitHub Actions on push to `main`.
