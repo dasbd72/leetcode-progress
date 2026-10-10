@@ -14,4 +14,5 @@ export const handlers: RequestHandler[] = [
   http.get(`${API}/auth/user/settings`, () =>
     HttpResponse.json({ username: '', email: '', preferred_username: '', leetcode_username: '' }),
   ),
+  http.get(`${API}/announcements`, () => HttpResponse.json({ announcements: [] })),
 ];

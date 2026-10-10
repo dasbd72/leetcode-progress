@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { type IntervalKey, useProgressQuery } from '@/api/progress';
+import { Announcements } from '@/components/announcements/Announcements';
 import { KpiTiles } from '@/components/dashboard/KpiTiles';
 import { Leaderboard } from '@/components/dashboard/Leaderboard';
 import { ProgressPanel } from '@/components/dashboard/ProgressPanel';
@@ -13,6 +14,7 @@ export function Dashboard() {
 
   return (
     <div className="grid gap-[14px]">
+      <Announcements />
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h1 className="text-[26px] leading-none font-semibold -tracking-[0.01em]">
           LeetCode progress
