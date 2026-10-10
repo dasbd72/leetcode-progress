@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { computeKpis, type IntervalResponse, metricValue, score, toSeries } from '@/lib/progress';
+import {
+  computeKpis,
+  type IntervalResponse,
+  metricValue,
+  score,
+  toLeaderboard,
+  toSeries,
+} from '@/lib/progress';
 
 const fixture: IntervalResponse = {
   usernames: ['alice', 'bob'],
@@ -67,5 +74,25 @@ describe('computeKpis', () => {
       hardInRange: 0,
       topClimber: null,
     });
+  });
+});
+
+describe('toLeaderboard', () => {
+  it('ranks by score descending with latest stats, gains, and sparkline', () => {
+    const rows = toLeaderboard(fixture);
+    // bob score@2000 = 21 + 20 + 6 = 47; alice = 12 + 12 + 6 = 30. bob first.
+    expect(rows.map((r) => r.username)).toEqual(['bob', 'alice']);
+
+    const alice = rows.find((r) => r.username === 'alice')!;
+    expect(alice).toMatchObject({ easy: 12, medium: 6, hard: 2, total: 20, score: 30, gain: 4 });
+    expect(alice.colorIndex).toBe(0); // original usernames order
+    expect(alice.spark).toEqual([
+      { t: 1_000_000, v: 16 },
+      { t: 2_000_000, v: 20 },
+    ]);
+  });
+
+  it('returns an empty array on empty data', () => {
+    expect(toLeaderboard({ usernames: [], data: {} })).toEqual([]);
   });
 });

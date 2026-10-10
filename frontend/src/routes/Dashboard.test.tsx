@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
@@ -61,6 +61,22 @@ describe('Dashboard', () => {
     expect(aliceChip).toHaveAttribute('aria-pressed', 'true');
     await userEvent.click(aliceChip);
     expect(aliceChip).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('renders the leaderboard ranked by score with latest stats', async () => {
+    mockProgress();
+    renderWithProviders(<Dashboard />, { authValue: fakeAuth() });
+    await screen.findByText('53');
+
+    // bob score = 21 + 20 + 6 = 47; alice = 12 + 12 + 6 = 30.
+    expect(screen.getByText('47')).toBeInTheDocument();
+    expect(screen.getByText('30')).toBeInTheDocument();
+
+    // bob ranks first (higher score). Data rows live in the table body.
+    const table = screen.getByRole('table');
+    const bodyRows = within(table).getAllByRole('row').slice(1); // drop header
+    expect(within(bodyRows[0]).getByText('bob')).toBeInTheDocument();
+    expect(within(bodyRows[1]).getByText('alice')).toBeInTheDocument();
   });
 
   it('renders an error state when the request fails', async () => {

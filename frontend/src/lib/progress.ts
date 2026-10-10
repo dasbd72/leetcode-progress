@@ -116,3 +116,47 @@ export function computeKpis(res: IntervalResponse): Kpis {
   }
   return { totalSolved, solvedInRange, hardInRange, topClimber };
 }
+
+export interface LeaderboardRow {
+  username: string;
+  /** Index in the original usernames order — keeps colors consistent with the chart. */
+  colorIndex: number;
+  easy: number;
+  medium: number;
+  hard: number;
+  total: number;
+  score: number;
+  /** Total gain over the range. */
+  gain: number;
+  /** Total-solved trend over the range (for the sparkline). */
+  spark: { t: number; v: number }[];
+}
+
+/** Build leaderboard rows from the latest snapshot, ranked by Score (desc). */
+export function toLeaderboard(res: IntervalResponse): LeaderboardRow[] {
+  const entries = sortedEntries(res);
+  if (!entries.length) return [];
+  const firstRow = entries[0][1];
+  const lastRow = entries[entries.length - 1][1];
+
+  const rows: LeaderboardRow[] = [];
+  res.usernames.forEach((username, colorIndex) => {
+    const last = lastRow[username];
+    if (!last) return;
+    const first = firstRow[username];
+    rows.push({
+      username,
+      colorIndex,
+      easy: last.easy,
+      medium: last.medium,
+      hard: last.hard,
+      total: last.total,
+      score: score(last),
+      gain: last.total - (first?.total ?? last.total),
+      spark: entries.map(([t, row]) => ({ t: t * 1000, v: row[username]?.total ?? 0 })),
+    });
+  });
+
+  rows.sort((a, b) => b.score - a.score);
+  return rows;
+}

@@ -2,8 +2,9 @@ import { useState } from 'react';
 
 import { type IntervalKey, useProgressQuery } from '@/api/progress';
 import { KpiTiles } from '@/components/dashboard/KpiTiles';
+import { Leaderboard } from '@/components/dashboard/Leaderboard';
 import { ProgressPanel } from '@/components/dashboard/ProgressPanel';
-import { Panel, PanelTitle } from '@/components/ui/panel';
+import { Panel } from '@/components/ui/panel';
 import { computeKpis } from '@/lib/progress';
 
 export function Dashboard() {
@@ -31,10 +32,7 @@ export function Dashboard() {
         <>
           <KpiTiles kpis={computeKpis(query.data)} solverCount={query.data.usernames.length} />
           <ProgressPanel data={query.data} interval={interval} onIntervalChange={setInterval} />
-          <Panel>
-            <PanelTitle>Leaderboard</PanelTitle>
-            <p className="text-muted mt-2 text-sm">Leaderboard coming soon.</p>
-          </Panel>
+          <Leaderboard data={query.data} />
         </>
       )}
     </div>
