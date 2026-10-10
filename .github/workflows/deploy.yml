@@ -40,9 +40,6 @@ jobs:
         working-directory: frontend
         run: npm run build
 
-      - name: Install the AWS CDK CLI
-        run: npm install -g aws-cdk@2.190.0 # matches aws-cdk-lib in cdk/pyproject.toml
-
       - uses: astral-sh/setup-uv@v3
 
       - name: Install Python workspace dependencies

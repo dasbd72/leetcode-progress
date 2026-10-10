@@ -5,6 +5,7 @@ description = "LeetCode progress AWS CDK infrastructure (local tooling only)"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "aws-cdk-lib==2.190.0",
+    "aws-cdk-cli>=2.1145.0",
     "constructs>=10.0.0,<11.0.0",
 ]
 
