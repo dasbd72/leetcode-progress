@@ -1,5 +1,7 @@
+import { useAuth } from 'react-oidc-context';
 import { NavLink } from 'react-router-dom';
 
+import { AuthButton } from '@/auth/AuthButton';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { cn } from '@/lib/utils';
 
@@ -11,6 +13,7 @@ function navClass({ isActive }: { isActive: boolean }) {
 }
 
 export function Navbar() {
+  const auth = useAuth();
   return (
     <header className="border-line border-b">
       <div className="mx-auto flex w-full max-w-[1080px] items-center justify-between gap-4 px-4 py-3">
@@ -21,10 +24,13 @@ export function Navbar() {
           <NavLink to="/" end className={navClass}>
             Dashboard
           </NavLink>
-          <NavLink to="/settings" className={navClass}>
-            Settings
-          </NavLink>
+          {auth.isAuthenticated && (
+            <NavLink to="/settings" className={navClass}>
+              Settings
+            </NavLink>
+          )}
           <ThemeToggle />
+          <AuthButton />
         </nav>
       </div>
     </header>
