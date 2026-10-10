@@ -9,4 +9,9 @@ const API = 'http://localhost:8000';
  */
 export const handlers: RequestHandler[] = [
   http.get(`${API}/progress/latest/interval`, () => HttpResponse.json({ data: {}, usernames: [] })),
+  http.get(`${API}/auth/user/list`, () => HttpResponse.json([])),
+  http.get(`${API}/auth/user/following/list`, () => HttpResponse.json([])),
+  http.get(`${API}/auth/user/settings`, () =>
+    HttpResponse.json({ username: '', email: '', preferred_username: '', leetcode_username: '' }),
+  ),
 ];

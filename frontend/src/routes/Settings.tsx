@@ -1,13 +1,25 @@
-import { Panel, PanelTitle } from '@/components/ui/panel';
+import { FollowingTab } from '@/components/settings/FollowingTab';
+import { ProfileTab } from '@/components/settings/ProfileTab';
+import { Panel } from '@/components/ui/panel';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-/** Settings shell. Profile + Following tabs (F5) land here; auth guard (F2). */
 export function Settings() {
   return (
     <div className="grid gap-[14px]">
       <h1 className="text-[26px] leading-none font-semibold -tracking-[0.01em]">Settings</h1>
       <Panel>
-        <PanelTitle>Profile &amp; following</PanelTitle>
-        <p className="text-muted mt-2 text-sm">Settings coming soon.</p>
+        <Tabs defaultValue="profile">
+          <TabsList>
+            <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="following">Following</TabsTrigger>
+          </TabsList>
+          <TabsContent value="profile">
+            <ProfileTab />
+          </TabsContent>
+          <TabsContent value="following">
+            <FollowingTab />
+          </TabsContent>
+        </Tabs>
       </Panel>
     </div>
   );
