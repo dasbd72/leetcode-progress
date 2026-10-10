@@ -619,9 +619,7 @@ class FrontendCdkStack(Stack):
         aws_s3_deployment.BucketDeployment(
             self,
             "DeployWebsite",
-            sources=[
-                aws_s3_deployment.Source.asset("../frontend/dist")
-            ],
+            sources=[aws_s3_deployment.Source.asset("../frontend/dist")],
             destination_bucket=frontend_bucket,
             distribution=distribution,  # Specify the distribution to invalidate cache
             distribution_paths=["/*"],  # Paths to invalidate
