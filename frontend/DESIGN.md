@@ -17,40 +17,40 @@ Exposed as CSS custom properties (and mapped into Tailwind theme colors).
 
 ### Light (default)
 
-| Token | Value | Use |
-|-------|-------|-----|
-| `--bg` | `#f2f6f6` | page background |
-| `--panel` | `#ffffff` | cards / panels |
-| `--fg` | `#14201f` | primary text |
-| `--muted` | `#5d6f6e` | secondary text, axis labels |
-| `--line` | `#d9e2e1` | borders, gridlines |
-| `--accent` | `#0e7c72` | primary accent, active controls |
-| `--on-accent` | `#ffffff` | text on accent |
+| Token         | Value     | Use                             |
+| ------------- | --------- | ------------------------------- |
+| `--bg`        | `#f2f6f6` | page background                 |
+| `--panel`     | `#ffffff` | cards / panels                  |
+| `--fg`        | `#14201f` | primary text                    |
+| `--muted`     | `#5d6f6e` | secondary text, axis labels     |
+| `--line`      | `#d9e2e1` | borders, gridlines              |
+| `--accent`    | `#0e7c72` | primary accent, active controls |
+| `--on-accent` | `#ffffff` | text on accent                  |
 
 ### Dark
 
-| Token | Value |
-|-------|-------|
-| `--bg` | `#0f1716` |
-| `--panel` | `#162221` |
-| `--fg` | `#e6efee` |
-| `--muted` | `#8aa09e` |
-| `--line` | `#263a38` |
-| `--accent` | `#3cc4b4` |
+| Token         | Value     |
+| ------------- | --------- |
+| `--bg`        | `#0f1716` |
+| `--panel`     | `#162221` |
+| `--fg`        | `#e6efee` |
+| `--muted`     | `#8aa09e` |
+| `--line`      | `#263a38` |
+| `--accent`    | `#3cc4b4` |
 | `--on-accent` | `#06201d` |
 
 ### Difficulty (semantic)
 
-| Token | Light | Dark |
-|-------|-------|------|
+| Token    | Light     | Dark      |
+| -------- | --------- | --------- |
 | `--easy` | `#1f9d63` | `#4cc98b` |
-| `--med` | `#d98a00` | `#f0b23a` |
+| `--med`  | `#d98a00` | `#f0b23a` |
 | `--hard` | `#d9402e` | `#ff7a66` |
 
 ### User series (chart lines, leaderboard dots) — cycle of 6
 
-| Token | Light | Dark |
-|-------|-------|------|
+| Token  | Light     | Dark      |
+| ------ | --------- | --------- |
 | `--u0` | `#0e7c72` | `#3cc4b4` |
 | `--u1` | `#3b6fd8` | `#7ea6ff` |
 | `--u2` | `#d98a00` | `#f0b23a` |
@@ -68,14 +68,14 @@ Theme mechanism: `@media (prefers-color-scheme: dark)` sets dark values on
 - **UI:** IBM Plex Sans (self-hosted, weights 400/500/600).
 - **Numbers:** IBM Plex Mono (self-hosted, 400/500), `font-variant-numeric: tabular-nums`.
 
-| Role | Spec |
-|------|------|
-| h1 | 600, 26px, line-height 1.1, letter-spacing -0.01em |
-| h2 (panel title) | 600, 15px, line-height 1.2 |
-| body | 400, 14px, line-height 1.45 |
-| KPI value | 600, 28px, mono, tabular |
-| label (uppercase) | 11px, letter-spacing 0.07em, uppercase, `--muted` |
-| meta / notes | 12px, mono, `--muted` |
+| Role              | Spec                                               |
+| ----------------- | -------------------------------------------------- |
+| h1                | 600, 26px, line-height 1.1, letter-spacing -0.01em |
+| h2 (panel title)  | 600, 15px, line-height 1.2                         |
+| body              | 400, 14px, line-height 1.45                        |
+| KPI value         | 600, 28px, mono, tabular                           |
+| label (uppercase) | 11px, letter-spacing 0.07em, uppercase, `--muted`  |
+| meta / notes      | 12px, mono, `--muted`                              |
 
 Mobile (≤560px): h1 scales to ~85%, KPI value → 24px.
 
@@ -98,6 +98,7 @@ Consolidates the old separate `/total` (table) and `/chart` (charts) routes into
 a single **Dashboard**, matching the reference IA. No capability is lost.
 
 ### 1. Dashboard — `/` (public, no login required)
+
 - **Header:** title + "latest snapshot" meta + theme toggle + auth button (Sign in / account).
 - **KPI tile row** (`F3`): total solved, solved in range, hard in range, top climber.
 - **Progress panel** (`F3`): Recharts multi-series time-series.
@@ -113,21 +114,25 @@ a single **Dashboard**, matching the reference IA. No capability is lost.
 - **Announcements** (`F6`): surfaced here as a dismissible modal/banner.
 
 ### 2. Settings — `/settings` (auth-gated, `F5`)
+
 - Tabbed: **Profile** (account details) and **Following** (manage followed
   solvers: add/remove, select-all / deselect-all).
 
 ### 3. Auth (`F2`)
+
 - Cognito hosted OIDC (Authorization Code + PKCE, refresh). Sign-in from the
   header; post-login lands on `/settings`. Guard protects `/settings` only;
   the dashboard is viewable logged-out.
 
 ### Navigation
+
 - Minimal top bar: brand → Dashboard; a Settings link (visible when signed in);
   theme toggle; auth control. No separate chart/total nav items (merged).
 
 ## Charting (Recharts)
 
 All visualization via Recharts, styled to the tokens above:
+
 - Main chart: thin lines (~2px), minimal horizontal gridlines in `--line`,
   mono axis labels in `--muted`, custom tooltip using panel/line/shadow tokens.
   Inline end-of-line series labels and the crosshair tooltip are custom layers

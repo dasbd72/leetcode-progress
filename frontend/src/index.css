@@ -1,0 +1,121 @@
+@import 'tailwindcss';
+
+/* Map the Nordic CSS variables into Tailwind's theme so utilities like
+   `bg-panel`, `text-fg`, `border-line`, `text-accent` resolve at runtime and
+   react to the light/dark theme switch. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-easy: var(--easy);
+  --color-med: var(--med);
+  --color-hard: var(--hard);
+
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  --radius-DEFAULT: 8px;
+}
+
+/* ---- Nordic design tokens (light = default) ---- */
+:root {
+  --bg: #f2f6f6;
+  --panel: #ffffff;
+  --fg: #14201f;
+  --muted: #5d6f6e;
+  --line: #d9e2e1;
+  --accent: #0e7c72;
+  --on-accent: #ffffff;
+
+  --easy: #1f9d63;
+  --med: #d98a00;
+  --hard: #d9402e;
+
+  --u0: #0e7c72;
+  --u1: #3b6fd8;
+  --u2: #d98a00;
+  --u3: #c2417a;
+  --u4: #7a5cc8;
+  --u5: #5d6f6e;
+
+  --shadow: 0 1px 2px rgba(20, 32, 31, 0.05);
+  --shadow-tip: 0 6px 18px rgba(20, 32, 31, 0.12);
+
+  color-scheme: light;
+}
+
+/* Dark values — applied when the OS prefers dark and the user has not forced
+   light, or when the user explicitly selects dark. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0f1716;
+    --panel: #162221;
+    --fg: #e6efee;
+    --muted: #8aa09e;
+    --line: #263a38;
+    --accent: #3cc4b4;
+    --on-accent: #06201d;
+
+    --easy: #4cc98b;
+    --med: #f0b23a;
+    --hard: #ff7a66;
+
+    --u0: #3cc4b4;
+    --u1: #7ea6ff;
+    --u2: #f0b23a;
+    --u3: #ff7fb0;
+    --u4: #b69cff;
+    --u5: #9db3b1;
+
+    --shadow: none;
+    --shadow-tip: 0 6px 18px rgba(0, 0, 0, 0.4);
+
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #0f1716;
+  --panel: #162221;
+  --fg: #e6efee;
+  --muted: #8aa09e;
+  --line: #263a38;
+  --accent: #3cc4b4;
+  --on-accent: #06201d;
+
+  --easy: #4cc98b;
+  --med: #f0b23a;
+  --hard: #ff7a66;
+
+  --u0: #3cc4b4;
+  --u1: #7ea6ff;
+  --u2: #f0b23a;
+  --u3: #ff7fb0;
+  --u4: #b69cff;
+  --u5: #9db3b1;
+
+  --shadow: none;
+  --shadow-tip: 0 6px 18px rgba(0, 0, 0, 0.4);
+
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tabular, monospace numbers are used throughout data tables/metrics. */
+.tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}

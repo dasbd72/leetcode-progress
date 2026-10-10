@@ -1,40 +1,25 @@
-// eslint.config.js
-import angularEslint from '@angular-eslint/eslint-plugin';
+import js from '@eslint/js';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
-import eslintConfigPrettier from 'eslint-config-prettier';
-import eslintPluginPrettier from 'eslint-plugin-prettier';
-
-export default [
+export default tseslint.config(
+  { ignores: ['dist'] },
   {
-    ignores: ['node_modules/**', 'dist/**', '.angular/**', 'coverage/**'],
-  },
-  {
-    files: ['**/*.ts'],
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    files: ['**/*.{ts,tsx}'],
     languageOptions: {
-      parser: await import('@typescript-eslint/parser'),
-      parserOptions: {
-        project: ['./tsconfig.json'],
-      },
+      ecmaVersion: 2022,
+      globals: globals.browser,
     },
     plugins: {
-      '@angular-eslint': angularEslint,
-      prettier: eslintPluginPrettier,
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
     },
     rules: {
-      ...angularEslint.configs.recommended.rules,
-      'prettier/prettier': 'error',
+      ...reactHooks.configs.recommended.rules,
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
-  {
-    files: ['**/*.html'],
-    plugins: {
-      '@angular-eslint/template': await import('@angular-eslint/eslint-plugin-template'),
-    },
-    languageOptions: {
-      parser: await import('@angular-eslint/template-parser'),
-    },
-    rules: {},
-  },
-  // Optional: override for Prettier to disable conflicting ESLint rules
-  eslintConfigPrettier,
-];
+);

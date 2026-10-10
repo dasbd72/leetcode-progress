@@ -43,3 +43,9 @@ Thumbs.db
 
 # Custom
 __pycache__/
+
+# Vite / local env overrides
+*.local
+.env.local
+.env.*.local
+vite.config.ts.timestamp-*
