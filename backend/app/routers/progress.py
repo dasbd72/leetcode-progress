@@ -29,11 +29,16 @@ def fetch_usernames_by_following(followed_by: str) -> list[str]:
     try:
         response = users_table.get_item(
             Key={"username": followed_by},
-            ProjectionExpression="following_list",
+            ProjectionExpression="following_list, leetcode_username",
         )
         item = response.get("Item", {})
         following_list = item.get("following_list", [])
-        usernames = []
+        # Always include the caller's own username, even if they don't follow
+        # themselves, so "Following" mode never hides a user's own progress.
+        usernames = set()
+        own_username = item.get("leetcode_username")
+        if own_username:
+            usernames.add(own_username)
         if following_list:
             batch_request_keys = [{"username": username} for username in following_list]
             response = dynamodb.meta.client.batch_get_item(
@@ -44,12 +49,12 @@ def fetch_usernames_by_following(followed_by: str) -> list[str]:
                     }
                 }
             )
-            usernames = [
+            usernames.update(
                 item["leetcode_username"]
                 for item in response["Responses"].get(users_table.name, [])
                 if "leetcode_username" in item
-            ]
-            usernames = sorted(usernames)
+            )
+        usernames = sorted(usernames)
     except Exception as e:
         print(f"Error fetching following list: {e}")
         raise HTTPException(

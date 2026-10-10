@@ -81,6 +81,39 @@ describe('Dashboard', () => {
     expect(within(bodyRows[1]).getByText('alice')).toBeInTheDocument();
   });
 
+  it('hides the audience toggle for logged-out visitors', async () => {
+    mockProgress();
+    renderWithProviders(<Dashboard />, { authValue: fakeAuth() });
+
+    await screen.findByText('53');
+    expect(screen.queryByRole('group', { name: 'Audience' })).not.toBeInTheDocument();
+  });
+
+  it('switches to the following-only feed when toggled while logged in', async () => {
+    mockProgress();
+    const followingResponse: IntervalResponse = {
+      usernames: ['alice'],
+      data: {
+        '1000': { alice: { easy: 10, medium: 5, hard: 1, total: 16 } },
+        '2000': { alice: { easy: 12, medium: 6, hard: 2, total: 20 } },
+      },
+    };
+    server.use(
+      http.get('http://localhost:8000/auth/progress/latest/interval', () =>
+        HttpResponse.json(followingResponse),
+      ),
+    );
+    renderWithProviders(<Dashboard />, { authValue: fakeAuth({ isAuthenticated: true }) });
+
+    await screen.findByText('53');
+    await userEvent.click(screen.getByRole('button', { name: 'Following' }));
+
+    // Total solved drops to alice's total (20) once following-only data loads.
+    const summary = screen.getByRole('region', { name: 'Summary' });
+    await waitFor(() => expect(within(summary).getByText('20')).toBeInTheDocument());
+    expect(screen.queryByRole('button', { name: /bob/ })).not.toBeInTheDocument();
+  });
+
   it('renders an error state when the request fails', async () => {
     server.use(
       http.get(

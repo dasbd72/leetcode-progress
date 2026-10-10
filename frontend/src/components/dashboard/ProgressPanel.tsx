@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { INTERVALS, type IntervalKey } from '@/api/progress';
+import { type Audience, INTERVALS, type IntervalKey } from '@/api/progress';
 import { ProgressChart } from '@/components/dashboard/ProgressChart';
 import { UserChips } from '@/components/dashboard/UserChips';
 import { Panel, PanelTitle } from '@/components/ui/panel';
@@ -28,12 +28,19 @@ interface ProgressPanelProps {
   data: IntervalResponse;
   interval: IntervalKey;
   onIntervalChange: (interval: IntervalKey) => void;
+  audience: Audience;
 }
 
-export function ProgressPanel({ data, interval, onIntervalChange }: ProgressPanelProps) {
+export function ProgressPanel({ data, interval, onIntervalChange, audience }: ProgressPanelProps) {
   const [metric, setMetric] = useState<Metric>('total');
   const [mode, setMode] = useState<ChartMode>('cumulative');
   const [hidden, setHidden] = useState<Set<string>>(new Set());
+
+  // The username set changes when switching audiences; a carried-over hidden
+  // selection could silently hide users or reference ones no longer present.
+  useEffect(() => {
+    setHidden(new Set());
+  }, [audience]);
 
   const { points } = useMemo(() => toSeries(data, metric, mode), [data, metric, mode]);
 
