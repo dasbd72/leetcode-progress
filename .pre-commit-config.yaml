@@ -27,3 +27,31 @@ repos:
         language: system
         pass_filenames: false
         files: ^(uv\.lock|backend/pyproject\.toml|scraper/pyproject\.toml|backend/layer/requirements\.txt|scraper/layer/requirements\.txt)$
+
+      - id: frontend-lockfile
+        name: npm export frontend lockfile
+        entry: scripts/check-frontend-lockfile.sh
+        language: system
+        pass_filenames: false
+        files: ^frontend/package\.json$
+
+      - id: frontend-lint-staged
+        name: frontend lint-staged (eslint + prettier)
+        entry: bash -c 'cd frontend && npx lint-staged'
+        language: system
+        pass_filenames: false
+        files: ^frontend/
+
+      - id: frontend-typecheck
+        name: frontend typecheck (tsc)
+        entry: bash -c 'cd frontend && npx tsc -b'
+        language: system
+        pass_filenames: false
+        files: ^frontend/.*\.(ts|tsx)$
+
+      - id: frontend-test
+        name: frontend tests (vitest)
+        entry: bash -c 'cd frontend && npx vitest run'
+        language: system
+        pass_filenames: false
+        files: ^frontend/.*\.(ts|tsx)$
