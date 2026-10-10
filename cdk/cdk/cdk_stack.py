@@ -293,15 +293,21 @@ class ScraperCdkStack(Stack):
                 "../scraper/layer",
                 bundling=BundlingOptions(
                     image=aws_lambda.Runtime.PYTHON_3_12.bundling_image,
-                    # Force arm64 wheels regardless of the host/CI runner's own
-                    # architecture — the function below is compiled for ARM_64,
-                    # and without this pip resolves wheels for whatever CPU is
-                    # running `cdk deploy`, breaking native deps (e.g. pydantic).
-                    platform="linux/arm64",
+                    # Resolve wheels for the Lambda's target platform (arm64)
+                    # explicitly via pip, regardless of the host/CI runner's own
+                    # architecture. This downloads prebuilt manylinux wheels from
+                    # PyPI for the target — it does not need the bundling
+                    # container itself to run as arm64 (which would require
+                    # Docker Buildx + QEMU emulation, unavailable on standard
+                    # GitHub Actions runners and liable to silently fall back to
+                    # host-native wheels instead of erroring).
                     command=[
                         "bash",
                         "-c",
-                        "pip install --no-cache -r requirements.txt -t /asset-output/python && cp -au . /asset-output/python",
+                        "pip install --no-cache -r requirements.txt "
+                        "--platform manylinux2014_aarch64 --implementation cp "
+                        "--python-version 3.12 --abi cp312 --only-binary=:all: "
+                        "-t /asset-output/python && cp -au . /asset-output/python",
                     ],
                 ),
             ),
@@ -423,15 +429,21 @@ class BackendCdkStack(Stack):
                 "../backend/layer",
                 bundling=BundlingOptions(
                     image=aws_lambda.Runtime.PYTHON_3_12.bundling_image,
-                    # Force arm64 wheels regardless of the host/CI runner's own
-                    # architecture — the function below is compiled for ARM_64,
-                    # and without this pip resolves wheels for whatever CPU is
-                    # running `cdk deploy`, breaking native deps (e.g. pydantic).
-                    platform="linux/arm64",
+                    # Resolve wheels for the Lambda's target platform (arm64)
+                    # explicitly via pip, regardless of the host/CI runner's own
+                    # architecture. This downloads prebuilt manylinux wheels from
+                    # PyPI for the target — it does not need the bundling
+                    # container itself to run as arm64 (which would require
+                    # Docker Buildx + QEMU emulation, unavailable on standard
+                    # GitHub Actions runners and liable to silently fall back to
+                    # host-native wheels instead of erroring).
                     command=[
                         "bash",
                         "-c",
-                        "pip install --no-cache -r requirements.txt -t /asset-output/python && cp -au . /asset-output/python",
+                        "pip install --no-cache -r requirements.txt "
+                        "--platform manylinux2014_aarch64 --implementation cp "
+                        "--python-version 3.12 --abi cp312 --only-binary=:all: "
+                        "-t /asset-output/python && cp -au . /asset-output/python",
                     ],
                 ),
             ),
