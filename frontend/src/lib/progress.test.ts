@@ -56,6 +56,31 @@ describe('toSeries', () => {
     // alice@2000: 12 + 2*6 + 3*2 = 30
     expect(points[1].alice).toBe(30);
   });
+
+  it('computes per-interval deltas in diff mode, dropping the first point', () => {
+    const { points } = toSeries(fixture, 'total', 'diff');
+    // N-1 points: only the gap from 1000→2000 survives.
+    expect(points).toHaveLength(1);
+    expect(points[0]).toMatchObject({ t: 2_000_000, alice: 4, bob: 1 });
+  });
+
+  it('diffs the Score metric per interval', () => {
+    const { points } = toSeries(fixture, 'score', 'diff');
+    // alice: 30 - 23 = 7; bob: 47 - 46 = 1.
+    expect(points[0]).toMatchObject({ alice: 7, bob: 1 });
+  });
+
+  it('contributes 0 for a missing endpoint in diff mode', () => {
+    const sparse = {
+      usernames: ['alice'],
+      data: {
+        '1000': {},
+        '2000': { alice: { easy: 1, medium: 0, hard: 0, total: 1 } },
+      },
+    };
+    const { points } = toSeries(sparse, 'total', 'diff');
+    expect(points[0].alice).toBe(0);
+  });
 });
 
 describe('computeKpis', () => {

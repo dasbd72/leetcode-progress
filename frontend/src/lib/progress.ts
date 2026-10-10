@@ -1,5 +1,5 @@
 export type Metric = 'total' | 'easy' | 'medium' | 'hard' | 'score';
-export type ChartMode = 'cumulative' | 'gain';
+export type ChartMode = 'cumulative' | 'gain' | 'diff';
 
 export interface RawStat {
   easy: number;
@@ -62,6 +62,25 @@ export function toSeries(
   mode: ChartMode,
 ): { points: ChartPoint[]; usernames: string[] } {
   const entries = sortedEntries(res);
+
+  // Diff: per-interval change (value[i] - value[i-1]); the first point has no
+  // predecessor, so it is dropped (N-1 points). Missing endpoint → 0.
+  if (mode === 'diff') {
+    const points: ChartPoint[] = [];
+    for (let i = 1; i < entries.length; i++) {
+      const [t, row] = entries[i];
+      const [, prevRow] = entries[i - 1];
+      const point: ChartPoint = { t: t * 1000 };
+      for (const u of res.usernames) {
+        const stat = row[u];
+        const prev = prevRow[u];
+        point[u] = stat && prev ? metricValue(stat, metric) - metricValue(prev, metric) : 0;
+      }
+      points.push(point);
+    }
+    return { points, usernames: res.usernames };
+  }
+
   const baseline: Record<string, number> = {};
   if (mode === 'gain' && entries.length) {
     const [, firstRow] = entries[0];

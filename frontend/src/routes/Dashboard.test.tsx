@@ -48,6 +48,8 @@ describe('Dashboard', () => {
     await screen.findByText('53');
     expect(screen.getByRole('group', { name: 'Metric' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Score' })).toBeInTheDocument();
+    // Mode control offers Cumulative / Gain / Diff.
+    expect(screen.getByRole('button', { name: 'Diff' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /alice/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /bob/ })).toBeInTheDocument();
   });

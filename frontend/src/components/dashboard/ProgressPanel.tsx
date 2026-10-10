@@ -16,6 +16,7 @@ import {
 const MODES: { value: ChartMode; label: string }[] = [
   { value: 'cumulative', label: 'Cumulative' },
   { value: 'gain', label: 'Gain' },
+  { value: 'diff', label: 'Diff' },
 ];
 
 const INTERVAL_OPTIONS = (Object.keys(INTERVALS) as IntervalKey[]).map((k) => ({

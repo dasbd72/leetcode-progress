@@ -106,8 +106,9 @@ a single **Dashboard**, matching the reference IA. No capability is lost.
   - Interval segmented control matching the existing API
     (`getLatestWithInterval`): **Hour** (48 points × 1h) and **Day**
     (24 points × 1d). (The reference's 3h/12h/24h were demo-only.)
-  - Mode toggle: **Cumulative** vs **Gain (delta)** — preserves the existing
-    chart's delta mode.
+  - Mode toggle: **Cumulative** (absolute), **Gain** (value minus first
+    in-range), and **Diff** (per-interval delta `value[i] − value[i-1]`, first
+    point dropped) — the latter restoring the original chart's delta view.
   - Per-user toggle chips (show/hide series).
 - **Leaderboard panel** (`F4`): ranked table — #, solver, Easy, Medium, Hard,
   Total, Score, gain (range), trend sparkline, difficulty-mix bar. Sorted by Score.
