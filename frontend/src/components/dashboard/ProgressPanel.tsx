@@ -19,6 +19,12 @@ const MODES: { value: ChartMode; label: string }[] = [
   { value: 'diff', label: 'Diff' },
 ];
 
+const MODE_STORAGE_KEY = 'progress-chart-mode';
+
+function isChartMode(value: string | null): value is ChartMode {
+  return value === 'cumulative' || value === 'gain' || value === 'diff';
+}
+
 const INTERVAL_OPTIONS = (Object.keys(INTERVALS) as IntervalKey[]).map((k) => ({
   value: k,
   label: INTERVALS[k].label,
@@ -33,8 +39,16 @@ interface ProgressPanelProps {
 
 export function ProgressPanel({ data, interval, onIntervalChange, audience }: ProgressPanelProps) {
   const [metric, setMetric] = useState<Metric>('total');
-  const [mode, setMode] = useState<ChartMode>('cumulative');
+  const [mode, setMode] = useState<ChartMode>(() => {
+    const stored =
+      typeof localStorage !== 'undefined' ? localStorage.getItem(MODE_STORAGE_KEY) : null;
+    return isChartMode(stored) ? stored : 'cumulative';
+  });
   const [hidden, setHidden] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    localStorage.setItem(MODE_STORAGE_KEY, mode);
+  }, [mode]);
 
   // The username set changes when switching audiences; a carried-over hidden
   // selection could silently hide users or reference ones no longer present.

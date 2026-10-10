@@ -54,6 +54,24 @@ describe('Dashboard', () => {
     expect(screen.getByRole('button', { name: /bob/ })).toBeInTheDocument();
   });
 
+  it('persists the selected chart mode to localStorage', async () => {
+    mockProgress();
+    renderWithProviders(<Dashboard />, { authValue: fakeAuth() });
+    await screen.findByText('53');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Gain' }));
+    expect(localStorage.getItem('progress-chart-mode')).toBe('gain');
+  });
+
+  it('restores the chart mode persisted from a previous session', async () => {
+    localStorage.setItem('progress-chart-mode', 'diff');
+    mockProgress();
+    renderWithProviders(<Dashboard />, { authValue: fakeAuth() });
+    await screen.findByText('53');
+
+    expect(screen.getByRole('button', { name: 'Diff' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
   it('toggles a solver series off via its chip', async () => {
     mockProgress();
     renderWithProviders(<Dashboard />, { authValue: fakeAuth() });
